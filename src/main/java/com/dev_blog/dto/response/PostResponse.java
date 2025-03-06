@@ -25,4 +25,5 @@ public class PostResponse {
     Instant modifiedTime;
     UserResponse author;
     CategoryDTO category;
+    String status;
 }

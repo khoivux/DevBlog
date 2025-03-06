@@ -18,6 +18,18 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
     private final CategoryService categoryService;
 
+    @Operation(summary = "All Category")
+    @GetMapping("/all")
+    public ApiResponse<?> getAll(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
+    ) {
+        return ApiResponse.builder()
+                .data(categoryService.getAll(page, size))
+                .message("Tạo danh mục thành công")
+                .build();
+    }
+
     @Operation(summary = "Create Category")
     @PostMapping("/create")
     public ApiResponse<?> createCategory(@RequestParam String categoryName) {

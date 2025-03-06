@@ -26,6 +26,11 @@ public class SecurityUtil {
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
+    public static String getRole() {
+        return String.valueOf(SecurityContextHolder.getContext()
+                .getAuthentication().getAuthorities());
+    }
+
     public static void deleteCookies(HttpServletResponse response) {
         // Xóa cookie JWToken
         Cookie jwtCookie = new Cookie("JWToken", "");

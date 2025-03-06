@@ -7,12 +7,16 @@ import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.PostResponse;
 
 public interface PostService {
+
     PostResponse createPost(PostCreateRequest postRequest);
     PostResponse editPost(PostRequest postRequest);
-    PageResponse<PostResponse> getMyPosts(int page, int size);
-    String deletePost(Long postId);
     PostResponse getSinglePost(Long postId);
+    PageResponse<PostResponse> searchPost(String query, Long categoryId, String sortBy, int page, int size);
+    PageResponse<PostResponse> getPostsByUser(int page, int size, Long userId);
+    PageResponse<PostResponse> getAll(int page, int size);
+    String deletePost(Long postId);
+    String handlePost(Long postId, String status);
     String votePost(Long postId, String voteType);
+    void increaseView(Long postId);
     boolean isAuthor(Long postId);
-    PageResponse<PostResponse> searchPost(String query, String categoryId, String sortBy, int page, int size);
 }

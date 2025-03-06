@@ -1,6 +1,7 @@
 package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.CategoryDTO;
+import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.entity.CategoryEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
@@ -9,7 +10,13 @@ import com.dev_blog.repository.CategoryRepository;
 import com.dev_blog.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -17,6 +24,22 @@ import org.springframework.stereotype.Service;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+
+    @Override
+    public PageResponse<CategoryDTO> getAll(int page, int size) {
+        Sort sort = Sort.by("id").descending();
+
+        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Page<CategoryEntity> pageData = categoryRepository.findAll(pageable);
+        List<CategoryDTO> categoryList = pageData.getContent().stream().map(categoryMapper::toDTO).toList();
+        return PageResponse.<CategoryDTO>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPage(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(categoryList)
+                .build();
+    }
 
     @Override
     public CategoryDTO createCategory(String categoryName) {

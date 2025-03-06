@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service("postService")
@@ -44,15 +45,44 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
+    public PageResponse<PostResponse> getAll(int page, int size) {
+        Sort sort = Sort.by("id").descending();
+
+        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Page<PostEntity> pageData = postRepository.findAll(pageable);
+
+        List<PostResponse> postList = pageDataToResponseList(pageData);
+        return PageResponse.<PostResponse>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPage(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(postList)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void increaseView(Long postId) {
+        PostEntity post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+        post.setViews(post.getViews() + 1);
+        postRepository.save(post);
+    }
+
+    @Override
     @Transactional
     public PostResponse createPost(PostCreateRequest postRequest) {
         Long authorId = SecurityUtil.getCurrUser().getId();
+        String status = SecurityUtil.getRole().contains("ADMIN") ? "APPROVE" : "PENDING";
         return postMapper.toResponse(
                 postRepository.save(PostEntity.builder()
                     .author(userRepository.getById(authorId))
                     .category(categoryRepository.getById(postRequest.getCategoryId()))
                     .title(postRequest.getTitle())
                     .content(postRequest.getContent())
+                    .status(status)
+                    .views(0L)
                     .createdTime(Instant.now())
                     .modifiedTime(Instant.now())
                     .build()));
@@ -83,11 +113,30 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public String handlePost(Long postId, String status) {
+        PostEntity post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+        post.setStatus(status);
+        postRepository.save(post);
+        if(status.equals("APPROVE"))
+            return "Duyệt bài thành công";
+        return "Từ chối duyệt thành công";
+    }
+
+    @Override
     public PostResponse getSinglePost(Long postId) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        Long currUserId = SecurityUtil.getCurrUser().getId();
+
+        String username = SecurityUtil.getCurrUser().getUsername();
+        boolean isAdmin = SecurityUtil.getRole().contains("ADMIN");
+
+        if (!isAdmin && !post.getStatus().equals("APPROVE") && !post.getAuthor().getUsername().equals(username)) {
+            throw new AppException(ErrorCode.ACCESS_DENIED);
+        }
+
         PostResponse postResponse = postMapper.toResponse(post);
+        postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
         postResponse.setLike(postVoteRepository.countVotesByPostId(postId, VoteType.LIKE));
         postResponse.setDislike(postVoteRepository.countVotesByPostId(postId, VoteType.DISLIKE));
         return postResponse;
@@ -118,14 +167,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResponse<PostResponse> getMyPosts(int page, int size) {
-        Long authorId = SecurityUtil.getCurrUser().getId();
+    public PageResponse<PostResponse> getPostsByUser(int page, int size, Long authorId) {
         Sort sort = Sort.by("createdTime").descending();
 
         Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
         Page<PostEntity> pageData = postRepository.findAllByAuthorId(authorId, pageable);
 
         List<PostResponse> postList = pageDataToResponseList(pageData);
+
         for(PostResponse postResponse : postList) postResponse.setAuthor(null);
         return PageResponse.<PostResponse>builder()
                 .currentPage(page)
@@ -137,17 +186,20 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResponse<PostResponse> searchPost(String query, String categoryId, String sortBy, int page, int size) {
-        Sort sort = Sort.by("id").ascending();
-        if(sortBy.equals("newest"))
-            sort = Sort.by("createdTime").descending();
-        else if(sortBy.equals("oldest"))
-            sort = Sort.by("createdTime").ascending();
+    public PageResponse<PostResponse> searchPost(String query, Long categoryId, String sortBy, int page, int size) {
+        Map<String, Sort> sortOptions = Map.of(
+                "newest", Sort.by("createdTime").descending(),
+                "oldest", Sort.by("createdTime").ascending(),
+                "popular", Sort.by("views").descending()
+        );
+        Sort sort = sortOptions.getOrDefault(sortBy, Sort.by("id").ascending());
+
 
         Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
-        Page<PostEntity> pageData = postRepository.findByContentContaining(query, pageable);
+        Page<PostEntity> pageData = postRepository.searchPosts(query, categoryId, pageable);
 
         List<PostResponse> postList = pageDataToResponseList(pageData);
+        postList.removeIf(post -> !post.getStatus().equals("APPROVE"));
         return PageResponse.<PostResponse>builder()
                 .currentPage(page)
                 .pageSize(size)
@@ -166,10 +218,14 @@ public class PostServiceImpl implements PostService {
     }
 
     private List<PostResponse> pageDataToResponseList(Page<PostEntity> pageData) {
-        return pageData.getContent().stream().map(post -> {
-            PostResponse postResponse = postMapper.toResponse(post);
-            postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
-            return postResponse;
-        }).toList();
+        String username = SecurityUtil.getCurrUser().getUsername();
+        boolean isAdmin = SecurityUtil.getRole().contains("ADMIN");
+        return pageData.getContent().stream()
+                .filter(post -> isAdmin || post.getStatus().equals("APPROVE") || post.getAuthor().getUsername().equals(username))
+                .map(post -> {
+                    PostResponse postResponse = postMapper.toResponse(post);
+                    postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
+                    return postResponse;
+                }).toList();
     }
 }

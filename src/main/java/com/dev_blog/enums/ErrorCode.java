@@ -19,7 +19,8 @@ public enum ErrorCode {
     POST_NOT_EXISTED(1011, "Bài viết không tồn tại", HttpStatus.NOT_FOUND),
     PHONENUMBER_EXISTED(1012, "Số điện thoại đã tồn tại", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(1013, "Danh mục đã tồn tại", HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_EXISTED(1014, "Danh mục không tồn tại", HttpStatus.NOT_FOUND)
+    CATEGORY_NOT_EXISTED(1014, "Danh mục không tồn tại", HttpStatus.NOT_FOUND),
+    ACCESS_DENIED(1015, "Không cho phép truy cập", HttpStatus.NOT_FOUND)
     ;
     private int code;
     private String message;

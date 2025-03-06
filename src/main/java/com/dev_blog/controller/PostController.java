@@ -21,6 +21,19 @@ public class PostController {
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Operation(summary = "All Post")
+    @GetMapping("/all")
+    public ApiResponse<?> getAll(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
+    ) {
+        return ApiResponse.builder()
+                .data(postService.getAll(page, size))
+                .message("Tạo danh mục thành công")
+                .build();
+    }
+
+
     @Operation(summary = "Add New Post")
     @PostMapping("/add")
     public ApiResponse<?> handlePost(@RequestBody PostCreateRequest postRequest) {
@@ -33,19 +46,21 @@ public class PostController {
     @Operation(summary = "Get Single Post")
     @GetMapping("/{postId}")
     public ApiResponse<?> singlePost(@PathVariable Long postId) {
+        postService.increaseView(postId);
         return ApiResponse.builder()
                 .data(postService.getSinglePost(postId))
                 .build();
     }
 
-    @Operation(summary = "Get My Posts")
-    @GetMapping("/my-post")
+    @Operation(summary = "Get User's posts")
+    @GetMapping("/{userId}")
     public ApiResponse<Object> getMyPosts(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @PathVariable Long userId
     ) {
         return ApiResponse.builder()
-                .data(postService.getMyPosts(page, size))
+                .data(postService.getPostsByUser(page, size, userId))
                 .build();
     }
 

@@ -31,6 +31,12 @@ public class PostEntity {
     @Column(name = "modified_time")
     Instant modifiedTime;
 
+    @Column(name = "views")
+    Long views;
+
+    @Column(name = "status")
+    String status;
+
     @ManyToOne
     @JoinColumn(name = "author_id", nullable = false)
     UserEntity author;
