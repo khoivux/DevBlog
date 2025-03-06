@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" th:href="@{/assets/images/logo-16x16.png}" />
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Argon - Social Network</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Major+Mono+Display" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@1.9.2/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Styles -->
+    <link th:href="@{/assets/css/style.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/components.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/auth.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/forms.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/media.css}" rel="stylesheet">
+    <link th:href="@{/assets/css/bootstrap/bootstrap.min.css}" rel="stylesheet">
+
+    <style>
+        .errorMessage {
+            font-weight: bold;
+        }
+        .current-weather {
+            font-size: 24px;
+            display: flex;
+            align-items: left;
+            gap: 8px;
+        }
+        .current-weather i {
+            font-size: 32px;
+            color: #FFA500;
+            margin-left: 110px;
+        }
+        .time {
+            font-weight: bold;
+        }
+    </style>
+
+    <script src = "http://localhost:35729/livereload.js"></script>
+</head>
+
+<body>
+<div class="row ht-100v flex-row-reverse no-gutters">
+    <div class="col-md-6 d-flex justify-content-center align-items-center">
+        <div class="signup-form">
+            <div class="auth-logo text-center mb-5">
+                <div class="row">
+                    <div class="col-md-2">
+                        <img th:src="@{/assets/images/logo-64x64.png}" class="logo-img" alt="Logo">
+                    </div>
+                    <div class="col-md-10">
+                        <p>Argon Social Network</p>
+                        <span>Mạng xã hội Argon</span>
+                    </div>
+                </div>
+            </div>
+            <form id="loginForm" th:action="@{auth/login}" method="POST" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- Thông báo lỗi -->
+                        <div id="errorMessage" class="text-danger" style="display: none;"></div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="username"  placeholder="Username" required>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group position-relative">
+                            <input type="password" class="form-control" id="password" placeholder="Password" required>
+                            <span class="toggle-password" onclick="togglePassword()"
+                                  style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: rgb(59, 136, 195);">
+                                <i id="eyeIcon" class="fa-solid fa-eye-slash"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <a th:href="@{/forgot-password}">Forgot password?</a>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="custom-control material-checkbox">
+                            <input type="checkbox" class="material-control-input" id="rememberMe" name="remember-me">
+                            <span class="material-control-indicator"></span>
+                            <span class="material-control-description">Remember Me</span>
+                        </label>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Sign In</button>
+                        </div>
+                    </div>
+                    <!-- <div class="col-md-12 text-center mt-4">
+                        <p class="text-muted">Start using your fingerprint</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm sign-up" data-toggle="modal" data-target="#fingerprintModal">Use Fingerprint</a>
+                    </div> -->
+                    <div class="col-md-12 text-center mt-5">
+                        <span class="go-login">Not yet a member? <a th:href="@{/sign-up}">Sign Up</a></span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6 auth-bg-image d-flex justify-content-center align-items-center">
+        <div class="auth-left-content mt-5 mb-5 text-center">
+            <div class="weather-small text-white">
+                <p class="current-weather">
+                    <i class="icon"></i>
+                    <span class="time"></span>
+                </p>
+                <p class="weather-city">Vietnam</p>
+            </div>
+            <div class="text-white mt-5 mb-5">
+                <h2 class="create-account mb-3">Welcome Back</h2>
+                <p>Thank you for joining. Updates and new features are released daily.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<!-- <div class="modal fade fingerprint-modal" id="fingerprintModal" tabindex="-1" role="dialog" aria-labelledby="fingerprintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <h3 class="text-muted display-5">Place your Finger on the Device Now</h3>
+                <img src="assets/images/icons/auth-fingerprint.png" alt="Fingerprint">
+            </div>
+        </div>
+    </div>
+</div> -->
+<!-- Core -->
+<script th:src="@{/assets/js/jquery/jquery-3.3.1.min.js}"></script>
+<script th:src="@{/assets/js/popper/popper.min.js}"></script>
+<script th:src="@{/assets/js/bootstrap/bootstrap.min.js}"></script>
+<!-- Optional -->
+<script th:src="@{/assets/js/app.js}"></script>
+<script th:src="@{/assets/js/auth.js}"></script>
+<script th:src="@{/assets/js/time-sign.js}"></script>
+<!--Custom-->
+<script>
+    togglePassword()
+    // Send request
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        let formData = {
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            rememberMe: document.getElementById("rememberMe").checked
+        };
+
+        login("/auth/login", "POST", formData, "/", "errorMessage");
+    });
+</script>
+</body>
+
+</html>

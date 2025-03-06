@@ -1,0 +1,31 @@
+
+spring:
+  datasource:
+    url: ${DBMS_CONNECTION}
+    username: ${DBMS_USERNAME}
+    password: ${DBMS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    cache: false
+
+jwt:
+  signerKey: 6jW9+wO5FTah7bT9tMhRxc6NG5S4UEx5VnnDV6MTkItMP7LEHJc5OdIX/luzm5gh
+  valid-duration: 3600 #in second
+  refreshable-duration: 360000
+
+server:
+  port: 8081
+
+openapi:
+  service:
+    api-docs: api-service
+    server: http://localhost:8081
+    title: DevBlog APIs
+    version: 1.0.0
