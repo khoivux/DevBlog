@@ -4,6 +4,7 @@ package com.dev_blog.controller;
 import com.dev_blog.dto.request.PostCreateRequest;
 import com.dev_blog.dto.request.PostRequest;
 import com.dev_blog.dto.response.ApiResponse;
+import com.dev_blog.enums.VoteType;
 import com.dev_blog.service.PostService;
 import com.dev_blog.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +54,7 @@ public class PostController {
     }
 
     @Operation(summary = "Get User's posts")
-    @GetMapping("/{userId}")
+    @GetMapping("/user/{userId}")
     public ApiResponse<Object> getMyPosts(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
@@ -86,7 +87,7 @@ public class PostController {
     public ApiResponse<?> votePost(@PathVariable Long postId,
                                    @PathVariable String voteType) {
         return ApiResponse.builder()
-                .data(postService.votePost(postId, voteType))
+                .data(postService.votePost(postId, VoteType.valueOf(voteType.toUpperCase())))
                 .build();
     }
 }

@@ -3,7 +3,6 @@ package com.dev_blog.entity;
 import com.dev_blog.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
 
@@ -13,19 +12,18 @@ import java.time.Instant;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "report_post")
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReportPostEntity {
+@Table(name = "report_comment")
+public class ReportCommentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;
+    @JoinColumn(name = "comment_id", nullable = false)
+    private CommentEntity comment;
 
     @ManyToOne
-    @JoinColumn(name = "author_id", nullable = false)
+    @JoinColumn(name = "author", nullable = false)
     private UserEntity author;
 
     @Column(name = "reason", nullable = false)
@@ -36,4 +34,5 @@ public class ReportPostEntity {
 
     @Column(name = "created_time", nullable = false)
     private Instant createdTime = Instant.now();
+
 }

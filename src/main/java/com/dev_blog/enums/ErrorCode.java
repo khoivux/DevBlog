@@ -20,7 +20,10 @@ public enum ErrorCode {
     PHONENUMBER_EXISTED(1012, "Số điện thoại đã tồn tại", HttpStatus.BAD_REQUEST),
     CATEGORY_EXISTED(1013, "Danh mục đã tồn tại", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTED(1014, "Danh mục không tồn tại", HttpStatus.NOT_FOUND),
-    ACCESS_DENIED(1015, "Không cho phép truy cập", HttpStatus.NOT_FOUND)
+    ACCESS_DENIED(1015, "Không cho phép truy cập", HttpStatus.NOT_FOUND),
+    REPORT_NOT_EXISTED(1016, "Báo cáo không tồn tại", HttpStatus.NOT_FOUND),
+    COMMENT_NOT_EXISTED(1017, "Bình luaanj không tồn tại", HttpStatus.NOT_FOUND),
+    EMPTY_DATA(10018, "Dữ liệu không được trống", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;

@@ -1,6 +1,7 @@
 package com.dev_blog.controller;
 
 import com.dev_blog.dto.response.ApiResponse;
+import com.dev_blog.enums.Status;
 import com.dev_blog.service.PostService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +22,14 @@ public class AdminController {
     @PutMapping("/approve/{postId}")
     public ApiResponse<?> approvePost(@PathVariable Long postId) {
         return ApiResponse.builder()
-                .message(postService.handlePost(postId, "APPROVE"))
+                .message(postService.handlePost(postId, Status.APPROVED))
                 .build();
     }
 
     @PutMapping("/reject/{postId}")
     public ApiResponse<?> rejectPost(@PathVariable Long postId) {
         return ApiResponse.builder()
-                .message(postService.handlePost(postId, "REJECTED"))
+                .message(postService.handlePost(postId, Status.REJECTED))
                 .build();
     }
 }

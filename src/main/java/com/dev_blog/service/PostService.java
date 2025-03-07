@@ -5,6 +5,8 @@ import com.dev_blog.dto.request.PostCreateRequest;
 import com.dev_blog.dto.request.PostRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.PostResponse;
+import com.dev_blog.enums.Status;
+import com.dev_blog.enums.VoteType;
 
 public interface PostService {
 
@@ -15,8 +17,8 @@ public interface PostService {
     PageResponse<PostResponse> getPostsByUser(int page, int size, Long userId);
     PageResponse<PostResponse> getAll(int page, int size);
     String deletePost(Long postId);
-    String handlePost(Long postId, String status);
-    String votePost(Long postId, String voteType);
+    String handlePost(Long postId, Status status);
+    String votePost(Long postId, VoteType voteType);
     void increaseView(Long postId);
     boolean isAuthor(Long postId);
 }

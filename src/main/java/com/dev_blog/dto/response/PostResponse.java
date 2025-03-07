@@ -23,7 +23,8 @@ public class PostResponse {
     Long dislike;
     Instant createdTime;
     Instant modifiedTime;
-    UserResponse author;
+    String authorName;
+    String authorUserName;
     CategoryDTO category;
     String status;
 }

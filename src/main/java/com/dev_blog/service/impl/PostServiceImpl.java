@@ -9,6 +9,7 @@ import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.PostVoteEntity;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.Status;
 import com.dev_blog.enums.VoteType;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.PostMapper;
@@ -66,22 +67,24 @@ public class PostServiceImpl implements PostService {
     public void increaseView(Long postId) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        post.setViews(post.getViews() + 1);
-        postRepository.save(post);
+        if(post.getStatus() == Status.APPROVED) {
+            post.setViews(post.getViews() + 1);
+            postRepository.save(post);
+        }
     }
 
     @Override
     @Transactional
     public PostResponse createPost(PostCreateRequest postRequest) {
         Long authorId = SecurityUtil.getCurrUser().getId();
-        String status = SecurityUtil.getRole().contains("ADMIN") ? "APPROVE" : "PENDING";
+        String status = SecurityUtil.getRole().contains("ADMIN") ? "APPROVED" : "PENDING";
         return postMapper.toResponse(
                 postRepository.save(PostEntity.builder()
                     .author(userRepository.getById(authorId))
                     .category(categoryRepository.getById(postRequest.getCategoryId()))
                     .title(postRequest.getTitle())
                     .content(postRequest.getContent())
-                    .status(status)
+                    .status(Status.valueOf(status))
                     .views(0L)
                     .createdTime(Instant.now())
                     .modifiedTime(Instant.now())
@@ -113,12 +116,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public String handlePost(Long postId, String status) {
+    public String handlePost(Long postId, Status status) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         post.setStatus(status);
         postRepository.save(post);
-        if(status.equals("APPROVE"))
+        if(status == Status.APPROVED)
             return "Duyệt bài thành công";
         return "Từ chối duyệt thành công";
     }
@@ -128,14 +131,15 @@ public class PostServiceImpl implements PostService {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
-        String username = SecurityUtil.getCurrUser().getUsername();
-        boolean isAdmin = SecurityUtil.getRole().contains("ADMIN");
-
-        if (!isAdmin && !post.getStatus().equals("APPROVE") && !post.getAuthor().getUsername().equals(username)) {
+        if (!SecurityUtil.getRole().contains("ADMIN")
+                && post.getStatus() != (Status.APPROVED)
+                && !post.getAuthor().getUsername().equals(SecurityUtil.getCurrUser().getUsername())) {
             throw new AppException(ErrorCode.ACCESS_DENIED);
         }
 
         PostResponse postResponse = postMapper.toResponse(post);
+        postResponse.setAuthorUserName(post.getAuthor().getUsername());
+        postResponse.setAuthorName(post.getAuthor().getDisplayName());
         postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
         postResponse.setLike(postVoteRepository.countVotesByPostId(postId, VoteType.LIKE));
         postResponse.setDislike(postVoteRepository.countVotesByPostId(postId, VoteType.DISLIKE));
@@ -144,22 +148,25 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public String votePost(Long postId, String voteType) {
+    public String votePost(Long postId, VoteType voteType) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
         UserEntity currUser = SecurityUtil.getCurrUser();
         Optional<PostVoteEntity> postVote = postVoteRepository.findByPostAndVoter(post, currUser);
-        VoteType type = VoteType.valueOf(voteType.toUpperCase());
+
+        if(voteType == VoteType.NONE)
+            postVote.ifPresent(postVoteRepository::delete);
+
         postVote.ifPresentOrElse(
                 existingVote -> {
-                    existingVote.setType(type);
+                    existingVote.setType(voteType);
                     postVoteRepository.save(existingVote);
                 },
                 () -> {
                     postVoteRepository.save(PostVoteEntity.builder()
                             .post(post)
                             .voter(currUser)
-                            .type(type)
+                            .type(voteType)
                             .build());
                 }
         );
@@ -175,7 +182,6 @@ public class PostServiceImpl implements PostService {
 
         List<PostResponse> postList = pageDataToResponseList(pageData);
 
-        for(PostResponse postResponse : postList) postResponse.setAuthor(null);
         return PageResponse.<PostResponse>builder()
                 .currentPage(page)
                 .pageSize(size)
@@ -199,7 +205,6 @@ public class PostServiceImpl implements PostService {
         Page<PostEntity> pageData = postRepository.searchPosts(query, categoryId, pageable);
 
         List<PostResponse> postList = pageDataToResponseList(pageData);
-        postList.removeIf(post -> !post.getStatus().equals("APPROVE"));
         return PageResponse.<PostResponse>builder()
                 .currentPage(page)
                 .pageSize(size)
@@ -221,9 +226,11 @@ public class PostServiceImpl implements PostService {
         String username = SecurityUtil.getCurrUser().getUsername();
         boolean isAdmin = SecurityUtil.getRole().contains("ADMIN");
         return pageData.getContent().stream()
-                .filter(post -> isAdmin || post.getStatus().equals("APPROVE") || post.getAuthor().getUsername().equals(username))
+                .filter(post -> isAdmin || post.getStatus() == (Status.APPROVED) || post.getAuthor().getUsername().equals(username))
                 .map(post -> {
                     PostResponse postResponse = postMapper.toResponse(post);
+                    postResponse.setAuthorUserName(post.getAuthor().getUsername());
+                    postResponse.setAuthorName(post.getAuthor().getDisplayName());
                     postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
                     return postResponse;
                 }).toList();

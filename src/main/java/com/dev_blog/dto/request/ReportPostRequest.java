@@ -1,22 +1,19 @@
 package com.dev_blog.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+@Builder
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PostCreateRequest {
+public class ReportPostRequest {
     @NotBlank(message = "EMPTY_DATA")
-    Long categoryId;
+    Long postId;
     @NotBlank(message = "EMPTY_DATA")
-    String title;
+    String reason;
     @NotBlank(message = "EMPTY_DATA")
-    String content;
+    Long userId;
 }
-
