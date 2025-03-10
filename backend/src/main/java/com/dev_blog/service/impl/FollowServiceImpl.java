@@ -1,15 +1,18 @@
 package com.dev_blog.service.impl;
 
+import com.dev_blog.dto.Notification;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.entity.FollowEntity;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.NotificationStatus;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.UserMapper;
 import com.dev_blog.repository.FollowRepository;
 import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.FollowService;
+import com.dev_blog.service.NotificationService;
 import com.dev_blog.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +33,8 @@ public class FollowServiceImpl implements FollowService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
+
     @Override
     @Transactional
     public String followUser(Long followedId) {
@@ -44,6 +49,16 @@ public class FollowServiceImpl implements FollowService {
                         .followedUser(followedUser)
                         .createdTime(Instant.now())
                         .build());
+
+        notificationService.sendNotification(
+                followedId,
+                Notification.builder()
+                        .status(NotificationStatus.FOLLOW)
+                        .message(follower.getDisplayName() + " đã theo dõi bạn")
+                        .title("Thông báo")
+                        .build()
+        );
+
         return "Bạn đã theo dõi " + followedUser.getDisplayName();
     }
 
