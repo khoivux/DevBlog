@@ -13,12 +13,9 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentDTO {
     Long id;
-    @NotBlank(message = "EMPTY_DATA")
     Long postId;
-    @NotBlank(message = "EMPTY_DATA")
     Long authorId;
     Long parentId;
-    @NotBlank(message = "EMPTY_DATA")
     String authorName;
     @NotBlank(message = "EMPTY_DATA")
     String content;

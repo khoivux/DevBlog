@@ -3,6 +3,7 @@ package com.dev_blog.controller;
 
 import com.dev_blog.dto.request.PostCreateRequest;
 import com.dev_blog.dto.request.PostRequest;
+import com.dev_blog.dto.request.SearchRequest;
 import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.enums.VoteType;
 import com.dev_blog.service.PostService;
@@ -23,14 +24,19 @@ public class PostController {
     private SecurityUtil securityUtil;
 
     @Operation(summary = "All Post")
-    @GetMapping("/all")
-    public ApiResponse<?> getAll(
+    @GetMapping("/list")
+    public ApiResponse<?> getList(
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
+            @RequestParam(value = "status", defaultValue = "APPROVED") String status,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
+        SearchRequest searchRequest = new SearchRequest(query,  categoryId, sortBy, status.toLowerCase());
         return ApiResponse.builder()
-                .data(postService.getAll(page, size))
-                .message("Tạo danh mục thành công")
+                .data(postService.getList(searchRequest, page, size))
+                .message("Danh sách bài viết")
                 .build();
     }
 

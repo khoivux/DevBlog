@@ -31,12 +31,12 @@ public class CommentEntity {
     PostEntity post;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id", nullable = false)
+    @JoinColumn(name = "parent_id")
     CommentEntity parent;
 
     @Column(name = "created_time", nullable = false)
     Instant createdTime = Instant.now();
 
-    @Column(name = "modified_time", nullable = false)
+    @Column(name = "modified_time")
     Instant modifiedTime;
 }

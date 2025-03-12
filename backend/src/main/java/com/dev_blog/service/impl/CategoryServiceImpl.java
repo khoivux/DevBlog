@@ -26,12 +26,15 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public PageResponse<CategoryDTO> getAll(int page, int size) {
+    public PageResponse<CategoryDTO> getList(int page, int size, String query) {
         Sort sort = Sort.by("id").descending();
 
         Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
-        Page<CategoryEntity> pageData = categoryRepository.findAll(pageable);
-        List<CategoryDTO> categoryList = pageData.getContent().stream().map(categoryMapper::toDTO).toList();
+        Page<CategoryEntity> pageData = categoryRepository.findByNameContaining(query, pageable);
+
+        List<CategoryDTO> categoryList = pageData.getContent().stream()
+                .map(categoryMapper::toDTO).toList();
+
         return PageResponse.<CategoryDTO>builder()
                 .currentPage(page)
                 .pageSize(size)
@@ -45,13 +48,17 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDTO createCategory(String categoryName) {
         if(categoryRepository.existsByName(categoryName))
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
-        return categoryMapper.toDTO(categoryRepository.save(CategoryEntity.builder().name(categoryName).build()));
+
+        return categoryMapper.toDTO(categoryRepository.save(
+                CategoryEntity.builder().name(categoryName).build())
+        );
     }
 
     @Override
     public CategoryDTO editCategory(CategoryDTO request) {
         CategoryEntity category = categoryRepository.findById(request.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+
         category.setName(request.getName());
         return categoryMapper.toDTO(categoryRepository.save(category));
     }
@@ -60,6 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
     public String deleteCategory(Long categoryId) {
         CategoryEntity category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+
         categoryRepository.delete(category);
         return "Danh mục đã được xóa";
     }

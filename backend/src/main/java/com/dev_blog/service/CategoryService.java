@@ -5,7 +5,7 @@ import com.dev_blog.dto.response.PageResponse;
 
 
 public interface CategoryService {
-    PageResponse<CategoryDTO> getAll(int page, int size);
+    PageResponse<CategoryDTO> getList(int page, int size, String query);
     CategoryDTO createCategory(String categoryName);
     CategoryDTO editCategory(CategoryDTO request);
     String deleteCategory(Long categoryId);

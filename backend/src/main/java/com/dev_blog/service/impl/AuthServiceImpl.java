@@ -56,13 +56,14 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse register(RegisterRequest registerRequest) {
         ValidUserUtil.validateUserRegister(registerRequest);
         UserEntity userEntity = userMapper.toEntity(registerRequest);
+
         userEntity.setDisplayName(registerRequest.getFirstname() + " " + registerRequest.getLastname());
         userEntity.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        HashSet<String> set = new HashSet<>();
-        set.add(Role.USER.name());
-        set.add(Role.ADMIN.name());
-        userEntity.setRoles(set);
-       // userEntity.setRoles(new HashSet<>(Collections.singletonList(Role.USER.name())));
+//        HashSet<String> set = new HashSet<>();
+//        set.add(Role.USER.name());
+//        set.add(Role.ADMIN.name());
+//        userEntity.setRoles(set);
+        userEntity.setRoles(new HashSet<>(Collections.singletonList(Role.USER.name())));
 
         return userMapper.toResponseDTO(userRepository.save(userEntity));
     }
@@ -71,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse authenticated(AuthRequest requestDTO) {
         UserEntity user = userRepository.findByUsername(requestDTO.getUsername())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(requestDTO.getPassword(), user.getPassword());
 
@@ -89,10 +91,12 @@ public class AuthServiceImpl implements AuthService {
         SignedJWT signedJWT = verifyToken(request.getToken(), false);
         String jit = signedJWT.getJWTClaimsSet().getJWTID();
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
         InvalidatedTokenEntity invalidatedTokenEntity = InvalidatedTokenEntity.builder()
                 .id(jit)
                 .expiryTime(expiryTime)
                 .build();
+
         invalidatedTokenRepository.save(invalidatedTokenEntity);
         return "Đăng xuất thành công!";
     }

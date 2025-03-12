@@ -14,18 +14,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PostRepository extends JpaRepository<PostEntity, Long> {
     Page<PostEntity> findAllByAuthorId(Long authorId, Pageable pageable);
-    Page<PostEntity> findAll(Pageable pageable);
-    @Query(value = "SELECT * FROM post p " +
-            "WHERE p.status = 'APPROVED' " +  // Điều kiện status phải là APPROVED
-            "AND (:query IS NULL OR :query = '' OR " +
-            "LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-            "LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%'))) " +
-            "AND (:categoryId IS NULL OR p.category_id = :categoryId)",
-            nativeQuery = true)
+
+    @Query(value = """
+    SELECT * FROM post p
+    WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))
+    OR LOWER(p.content) LIKE LOWER(CONCAT('%', :query, '%')) )
+    AND (:categoryId IS NULL OR p.category_id = :categoryId)
+    AND (:status IS NULL OR p.status = :status)
+    """, nativeQuery = true)
     Page<PostEntity> searchPosts(@Param("query") String query,
+                                 @Param("status") String status,
                                  @Param("categoryId") Long categoryId,
                                  Pageable pageable);
-
-
-
 }

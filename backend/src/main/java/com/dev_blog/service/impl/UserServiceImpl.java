@@ -34,8 +34,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageResponse<UserResponse> searchUser(String query, String sortBy, int page, int size) {
         Sort sort = Sort.by("id").ascending();
+
         Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
         Page<UserEntity> pageData = userRepository.findByKeyword(query, pageable);
+
         List<UserResponse> userList = pageData.getContent().stream().map(userMapper::toResponseDTO).toList();
 
         return PageResponse.<UserResponse>builder()
@@ -51,6 +53,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse findByUsername(String username) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         return userMapper.toResponseDTO(user);
     }
 
@@ -58,9 +61,12 @@ public class UserServiceImpl implements UserService {
     @PreAuthorize("hasRole('ADMIN')")
     public PageResponse<UserResponse> findAll(int page, int size) {
         Sort sort = Sort.by("id").ascending();
+
         Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
         Page<UserEntity> pageData = userRepository.findAll(pageable);
+
         List<UserResponse> userList = pageData.getContent().stream().map(userMapper::toResponseDTO).toList();
+
         return PageResponse.<UserResponse>builder()
                 .currentPage(page)
                 .totalPage(pageData.getTotalPages())
@@ -74,6 +80,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getCurrUser() {
         UserEntity user = userRepository.findById(SecurityUtil.getCurrUser().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         return userMapper.toResponseDTO(user);
     }
 
@@ -83,12 +90,14 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findById(SecurityUtil.getCurrUser().getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         ValidUserUtil.validateUserUpdate(request, user);
+
         user.setDisplayName(request.getDisplayName());
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
         user.setUsername(request.getUsername());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
+
         return userMapper.toResponseDTO(userRepository.save(user));
     }
 }

@@ -18,6 +18,17 @@ public class ReportCommentServiceImpl implements ReportCommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final ReportCommentRepository reportCommentRepository;
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Override
+    public String deleteReport(Long reportId) {
+        ReportCommentEntity report = reportCommentRepository.findById(reportId)
+                .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));
+
+        reportCommentRepository.delete(report);
+        return "Đã xóa báo cáo";
+    }
+
     private final ReportPostMapper reportPostMapper;
 
     @Override
@@ -27,27 +38,22 @@ public class ReportCommentServiceImpl implements ReportCommentService {
                 .author(userRepository.getReferenceById(request.getAuthorId()))
                 .reason(request.getReason())
                 .build();
+
         reportCommentRepository.save(reportComment);
         return null;
     }
 
-    @Override
     @PreAuthorize("hasRole('ADMIN')")
+    @Override
     public String handleReport(Long reportId, Status status) {
         ReportCommentEntity report = reportCommentRepository.findById(reportId)
                 .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));
+
         report.setStatus(status);
+        reportCommentRepository.save(report);
+
         if(status == Status.APPROVED)
             return "Đã xử lý báo cáo";
         return "Đã từ chối báo cáo";
-    }
-
-    @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    public String deleteReport(Long reportId) {
-        ReportCommentEntity report = reportCommentRepository.findById(reportId)
-                .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));
-        reportCommentRepository.delete(report);
-        return "Đã xóa báo cáo";
     }
 }

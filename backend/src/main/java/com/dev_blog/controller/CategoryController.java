@@ -19,13 +19,14 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @Operation(summary = "All Category")
-    @GetMapping("/all")
-    public ApiResponse<?> getAll(
+    @GetMapping("/list")
+    public ApiResponse<?> getList(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam String query
     ) {
         return ApiResponse.builder()
-                .data(categoryService.getAll(page, size))
+                .data(categoryService.getList(page, size, query))
                 .message("Tạo danh mục thành công")
                 .build();
     }

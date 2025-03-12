@@ -16,9 +16,13 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/{postId}")
-    public ApiResponse<?> getCommentsByPost(@PathVariable Long postId) {
+    public ApiResponse<?> getCommentsByPost(
+            @PathVariable Long postId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
+    ) {
         return ApiResponse.builder()
-                .data(commentService.getCommentsByPost(postId))
+                .data(commentService.getCommentsByPost(page, size, postId))
                 .message("Bình luận thành công")
                 .build();
     }

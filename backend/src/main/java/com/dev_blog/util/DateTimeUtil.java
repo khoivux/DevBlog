@@ -24,7 +24,6 @@ public class DateTimeUtil {
 
     public String format(Instant instant){
         long elapseSeconds = ChronoUnit.SECONDS.between(instant, Instant.now());
-
         var strategy = strategyMap.entrySet()
                 .stream()
                 .filter(longFunctionEntry -> elapseSeconds < longFunctionEntry.getKey())

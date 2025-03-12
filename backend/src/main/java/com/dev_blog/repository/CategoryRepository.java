@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
     boolean existsByName(String name);
-    Page<CategoryEntity> findAll(Pageable pageable);
+    Page<CategoryEntity> findByNameContaining(String keyword, Pageable pageable);
 }

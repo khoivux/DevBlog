@@ -1,7 +1,8 @@
 package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.CommentDTO;
-import com.dev_blog.dto.Notification;
+import com.dev_blog.entity.Notification;
+import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.entity.CommentEntity;
 import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.UserEntity;
@@ -16,6 +17,10 @@ import com.dev_blog.service.CommentService;
 import com.dev_blog.service.NotificationService;
 import com.dev_blog.util.DateTimeUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -32,11 +37,23 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationService notificationService;
 
     @Override
-    public List<CommentDTO> getCommentsByPost(Long postId) {
-        List<CommentEntity> commentEntities = commentRepository.findByPostId(postId);
-        return commentEntities.stream()
+    public PageResponse<CommentDTO> getCommentsByPost(int page, int size, Long postId) {
+        Sort sort = Sort.by("createdTime").descending();
+
+        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Page<CommentEntity> pageData = commentRepository.findByPostId(postId, pageable);
+
+        List<CommentDTO> list = pageData.getContent().stream()
                 .map(comment -> commentMapper.toResponse(comment, dateTimeUtil))
                 .toList();
+
+        return PageResponse.<CommentDTO>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPage(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(list)
+                .build();
     }
 
     @Override
@@ -49,7 +66,9 @@ public class CommentServiceImpl implements CommentService {
         CommentEntity comment = CommentEntity.builder()
                 .post(post)
                 .author(user)
+                .parent(commentRepository.findById(commentDTO.getParentId()).orElse(null))
                 .content(commentDTO.getContent())
+                .createdTime(Instant.now())
                 .modifiedTime(Instant.now())
                 .build();
         commentRepository.save(comment);
@@ -62,6 +81,7 @@ public class CommentServiceImpl implements CommentService {
                         .title("Thông báo")
                         .build()
         );
+
         return commentMapper.toResponse(comment, dateTimeUtil);
     }
 
@@ -69,9 +89,11 @@ public class CommentServiceImpl implements CommentService {
     public CommentDTO editComment(CommentDTO commentDTO) {
         CommentEntity comment = commentRepository.findById(commentDTO.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_EXISTED));
-        comment.setContent(comment.getContent());
+
+        comment.setContent(commentDTO.getContent());
         comment.setModifiedTime(Instant.now());
         commentRepository.save(comment);
+
         return commentMapper.toResponse(comment, dateTimeUtil);
     }
 }
