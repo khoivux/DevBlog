@@ -57,16 +57,14 @@ public class FollowServiceImpl implements FollowService {
 
         notificationService.sendNotification(
                 followedId,
-                notificationRepository.save(
-                        Notification.builder()
-                        .status(NotificationStatus.FOLLOW)
-                        .createdTime(Date.from(Instant.now()))
-                        .receiver(followedUser)
-                        .redirectUrl(null)
-                        .message(follower.getDisplayName() + " đã theo dõi bạn")
-                        .title("Thông báo")
-                        .build()
-                )
+                Notification.builder()
+                    .status(NotificationStatus.FOLLOW)
+                    .createdTime(Date.from(Instant.now()))
+                    .receiver(followedUser)
+                    .redirectUrl(null)
+                    .message(follower.getDisplayName() + " đã theo dõi bạn")
+                    .title("Thông báo")
+                    .build()
         );
 
         return "Bạn đã theo dõi " + followedUser.getDisplayName();

@@ -19,4 +19,5 @@ public class UserUpdateRequest {
     String displayName;
     String introduction;
     String email;
+    String avatarUrl;
 }

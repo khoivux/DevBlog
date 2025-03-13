@@ -78,10 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse getCurrUser() {
-        UserEntity user = userRepository.findById(SecurityUtil.getCurrUser().getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        return userMapper.toResponseDTO(user);
+        return userMapper.toResponseDTO(SecurityUtil.getCurrUser());
     }
 
     @Override
@@ -97,6 +94,8 @@ public class UserServiceImpl implements UserService {
         user.setUsername(request.getUsername());
         user.setPhone(request.getPhone());
         user.setEmail(request.getEmail());
+        if(!request.getAvatarUrl().isEmpty())
+            user.setAvatarUrl(request.getAvatarUrl());
 
         return userMapper.toResponseDTO(userRepository.save(user));
     }

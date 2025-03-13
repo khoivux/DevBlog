@@ -90,15 +90,13 @@ public class ReportPostServiceImpl implements ReportPostService {
         if(status == Status.APPROVED) {
             notificationService.sendNotification(
                     report.getAuthor().getId(),
-                    notificationRepository.save(
-                            Notification.builder()
-                            .status(NotificationStatus.SYSTEM)
-                            .createdTime(Date.from(Instant.now()))
-                            .receiver(report.getAuthor())
-                            .title("Thông báo")
-                            .message(String.format("Báo cáo về bài viết '%s' đã được xử lý.", report.getPost().getTitle()))
-                            .build()
-                    )
+                    Notification.builder()
+                        .status(NotificationStatus.SYSTEM)
+                        .createdTime(Date.from(Instant.now()))
+                        .receiver(report.getAuthor())
+                        .title("Thông báo")
+                        .message(String.format("Báo cáo về bài viết '%s' đã được xử lý.", report.getPost().getTitle()))
+                        .build()
             );
             return "Đã xử lý báo cáo";
         }

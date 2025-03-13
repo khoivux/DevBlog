@@ -1,4 +1,4 @@
-package com.dev_blog.configuration;
+package com.dev_blog.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

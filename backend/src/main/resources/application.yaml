@@ -29,3 +29,8 @@ openapi:
     server: http://localhost:8081
     title: DevBlog APIs
     version: 1.0.0
+
+cloudinary:
+  cloud-name: drdjvonsx
+  api-key: 662879543464571
+  api-secret: VJsM9WEr-C2N5QKif7vwUU1PfyI

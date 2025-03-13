@@ -24,6 +24,8 @@ public enum ErrorCode {
     REPORT_NOT_EXISTED(1016, "Báo cáo không tồn tại", HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(1017, "Bình luaanj không tồn tại", HttpStatus.NOT_FOUND),
     EMPTY_DATA(10018, "Dữ liệu không được trống", HttpStatus.BAD_REQUEST),
+    UPLOAD_FAIL(10019, "Không thể tải file", HttpStatus.BAD_REQUEST),
+
     ;
     private int code;
     private String message;

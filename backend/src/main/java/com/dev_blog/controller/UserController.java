@@ -20,7 +20,7 @@ public class UserController {
     private final FollowService followService;
 
     @Operation(summary = "Get All User")
-    @GetMapping("/all")
+    @GetMapping("/list")
     public ApiResponse<?> getAll(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size

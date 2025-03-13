@@ -34,6 +34,8 @@ public class UserEntity {
     String email;
     @Column(name = "introduction")
     String introduction;
+    @Column(name = "avatar_url")
+    String avatarUrl;
     @ElementCollection
     @Column(name = "role")
     Set<String> roles;

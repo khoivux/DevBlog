@@ -20,6 +20,9 @@ public class PostEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(name = "thumbnail_url", nullable = false)
+    String thumbnailUrl;
+
     @Column(name = "title", nullable = false)
     String title;
 

@@ -91,17 +91,20 @@ public class PostServiceImpl implements PostService {
         Long authorId = SecurityUtil.getCurrUser().getId();
         String status = SecurityUtil.getRole().contains("ADMIN") ? "APPROVED" : "PENDING";
 
+        // Lưu bài viết mới
         PostEntity newPost = postRepository.save(PostEntity.builder()
                 .author(userRepository.getById(authorId))
                 .category(categoryRepository.getById(postRequest.getCategoryId()))
                 .title(postRequest.getTitle())
                 .content(postRequest.getContent())
+                .thumbnailUrl(postRequest.getThumbnailUrl())
                 .status(Status.valueOf(status))
                 .views(0L)
                 .createdTime(Instant.now())
                 .modifiedTime(Instant.now())
                 .build());
 
+        // Thông báo cho tất cả người theo dõi
         List<UserResponse> followers = followService.getFollowers(1, 5, authorId).getData();
         for(UserResponse follower : followers) {
             Notification notification = Notification.builder()
@@ -110,7 +113,6 @@ public class PostServiceImpl implements PostService {
                     .redirectUrl("/post/" + newPost.getId())
                     .receiver(userRepository.getReferenceById(follower.getId()))
                     .build();
-            notificationRepository.save(notification);
             notificationService.sendNotification(follower.getId(), notification);
         }
 
@@ -127,6 +129,7 @@ public class PostServiceImpl implements PostService {
         post.setContent(postRequest.getContent());
         post.setTitle(postRequest.getTitle());
         post.setModifiedTime(Instant.now());
+        post.setThumbnailUrl(postRequest.getThumbnailUrl());
 
         PostResponse postResponse = postMapper.toResponse(postRepository.save(post));
         postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));

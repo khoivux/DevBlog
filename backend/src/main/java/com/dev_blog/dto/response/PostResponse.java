@@ -27,4 +27,5 @@ public class PostResponse {
     String authorUserName;
     CategoryDTO category;
     String status;
+    String thumbnailUrl;
 }

@@ -19,5 +19,5 @@ public class UserResponse {
     String introduction;
     String phone;
     String email;
-
+    String avatarUrl;
 }

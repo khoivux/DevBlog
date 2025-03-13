@@ -40,6 +40,8 @@ public class AuthServiceImpl implements AuthService {
     private final InvalidatedTokenRepository invalidatedTokenRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    protected final String DEFAULT_AVATAR_URL = "http://res.cloudinary.com/drdjvonsx/image/upload/v1741858825/ad2h5wifjk0xdqmawf9x.png";
+
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -59,11 +61,12 @@ public class AuthServiceImpl implements AuthService {
 
         userEntity.setDisplayName(registerRequest.getFirstname() + " " + registerRequest.getLastname());
         userEntity.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        userEntity.setAvatarUrl(DEFAULT_AVATAR_URL);
+        userEntity.setRoles(new HashSet<>(Collections.singletonList(Role.USER.name())));
 //        HashSet<String> set = new HashSet<>();
 //        set.add(Role.USER.name());
 //        set.add(Role.ADMIN.name());
 //        userEntity.setRoles(set);
-        userEntity.setRoles(new HashSet<>(Collections.singletonList(Role.USER.name())));
 
         return userMapper.toResponseDTO(userRepository.save(userEntity));
     }

@@ -17,4 +17,5 @@ public class PostRequest {
     String title;
     @NotBlank(message = "EMPTY_DATA")
     String content;
+    String thumbnailUrl;
 }
