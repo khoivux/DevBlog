@@ -29,6 +29,5 @@ public class UploadController {
         } catch (IOException e) {
             throw new AppException(ErrorCode.UPLOAD_FAIL);
         }
-
     }
 }

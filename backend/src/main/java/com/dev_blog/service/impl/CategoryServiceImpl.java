@@ -27,9 +27,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public PageResponse<CategoryDTO> getList(int page, int size, String query) {
-        Sort sort = Sort.by("id").descending();
+        Sort sort = Sort.by("id").ascending();
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<CategoryEntity> pageData = categoryRepository.findByNameContaining(query, pageable);
 
         List<CategoryDTO> categoryList = pageData.getContent().stream()

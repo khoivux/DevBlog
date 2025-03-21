@@ -8,7 +8,9 @@ import java.util.Map;
 public interface FollowService {
     String followUser(Long followedId);
     String unfollowUser(Long followedId);
-    PageResponse<UserResponse> getFollowers(int page, int size, Long followedId);
-    PageResponse<UserResponse> getFollowing(int page, int size, Long followerId);
+
+    PageResponse<UserResponse> getFollowers(int page, int size, String followedUsername);
+
+    PageResponse<UserResponse> getFollowing(int page, int size, String followerUsername);
     Map<String, Long> getFollowCount(Long userId);
 }

@@ -1,14 +1,17 @@
 package com.dev_blog.controller;
 
-import com.nimbusds.jose.JOSEException;
 import com.dev_blog.dto.request.*;
 import com.dev_blog.dto.response.ApiResponse;
+import com.dev_blog.dto.response.AuthResponse;
+import com.dev_blog.dto.response.IntrospectResponse;
+import com.dev_blog.dto.response.UserResponse;
+import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.service.AuthService;
 import com.dev_blog.service.UserService;
-import com.dev_blog.util.SecurityUtil;
+import com.nimbusds.jose.JOSEException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,60 +22,80 @@ import java.text.ParseException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/auth")
 @Tag(name = "Auth Controller")
 public class AuthController {
     private final AuthService authService;
     private final UserService userService;
 
     @Operation(summary = "Sign-in")
-    @PostMapping("/auth/login")
-    public ApiResponse<?> signIn(@Valid @RequestBody AuthRequest requestDTO) {
-        return ApiResponse.builder()
+    @PostMapping("/login")
+    public ApiResponse<AuthResponse> signIn(@Valid @RequestBody AuthRequest requestDTO) {
+        return ApiResponse.<AuthResponse>builder()
                 .data(authService.authenticated(requestDTO))
                 .message("Đăng nhập thành công")
                 .build();
     }
 
     @Operation(summary = "Sign-up")
-    @PostMapping("/auth/register")
-    public ApiResponse<?> signUp(@Valid @RequestBody RegisterRequest registerRequest) {
-        return ApiResponse.builder()
+    @PostMapping("/register")
+    public ApiResponse<UserResponse> signUp(@Valid @RequestBody RegisterRequest registerRequest) {
+        return ApiResponse.<UserResponse>builder()
                 .data(authService.register(registerRequest))
                 .message("Đăng kí thành công")
                 .build();
     }
 
     @Operation(summary = "Introspect")
-    @PostMapping("/auth/introspect")
-    public ApiResponse<?> introspect(@Valid @RequestBody IntrospectRequest requestDTO)
-            throws ParseException, JOSEException {
-        return ApiResponse.builder()
-                .data(authService.introspect(requestDTO))
-                .build();
+    @PostMapping("/introspect")
+    public ApiResponse<IntrospectResponse> introspect(@Valid @RequestBody IntrospectRequest requestDTO) {
+        try {
+            return ApiResponse.<IntrospectResponse>builder()
+                    .data(authService.introspect(requestDTO))
+                    .build();
+        } catch (JOSEException | ParseException e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
     }
+
     @Operation(summary = "Refresh Token")
-    @PostMapping("/auth/refresh")
-    public ApiResponse<?> refreshToken(@RequestBody RefreshRequest requestDTO)
-            throws ParseException, JOSEException {
-        return ApiResponse.builder()
-                .data(authService.refreshToken(requestDTO))
-                .build();
+    @PostMapping("/refresh")
+    public ApiResponse<?> refreshToken(@RequestBody RefreshRequest requestDTO) {
+        try {
+            return ApiResponse.builder()
+                    .data(authService.refreshToken(requestDTO))
+                    .build();
+        } catch (JOSEException | ParseException e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
     }
 
     @Operation(summary = "Logout")
-    @GetMapping("/logout")
-    public ApiResponse<?> logout(
-            @CookieValue(value = "JWToken", required = false) String jwtToken,
-            HttpServletResponse response)
-                throws ParseException, JOSEException {
-        String mess = "Đăng xuất thành công";
-        if (jwtToken != null) {
-            mess = authService.logout(LogoutRequest.builder().token(jwtToken).build());
-            SecurityUtil.deleteCookies(response);
+    @PostMapping("/logout")
+    public ApiResponse<?> logout(@RequestBody LogoutRequest request) {
+        try {
+            return ApiResponse.builder()
+                    .message(authService.logout(request))
+                    .build();
+        } catch (JOSEException | ParseException e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+    }
+
+    @Operation(summary = "Forgot password")
+    @PostMapping("/forgot-password")
+    public ApiResponse<Object> sendOTP(@RequestParam String email) {
         return ApiResponse.builder()
-                .data(mess)
+                .data(authService.forgotPassword(email))
+                .message("Gửi OTP thành công")
+                .build();
+    }
+
+    @Operation(summary = "Reset password")
+    @PostMapping("/reset-password")
+    public ApiResponse<Object> resetPassword(@RequestParam String email, @RequestParam String password) {
+        return ApiResponse.builder()
+                .message(authService.resetPassword(password, email))
                 .build();
     }
 }

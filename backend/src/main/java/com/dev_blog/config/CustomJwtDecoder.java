@@ -3,7 +3,7 @@ package com.dev_blog.config;
 import com.dev_blog.dto.request.IntrospectRequest;
 import com.dev_blog.service.AuthService;
 import com.nimbusds.jose.JOSEException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
@@ -14,13 +14,12 @@ import java.text.ParseException;
 import java.util.Objects;
 
 @Component
+@RequiredArgsConstructor
 public class CustomJwtDecoder implements JwtDecoder {
     @Value("${jwt.signerKey}")
     private String signerKey;
 
-    @Autowired
-    private AuthService authService;
-
+    private final AuthService authService;
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 
     @Override

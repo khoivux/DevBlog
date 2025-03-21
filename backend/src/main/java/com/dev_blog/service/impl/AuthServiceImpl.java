@@ -3,6 +3,7 @@ package com.dev_blog.service.impl;
 import com.dev_blog.dto.request.*;
 import com.dev_blog.dto.response.AuthResponse;
 import com.dev_blog.dto.response.IntrospectResponse;
+import com.dev_blog.dto.response.OtpResponse;
 import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.entity.InvalidatedTokenEntity;
 import com.dev_blog.entity.UserEntity;
@@ -13,6 +14,7 @@ import com.dev_blog.mapper.UserMapper;
 import com.dev_blog.repository.InvalidatedTokenRepository;
 import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.AuthService;
+import com.dev_blog.service.EmailSerivce;
 import com.dev_blog.util.ValidUserUtil;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -23,12 +25,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -40,7 +43,9 @@ public class AuthServiceImpl implements AuthService {
     private final InvalidatedTokenRepository invalidatedTokenRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    protected final String DEFAULT_AVATAR_URL = "http://res.cloudinary.com/drdjvonsx/image/upload/v1741858825/ad2h5wifjk0xdqmawf9x.png";
+    private final EmailSerivce emailSerivce;
+
+    protected String DEFAULT_AVATAR_URL = "http://res.cloudinary.com/drdjvonsx/image/upload/v1741858825/ad2h5wifjk0xdqmawf9x.png";
 
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -63,20 +68,39 @@ public class AuthServiceImpl implements AuthService {
         userEntity.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         userEntity.setAvatarUrl(DEFAULT_AVATAR_URL);
         userEntity.setRoles(new HashSet<>(Collections.singletonList(Role.USER.name())));
-//        HashSet<String> set = new HashSet<>();
-//        set.add(Role.USER.name());
-//        set.add(Role.ADMIN.name());
-//        userEntity.setRoles(set);
-
         return userMapper.toResponseDTO(userRepository.save(userEntity));
     }
+
+    @Override
+    public OtpResponse forgotPassword(String userEmail) {
+        String otp = generateOTP(6);
+        emailSerivce.sendEmail(
+                userEmail,
+                "Mã OTP xác minh",
+                "Mã OTP của bạn là: " + otp + "\nMã có hiệu lực trong 5 phút."
+        );
+        return OtpResponse.builder()
+                .otp(otp)
+                .expiryTime(LocalDateTime.now().plusMinutes(5))
+                .build();
+    }
+
+    @Override
+    public String resetPassword(String newPassword, String username) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return "Đặt lại mật khẩu thành công";
+    }
+
+
 
     @Override
     public AuthResponse authenticated(AuthRequest requestDTO) {
         UserEntity user = userRepository.findByUsername(requestDTO.getUsername())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         boolean authenticated = passwordEncoder.matches(requestDTO.getPassword(), user.getPassword());
 
         if(!authenticated)
@@ -110,6 +134,7 @@ public class AuthServiceImpl implements AuthService {
         boolean isValid = true;
         try {
             SignedJWT signedJWT = verifyToken(token, false);
+            log.info(signedJWT.toString());
         } catch(AppException e) {
             isValid = false;
         }
@@ -117,6 +142,7 @@ public class AuthServiceImpl implements AuthService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
+    @Override
     public AuthResponse refreshToken(RefreshRequest request) throws ParseException, JOSEException {
         SignedJWT signedJWT = verifyToken(request.getToken(), true);
         String jit = signedJWT.getJWTClaimsSet().getJWTID();
@@ -182,7 +208,17 @@ public class AuthServiceImpl implements AuthService {
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Cannot create token!", e);
-            throw new RuntimeException(e);
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+    }
+
+    private String generateOTP(Integer length) {
+        String characters = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstwzx0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder otp = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            otp.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return otp.toString();
     }
 }

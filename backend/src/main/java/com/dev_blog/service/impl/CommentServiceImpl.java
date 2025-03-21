@@ -40,7 +40,7 @@ public class CommentServiceImpl implements CommentService {
     public PageResponse<CommentDTO> getCommentsByPost(int page, int size, Long postId) {
         Sort sort = Sort.by("createdTime").descending();
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<CommentEntity> pageData = commentRepository.findByPostId(postId, pageable);
 
         List<CommentDTO> list = pageData.getContent().stream()

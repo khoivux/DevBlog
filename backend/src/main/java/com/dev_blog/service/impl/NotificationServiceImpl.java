@@ -37,7 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
     public PageResponse<Notification> getNotificationsOfReceiver(Long receiverId, int page, int size) {
         Sort sort = Sort.by("createdTime").ascending();
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<Notification> pageData = notificationRepository.findByReceiver(userRepository.getReferenceById(receiverId), pageable);
 
         return PageResponse.<Notification>builder()

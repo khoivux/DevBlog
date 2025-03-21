@@ -1,8 +1,10 @@
 package com.dev_blog.enums;
 
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ErrorCode {
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_OK(1000, "OK", HttpStatus.OK),
@@ -27,24 +29,13 @@ public enum ErrorCode {
     UPLOAD_FAIL(10019, "Không thể tải file", HttpStatus.BAD_REQUEST),
 
     ;
-    private int code;
-    private String message;
-    private HttpStatus status;
+    private final int code;
+    private final String message;
+    private final HttpStatus status;
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;
         this.message = message;
         this.status = status;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
 }

@@ -24,7 +24,7 @@ public class PostResponse {
     Instant createdTime;
     Instant modifiedTime;
     String authorName;
-    String authorUserName;
+    String authorUsername;
     CategoryDTO category;
     String status;
     String thumbnailUrl;

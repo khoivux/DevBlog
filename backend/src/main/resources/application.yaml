@@ -14,6 +14,17 @@ spring:
     suffix: .html
     mode: HTML
     cache: false
+  application:
+    name: DevBlog
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
 
 jwt:
   signerKey: 6jW9+wO5FTah7bT9tMhRxc6NG5S4UEx5VnnDV6MTkItMP7LEHJc5OdIX/luzm5gh

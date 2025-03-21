@@ -27,7 +27,7 @@ public class CategoryController {
     ) {
         return ApiResponse.builder()
                 .data(categoryService.getList(page, size, query))
-                .message("Tạo danh mục thành công")
+                .message("Lấy danh sách danh mục thành công")
                 .build();
     }
 

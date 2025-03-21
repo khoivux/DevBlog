@@ -9,6 +9,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 @Component
@@ -27,7 +28,8 @@ public class DateTimeUtil {
         var strategy = strategyMap.entrySet()
                 .stream()
                 .filter(longFunctionEntry -> elapseSeconds < longFunctionEntry.getKey())
-                .findFirst().get();
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("No suitable strategy found"));
         return strategy.getValue().apply(instant);
     }
 
@@ -49,7 +51,7 @@ public class DateTimeUtil {
     private String formatInDate(Instant instant){
         LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         java.time.format.DateTimeFormatter dateTimeFormatter = java.time.format.DateTimeFormatter
-                .ofPattern("EEE, yyyy-MM-dd", Locale.ENGLISH);
+                .ofPattern("EEEE, dd-MM-yyyy", Locale.forLanguageTag("vi-VN"));
 
         return localDateTime.format(dateTimeFormatter);
     }

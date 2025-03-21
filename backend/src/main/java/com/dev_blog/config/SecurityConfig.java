@@ -1,6 +1,6 @@
 package com.dev_blog.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,9 +16,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     @Lazy
-    @Autowired
     private CustomJwtDecoder customJwtDecoder;
 
     @Value("${jwt.signerKey}")
@@ -41,7 +41,7 @@ public class SecurityConfig {
 //                        .authenticationEntryPoint((request, response, authException) ->
 //                                response.sendRedirect("/sign-in") // Redirect về /sign-in nếu chưa đăng nhập
 //                        )
-//                );
+//
 
         // Cấu hình OAuth2 xử lý yêu cầu có JWT
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2

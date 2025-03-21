@@ -79,24 +79,24 @@ public class UserController {
     }
 
     @Operation(summary = "Get Followers")
-    @GetMapping("/{userId}/followers")
+    @GetMapping("/{username}/followers")
     public ApiResponse<?> getFollowers(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         return ApiResponse.builder()
-                .data(followService.getFollowers(page, size, userId))
+                .data(followService.getFollowers(page, size, username))
                 .build();
     }
 
     @Operation(summary = "Get Following")
-    @GetMapping("/{userId}/following")
+    @GetMapping("/{username}/following")
     public ApiResponse<?> getFollowing(
-            @PathVariable Long userId,
+            @PathVariable String username,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size) {
         return ApiResponse.builder()
-                .data(followService.getFollowing(page, size, userId))
+                .data(followService.getFollowing(page, size, username))
                 .build();
     }
 }

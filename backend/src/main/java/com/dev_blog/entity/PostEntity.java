@@ -26,7 +26,7 @@ public class PostEntity {
     @Column(name = "title", nullable = false)
     String title;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     String content;
 
     @Column(name = "created_time", nullable = false)

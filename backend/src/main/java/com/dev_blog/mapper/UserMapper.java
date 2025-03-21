@@ -14,6 +14,7 @@ public interface UserMapper {
     @Mapping(source = "firstname", target = "firstname")
     @Mapping(source = "lastname", target = "lastname")
     UserEntity toEntity(RegisterRequest registerRequest);
+
     UserResponse toResponseDTO(UserEntity userEntity);
     List<UserResponse> toResponseDTOs(List<UserEntity> userEntities);
 }

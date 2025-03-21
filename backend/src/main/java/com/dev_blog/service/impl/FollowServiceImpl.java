@@ -88,12 +88,12 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public PageResponse<UserResponse> getFollowers(int page, int size, Long followedId) {
-        UserEntity followedUser = userRepository.findById(followedId)
+    public PageResponse<UserResponse> getFollowers(int page, int size, String followedUsername) {
+        UserEntity followedUser = userRepository.findByUsername(followedUsername)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Sort sort = Sort.by("createdTime").descending();
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<FollowEntity> pageData = followRepository.findByFollowedUser(followedUser, pageable);
 
         List<UserResponse> followers = pageData.getContent().stream()
@@ -110,12 +110,12 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public PageResponse<UserResponse> getFollowing(int page, int size, Long followerId) {
-        UserEntity follower = userRepository.findById(followerId)
+    public PageResponse<UserResponse> getFollowing(int page, int size, String followerUsername) {
+        UserEntity follower = userRepository.findByUsername(followerUsername)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         Sort sort = Sort.by("createdTime").descending();
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<FollowEntity> pageData = followRepository.findByFollower(follower, pageable);
 
         List<UserResponse> followedList = pageData.getContent().stream()

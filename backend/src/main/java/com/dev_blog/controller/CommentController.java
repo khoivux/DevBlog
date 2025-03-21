@@ -2,6 +2,7 @@ package com.dev_blog.controller;
 
 import com.dev_blog.dto.CommentDTO;
 import com.dev_blog.dto.response.ApiResponse;
+import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.service.CommentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -16,28 +17,28 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/{postId}")
-    public ApiResponse<?> getCommentsByPost(
+    public ApiResponse<PageResponse<CommentDTO>> getCommentsByPost(
             @PathVariable Long postId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
-        return ApiResponse.builder()
+        return ApiResponse.<PageResponse<CommentDTO>>builder()
                 .data(commentService.getCommentsByPost(page, size, postId))
                 .message("Bình luận thành công")
                 .build();
     }
 
     @PostMapping("/")
-    public ApiResponse<?> createComment(@Valid @RequestBody CommentDTO request) {
-        return ApiResponse.builder()
+    public ApiResponse<CommentDTO> createComment(@Valid @RequestBody CommentDTO request) {
+        return ApiResponse.<CommentDTO> builder()
                 .data(commentService.createComment(request))
                 .message("Bình luận thành công")
                 .build();
     }
 
     @PutMapping("/")
-    public ApiResponse<?> editComment(@Valid @RequestBody CommentDTO request) {
-        return ApiResponse.builder()
+    public ApiResponse<CommentDTO> editComment(@Valid @RequestBody CommentDTO request) {
+        return ApiResponse.<CommentDTO> builder()
                 .data(commentService.editComment(request))
                 .message("Chỉnh sửa bình luận thành công")
                 .build();

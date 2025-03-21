@@ -12,6 +12,7 @@ import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.PostVoteEntity;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.Role;
 import com.dev_blog.enums.Status;
 import com.dev_blog.enums.VoteType;
 import com.dev_blog.exception.custom.AppException;
@@ -20,6 +21,7 @@ import com.dev_blog.repository.*;
 import com.dev_blog.service.FollowService;
 import com.dev_blog.service.NotificationService;
 import com.dev_blog.service.PostService;
+import com.dev_blog.service.UploadService;
 import com.dev_blog.util.DateTimeUtil;
 import com.dev_blog.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -46,18 +48,19 @@ public class PostServiceImpl implements PostService {
     private final FollowService followService;
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final UploadService uploadService;
 
 
     @Override
     public PageResponse<PostResponse> getList(SearchRequest request, int page, int size) {
         Map<String, Sort> sortOptions = Map.of(
-                "newest", Sort.by("createdTime").descending(),
-                "oldest", Sort.by("createdTime").ascending(),
+                "newest", Sort.by("created_time").descending(),
+                "oldest", Sort.by("created_time").ascending(),
                 "popular", Sort.by("views").descending()
         );
         Sort sort = sortOptions.getOrDefault(request.getSortBy(), Sort.by("id").ascending());
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<PostEntity> pageData = postRepository.searchPosts(request.getQuery(), request.getStatus(),
                 request.getCategoryId(), pageable);
 
@@ -89,12 +92,12 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse createPost(PostCreateRequest postRequest) {
         Long authorId = SecurityUtil.getCurrUser().getId();
-        String status = SecurityUtil.getRole().contains("ADMIN") ? "APPROVED" : "PENDING";
+        String status = SecurityUtil.getRole().contains(Role.ADMIN.toString()) ? "APPROVED" : "PENDING";
 
         // Lưu bài viết mới
         PostEntity newPost = postRepository.save(PostEntity.builder()
-                .author(userRepository.getById(authorId))
-                .category(categoryRepository.getById(postRequest.getCategoryId()))
+                .author(userRepository.getReferenceById(authorId))
+                .category(categoryRepository.getReferenceById(postRequest.getCategoryId()))
                 .title(postRequest.getTitle())
                 .content(postRequest.getContent())
                 .thumbnailUrl(postRequest.getThumbnailUrl())
@@ -105,7 +108,7 @@ public class PostServiceImpl implements PostService {
                 .build());
 
         // Thông báo cho tất cả người theo dõi
-        List<UserResponse> followers = followService.getFollowers(1, 5, authorId).getData();
+        List<UserResponse> followers = followService.getFollowers(1, 5, SecurityUtil.getCurrUser().getUsername()).getData();
         for(UserResponse follower : followers) {
             Notification notification = Notification.builder()
                     .createdTime(Date.from(Instant.now()))
@@ -144,7 +147,7 @@ public class PostServiceImpl implements PostService {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
-        postRepository.deleteById(postId);
+        postRepository.delete(post);
         return "Xóa bài viết thành công!";
     }
 
@@ -174,7 +177,7 @@ public class PostServiceImpl implements PostService {
         }
 
         PostResponse postResponse = postMapper.toResponse(post);
-        postResponse.setAuthorUserName(post.getAuthor().getUsername());
+        postResponse.setAuthorUsername(post.getAuthor().getUsername());
         postResponse.setAuthorName(post.getAuthor().getDisplayName());
         postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
         postResponse.setLike(postVoteRepository.countVotesByPostId(postId, VoteType.LIKE));
@@ -199,23 +202,22 @@ public class PostServiceImpl implements PostService {
                     existingVote.setType(voteType);
                     postVoteRepository.save(existingVote);
                 },
-                () -> {
-                    postVoteRepository.save(PostVoteEntity.builder()
-                            .post(post)
-                            .voter(currUser)
-                            .type(voteType)
-                            .build());
-                }
+                () -> postVoteRepository.save(PostVoteEntity.builder()
+                        .post(post)
+                        .voter(currUser)
+                        .type(voteType)
+                        .build())
         );
 
         return "Vote thành công";
     }
 
     @Override
-    public PageResponse<PostResponse> getPostsByUser(int page, int size, Long authorId) {
+    public PageResponse<PostResponse> getPostsByUser(int page, int size, String sortBy, Long authorId) {
         Sort sort = Sort.by("createdTime").descending();
-
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        if(!sortBy.equals("popular"))
+            sort = Sort.by("views").descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<PostEntity> pageData = postRepository.findAllByAuthorId(authorId, pageable);
 
         List<PostResponse> postList = pageDataToResponseList(pageData, null);
@@ -248,7 +250,7 @@ public class PostServiceImpl implements PostService {
                 )
                 .map(post -> {
                     PostResponse postResponse = postMapper.toResponse(post);
-                    postResponse.setAuthorUserName(post.getAuthor().getUsername());
+                    postResponse.setAuthorUsername(post.getAuthor().getUsername());
                     postResponse.setAuthorName(post.getAuthor().getDisplayName());
                     postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
                     return postResponse;

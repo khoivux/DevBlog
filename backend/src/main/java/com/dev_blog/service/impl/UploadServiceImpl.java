@@ -23,4 +23,16 @@ public class UploadServiceImpl implements UploadService {
         log.info("Image URL: {}", uploadResult.get("url").toString());
         return uploadResult.get("url").toString();
     }
+
+    @Override
+    public void deleteFile(String imageUrl) throws IOException {
+        Map result = cloudinary.uploader().destroy(extractPublicId(imageUrl), ObjectUtils.emptyMap());
+        log.info("Delete Result: {}", result.get("result"));
+    }
+
+    private String extractPublicId(String imageUrl) {
+        String[] parts = imageUrl.split("/");
+        String fileName = parts[parts.length - 1]; // Lấy phần cuối cùng của URL
+        return fileName.split("\\.")[0]; // Loại bỏ phần mở rộng (.png, .jpg, ...)
+    }
 }

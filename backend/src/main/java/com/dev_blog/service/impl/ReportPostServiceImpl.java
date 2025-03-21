@@ -64,7 +64,7 @@ public class ReportPostServiceImpl implements ReportPostService {
         );
         Sort sort = sortOptions.getOrDefault(request.getSortBy(), Sort.by("newest").ascending());
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<ReportPostEntity> pageData = reportPostRepository.findByPostTitleAndCategoryId(request.getQuery(),
                 request.getCategoryId(), pageable);
 

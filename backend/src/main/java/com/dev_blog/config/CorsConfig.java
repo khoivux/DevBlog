@@ -12,6 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
     private final String[] allowedOrigins = {
             "http://localhost:8081",
             "http://localhost:3000",
+            "http://localhost:5173",
             "http://127.0.0.1:5500"
     };
 

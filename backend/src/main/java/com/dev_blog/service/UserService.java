@@ -11,4 +11,6 @@ public interface UserService {
     PageResponse<UserResponse> findAll(int page, int size);
     UserResponse getCurrUser();
     PageResponse<UserResponse> searchUser(String query, String sortBy, int page, int size);
+
+    String changePassword(String oldPassword, String newPassword);
 }

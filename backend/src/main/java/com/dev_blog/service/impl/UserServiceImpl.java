@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     public PageResponse<UserResponse> searchUser(String query, String sortBy, int page, int size) {
         Sort sort = Sort.by("id").ascending();
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<UserEntity> pageData = userRepository.findByKeyword(query, pageable);
 
         List<UserResponse> userList = pageData.getContent().stream().map(userMapper::toResponseDTO).toList();
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     public PageResponse<UserResponse> findAll(int page, int size) {
         Sort sort = Sort.by("id").ascending();
 
-        Pageable pageable = (Pageable) PageRequest.of(page - 1, size, sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<UserEntity> pageData = userRepository.findAll(pageable);
 
         List<UserResponse> userList = pageData.getContent().stream().map(userMapper::toResponseDTO).toList();
@@ -98,5 +98,18 @@ public class UserServiceImpl implements UserService {
             user.setAvatarUrl(request.getAvatarUrl());
 
         return userMapper.toResponseDTO(userRepository.save(user));
+    }
+
+
+    @Override
+    public String changePassword(String oldPassword, String newPassword) {
+        UserEntity user = SecurityUtil.getCurrUser();
+        boolean  authenticated = passwordEncoder.matches(oldPassword, user.getPassword());
+
+        if(!authenticated)
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return "Đổi mật khẩu thành công";
     }
 }

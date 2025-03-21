@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByUsername(@NotBlank(message = "INVALID_USERNAME") String userName);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
-    Optional<UserEntity> findByUsername(String userName);
+    Optional<UserEntity> findByUsername(String username);
     @Query(nativeQuery = true, value = "SELECT * FROM `user` " +
             "WHERE LOWER(username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "OR LOWER(display_name) LIKE LOWER(CONCAT('%', :keyword, '%'))")

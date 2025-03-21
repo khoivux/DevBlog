@@ -14,7 +14,7 @@ public interface PostService {
     PostResponse createPost(PostCreateRequest postRequest);
     PostResponse editPost(PostRequest postRequest);
     PostResponse getSinglePost(Long postId);
-    PageResponse<PostResponse> getPostsByUser(int page, int size, Long userId);
+    PageResponse<PostResponse> getPostsByUser(int page, int size, String sortBy, Long userId);
     String deletePost(Long postId);
     String handlePost(Long postId, Status status);
     String votePost(Long postId, VoteType voteType);
