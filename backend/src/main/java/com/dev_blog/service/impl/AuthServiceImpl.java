@@ -101,6 +101,9 @@ public class AuthServiceImpl implements AuthService {
         UserEntity user = userRepository.findByUsername(requestDTO.getUsername())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        if(user.getIs_blocked())
+            throw new AppException(ErrorCode.BLOCKED_USER);
+
         boolean authenticated = passwordEncoder.matches(requestDTO.getPassword(), user.getPassword());
 
         if(!authenticated)
@@ -163,7 +166,6 @@ public class AuthServiceImpl implements AuthService {
                 .authenticated(true)
                 .token(token)
                 .build();
-
     }
     // Kiem tra token co hop le khong
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {

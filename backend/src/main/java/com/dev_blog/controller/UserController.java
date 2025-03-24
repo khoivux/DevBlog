@@ -30,14 +30,6 @@ public class UserController {
                 .build();
     }
 
-    @Operation(summary = "Get Curr User")
-    @GetMapping("/curr")
-    public ApiResponse<?> getMyProfile() {
-        return ApiResponse.builder()
-                .data(userService.getCurrUser())
-                .build();
-    }
-
     @Operation(summary = "Get User")
     @GetMapping("/{username}")
     public ApiResponse<?> getProfile(@PathVariable("username") String username) {

@@ -19,8 +19,8 @@ public class ReportCommentServiceImpl implements ReportCommentService {
     private final UserRepository userRepository;
     private final ReportCommentRepository reportCommentRepository;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public String deleteReport(Long reportId) {
         ReportCommentEntity report = reportCommentRepository.findById(reportId)
                 .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));
@@ -43,8 +43,8 @@ public class ReportCommentServiceImpl implements ReportCommentService {
         return null;
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public String handleReport(Long reportId, Status status) {
         ReportCommentEntity report = reportCommentRepository.findById(reportId)
                 .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));

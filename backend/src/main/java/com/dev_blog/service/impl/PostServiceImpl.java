@@ -142,7 +142,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN') or @postService.isAuthor(#postId)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD') or @postService.isAuthor(#postId)")
     public String deletePost(Long postId) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
@@ -152,7 +152,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public String handlePost(Long postId, Status status) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
@@ -170,7 +170,7 @@ public class PostServiceImpl implements PostService {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
-        if (!SecurityUtil.getRole().contains("ADMIN")
+        if (!(SecurityUtil.getRole().contains("ADMIN") ||  SecurityUtil.getRole().contains("MOD"))
                 && post.getStatus() != (Status.APPROVED)
                 && !post.getAuthor().getUsername().equals(SecurityUtil.getCurrUser().getUsername())) {
             throw new AppException(ErrorCode.ACCESS_DENIED);
@@ -242,7 +242,7 @@ public class PostServiceImpl implements PostService {
 
     private List<PostResponse> pageDataToResponseList(Page<PostEntity> pageData, String status) {
         String username = SecurityUtil.getCurrUser().getUsername();
-        boolean isAdmin = SecurityUtil.getRole().contains("ADMIN");
+        boolean isAdmin = SecurityUtil.getRole().contains("ADMIN") ||  SecurityUtil.getRole().contains("MOD");
         // Chỉ là adin hoặc bài viết được duyệt hoặc chủ bài viết mới nhìn thấy
         return pageData.getContent().stream()
                 .filter(post -> isAdmin || post.getStatus() == (Status.APPROVED) ||

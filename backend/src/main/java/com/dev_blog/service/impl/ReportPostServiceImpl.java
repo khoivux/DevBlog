@@ -80,7 +80,7 @@ public class ReportPostServiceImpl implements ReportPostService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
     public String handelReport(Long reportId, Status status) {
         ReportPostEntity report = reportPostRepository.findById(reportId)
                 .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));

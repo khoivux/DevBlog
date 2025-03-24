@@ -27,7 +27,8 @@ public enum ErrorCode {
     COMMENT_NOT_EXISTED(1017, "Bình luaanj không tồn tại", HttpStatus.NOT_FOUND),
     EMPTY_DATA(10018, "Dữ liệu không được trống", HttpStatus.BAD_REQUEST),
     UPLOAD_FAIL(10019, "Không thể tải file", HttpStatus.BAD_REQUEST),
-
+    NOT_HAVE_ROLE(1020, "Người dùng không có quyền này", HttpStatus.NOT_FOUND),
+    BLOCKED_USER(1021 ,"Tài khoản của bạn đã bị khóa do vi phạm chính sách", HttpStatus.BAD_REQUEST),
     ;
     private final int code;
     private final String message;

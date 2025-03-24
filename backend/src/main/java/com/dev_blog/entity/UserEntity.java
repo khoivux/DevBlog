@@ -36,6 +36,8 @@ public class UserEntity {
     String introduction;
     @Column(name = "avatar_url")
     String avatarUrl;
+    @Column(name = "is_blocked")
+    Boolean is_blocked = false;
     @ElementCollection
     @Column(name = "role")
     Set<String> roles;

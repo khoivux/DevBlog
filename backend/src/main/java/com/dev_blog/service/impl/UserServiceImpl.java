@@ -4,11 +4,14 @@ package com.dev_blog.service.impl;
 import com.dev_blog.dto.request.UserUpdateRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.UserResponse;
+import com.dev_blog.entity.Notification;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.Role;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.UserMapper;
 import com.dev_blog.repository.UserRepository;
+import com.dev_blog.service.NotificationService;
 import com.dev_blog.service.UserService;
 import com.dev_blog.util.SecurityUtil;
 import com.dev_blog.util.ValidUserUtil;
@@ -22,6 +25,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -30,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     @Override
     public PageResponse<UserResponse> searchUser(String query, String sortBy, int page, int size) {
@@ -77,11 +83,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getCurrUser() {
-        return userMapper.toResponseDTO(SecurityUtil.getCurrUser());
-    }
-
-    @Override
     @Transactional
     public UserResponse updateProfile(UserUpdateRequest request) {
         UserEntity user = userRepository.findById(SecurityUtil.getCurrUser().getId())
@@ -111,5 +112,39 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return "Đổi mật khẩu thành công";
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public String setRole(String username, String type) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(type.equals("up")) {
+            user.getRoles().add(Role.MOD.name());
+        }
+        else {
+            if(!user.getRoles().contains(Role.MOD.name()))
+                throw new AppException(ErrorCode.NOT_HAVE_ROLE);
+            user.getRoles().remove(Role.MOD.name());
+        }
+        userRepository.save(user);
+        Notification notification = Notification.builder()
+                .createdTime(Date.from(Instant.now()))
+                .message("Bạn được cấp quyền mod" +
+                        "\n Bạn có thể duyệt bài, duyệt báo cáo")
+                .receiver(user)
+                .build();
+        notificationService.sendNotification(user.getId(), notification);
+        return "Phân quyền thành công";
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public String blockOrActive(String username, Boolean blocked) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        user.setIs_blocked(blocked);
+        userRepository.save(user);
+        return "Khóa thành công";
     }
 }
