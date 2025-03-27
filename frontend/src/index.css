@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background-color: #ececf9;
+    overflow-x: hidden;
+    font-family: "Montserrat", sans-serif;
+    max-width: 1300px;  /* Giới hạn chiều rộng */
+    margin: 0 auto;  /* Căn giữa trang */
+    padding: 0 1rem;  /* Thêm khoảng cách hai bên */
+}
+
+.animatedButton {
+    animation-duration: 10000ms;
+}
+
+.small-text {
+    font-size: 17px;
+  }
+
+  .shadow-custom {
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  .ql-container{
+    max-height: 450px; /* Đặt giới hạn chiều cao */
+    overflow-y: auto;  /* Hiển thị scrollbar khi nội dung dài */
+    border: none !important;
+  }
+  .ql-toolbar{
+    border: none !important;
+  }
+  .ql-editor{
+    border: none !important;
+  }
+
+  .content pre {
+    background-color: #1e1e1e; /* Nền đen */
+    color: #f8f8f2; /* Chữ sáng */
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 16px;
+    font-family: "Fira Code", monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  
+  .content code {
+    font-family: "Fira Code", monospace;
+    display: block;
+  }
+  .content ul {
+    list-style-type: disc; /* Hiển thị dấu chấm đầu dòng */
+    padding-left: 50px; /* Tạo khoảng cách cho danh sách */
+  }
+  
+  .content ol {
+    list-style-type: decimal; /* Hiển thị số thứ tự */
+    padding-left: 20px;
+  }
+  
