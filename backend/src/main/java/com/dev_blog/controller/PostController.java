@@ -62,7 +62,7 @@ public class PostController {
 
     @Operation(summary = "Get User's posts")
     @GetMapping("/user/{userId}")
-    public ApiResponse<Object> getMyPosts(
+    public ApiResponse<Object> getPostsByUserId(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,

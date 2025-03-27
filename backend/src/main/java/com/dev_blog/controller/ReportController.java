@@ -44,7 +44,7 @@ public class ReportController {
     public ApiResponse<?> handleReportPost(@PathVariable Long reportId,
                                            @RequestParam String status) {
         return ApiResponse.builder()
-                .message(reportPostService.handelReport(reportId, Status.valueOf(status.toUpperCase())))
+                .message(reportPostService.handleReport(reportId, Status.valueOf(status.toUpperCase())))
                 .build();
     }
 

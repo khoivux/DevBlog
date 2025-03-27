@@ -11,17 +11,16 @@ import com.dev_blog.entity.Notification;
 import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.PostVoteEntity;
 import com.dev_blog.entity.UserEntity;
-import com.dev_blog.enums.ErrorCode;
-import com.dev_blog.enums.Role;
-import com.dev_blog.enums.Status;
-import com.dev_blog.enums.VoteType;
+import com.dev_blog.enums.*;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.PostMapper;
-import com.dev_blog.repository.*;
+import com.dev_blog.repository.CategoryRepository;
+import com.dev_blog.repository.PostRepository;
+import com.dev_blog.repository.PostVoteRepository;
+import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.FollowService;
 import com.dev_blog.service.NotificationService;
 import com.dev_blog.service.PostService;
-import com.dev_blog.service.UploadService;
 import com.dev_blog.util.DateTimeUtil;
 import com.dev_blog.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -47,8 +46,7 @@ public class PostServiceImpl implements PostService {
     private final PostVoteRepository postVoteRepository;
     private final FollowService followService;
     private final NotificationService notificationService;
-    private final NotificationRepository notificationRepository;
-    private final UploadService uploadService;
+
 
 
     @Override
@@ -92,7 +90,8 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse createPost(PostCreateRequest postRequest) {
         Long authorId = SecurityUtil.getCurrUser().getId();
-        String status = SecurityUtil.getRole().contains(Role.ADMIN.toString()) ? "APPROVED" : "PENDING";
+        String status = SecurityUtil.getRole().contains(Role.ADMIN.toString()) || SecurityUtil.getRole().contains(Role.MOD.toString())
+                ? Status.APPROVED.name() : Status.PENDING.name();
 
         // Lưu bài viết mới
         PostEntity newPost = postRepository.save(PostEntity.builder()
@@ -107,24 +106,18 @@ public class PostServiceImpl implements PostService {
                 .modifiedTime(Instant.now())
                 .build());
 
-        // Thông báo cho tất cả người theo dõi
-        List<UserResponse> followers = followService.getFollowers(1, 5, SecurityUtil.getCurrUser().getUsername()).getData();
-        for(UserResponse follower : followers) {
-            Notification notification = Notification.builder()
-                    .createdTime(Date.from(Instant.now()))
-                    .message(SecurityUtil.getCurrUser().getDisplayName() + " đã đăng một bài viết mới")
-                    .redirectUrl("/post/" + newPost.getId())
-                    .receiver(userRepository.getReferenceById(follower.getId()))
-                    .build();
-            notificationService.sendNotification(follower.getId(), notification);
-        }
-
+        notificationService.sendToUsers(
+                userRepository.findModeratorIds(),
+                "Một bài viết mới đang chờ duyệt",
+                "/admin/posts",
+                NotificationType.POST_PENDING
+        );
         return postMapper.toResponse(newPost);
     }
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN') or @postService.isAuthor(#postRequest.id)")
+    @PreAuthorize("@postService.isAuthor(#postRequest.id)")
     public PostResponse editPost(PostRequest postRequest) {
         PostEntity post = postRepository.findById(postRequest.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
@@ -160,8 +153,20 @@ public class PostServiceImpl implements PostService {
         post.setStatus(status);
         postRepository.save(post);
 
-        if(status == Status.APPROVED)
+        if(status == Status.APPROVED) {
+            // Thông báo cho tất cả người theo dõi
+            List<UserResponse> followers = followService.getFollowers(1, 5, post.getAuthor().getUsername()).getData();
+            for(UserResponse follower : followers) {
+                Notification notification = Notification.builder()
+                        .createdTime(Date.from(Instant.now()))
+                        .message(post.getAuthor().getDisplayName() + " đã đăng một bài viết mới")
+                        .redirectUrl("/post/" +     post.getId())
+                        .receiver(userRepository.getReferenceById(follower.getId()))
+                        .build();
+                notificationService.sendNotification(follower.getId(), notification);
+            }
             return "Duyệt bài thành công";
+        }
         return "Từ chối duyệt thành công";
     }
 

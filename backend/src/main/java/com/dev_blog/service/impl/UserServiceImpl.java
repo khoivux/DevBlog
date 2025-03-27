@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     private final NotificationService notificationService;
 
     @Override
-    public PageResponse<UserResponse> searchUser(String query, String sortBy, int page, int size) {
+    public PageResponse<UserResponse> getList(String query, String sortBy, int page, int size) {
         Sort sort = Sort.by("id").ascending();
 
         Pageable pageable = PageRequest.of(page - 1, size, sort);
@@ -61,25 +61,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toResponseDTO(user);
-    }
-
-    @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    public PageResponse<UserResponse> findAll(int page, int size) {
-        Sort sort = Sort.by("id").ascending();
-
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-        Page<UserEntity> pageData = userRepository.findAll(pageable);
-
-        List<UserResponse> userList = pageData.getContent().stream().map(userMapper::toResponseDTO).toList();
-
-        return PageResponse.<UserResponse>builder()
-                .currentPage(page)
-                .totalPage(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
-                .pageSize(size)
-                .data(userList)
-                .build();
     }
 
     @Override
@@ -108,7 +89,7 @@ public class UserServiceImpl implements UserService {
         boolean  authenticated = passwordEncoder.matches(oldPassword, user.getPassword());
 
         if(!authenticated)
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.WRONG_PASSWORD);
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return "Đổi mật khẩu thành công";
@@ -116,10 +97,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public String setRole(String username, String type) {
+    public String setRole(String username, String role) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        if(type.equals("up")) {
+        if(role.equals(Role.MOD.name())) {
             user.getRoles().add(Role.MOD.name());
         }
         else {
@@ -130,7 +111,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         Notification notification = Notification.builder()
                 .createdTime(Date.from(Instant.now()))
-                .message("Bạn được cấp quyền mod" +
+                .message("Bạn được cấp quit mod" +
                         "\n Bạn có thể duyệt bài, duyệt báo cáo")
                 .receiver(user)
                 .build();

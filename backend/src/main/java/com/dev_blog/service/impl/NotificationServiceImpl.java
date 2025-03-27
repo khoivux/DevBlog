@@ -2,6 +2,10 @@ package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.entity.Notification;
+import com.dev_blog.entity.UserEntity;
+import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.NotificationType;
+import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.repository.NotificationRepository;
 import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.NotificationService;
@@ -14,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,13 +30,28 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(Long userId, Notification notification) {
-        log.info("Sending WS noti to {} with payload {}", userId, notification);
         notificationRepository.save(notification);
         messagingTemplate.convertAndSendToUser(
                 String.valueOf(userId),
                 "/notification",
                 notification
         );
+    }
+
+    @Override
+    public String sendToUsers(List<Long> userIds, String message, String redirectUrl, NotificationType type) {
+        for(Long userId : userIds) {
+            UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+            Notification notification = Notification.builder()
+                    .receiver(user)
+                    .message(message)
+                    .redirectUrl(redirectUrl)
+                    .type(type)
+                    .build();
+            sendNotification(userId, notification);
+        }
+        return "Gửi thông báo thành công";
     }
 
     @Override

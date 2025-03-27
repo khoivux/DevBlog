@@ -29,6 +29,7 @@ public enum ErrorCode {
     UPLOAD_FAIL(10019, "Không thể tải file", HttpStatus.BAD_REQUEST),
     NOT_HAVE_ROLE(1020, "Người dùng không có quyền này", HttpStatus.NOT_FOUND),
     BLOCKED_USER(1021 ,"Tài khoản của bạn đã bị khóa do vi phạm chính sách", HttpStatus.BAD_REQUEST),
+    WRONG_PASSWORD(1022 ,"Mật khẩu không đúng", HttpStatus.BAD_REQUEST),
     ;
     private final int code;
     private final String message;

@@ -5,8 +5,9 @@ import com.dev_blog.entity.ReportCommentEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.enums.Status;
 import com.dev_blog.exception.custom.AppException;
-import com.dev_blog.mapper.ReportPostMapper;
-import com.dev_blog.repository.*;
+import com.dev_blog.repository.CommentRepository;
+import com.dev_blog.repository.ReportCommentRepository;
+import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.ReportCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +30,6 @@ public class ReportCommentServiceImpl implements ReportCommentService {
         return "Đã xóa báo cáo";
     }
 
-    private final ReportPostMapper reportPostMapper;
 
     @Override
     public ReportCommentDTO createReport(ReportCommentDTO request) {

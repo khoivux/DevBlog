@@ -7,10 +7,7 @@ import com.dev_blog.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,6 +39,16 @@ public class AdminController {
     {
         return ApiResponse.builder()
                 .message(userService.blockOrActive(username, block))
+                .build();
+    }
+
+    @PutMapping("/set-roles/{username}")
+    public ApiResponse<Object> setRoles(
+            @PathVariable String username,
+            @RequestParam String role)
+    {
+        return ApiResponse.builder()
+                .message(userService.setRole(username, role))
                 .build();
     }
 }

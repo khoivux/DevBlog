@@ -1,16 +1,15 @@
 package com.dev_blog.service.impl;
 
-import com.dev_blog.entity.Notification;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.entity.FollowEntity;
+import com.dev_blog.entity.Notification;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
-import com.dev_blog.enums.NotificationStatus;
+import com.dev_blog.enums.NotificationType;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.UserMapper;
 import com.dev_blog.repository.FollowRepository;
-import com.dev_blog.repository.NotificationRepository;
 import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.FollowService;
 import com.dev_blog.service.NotificationService;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -36,7 +34,6 @@ public class FollowServiceImpl implements FollowService {
     private final FollowRepository followRepository;
     private final UserMapper userMapper;
     private final NotificationService notificationService;
-    private final NotificationRepository notificationRepository;
 
     @Override
     @Transactional
@@ -58,10 +55,10 @@ public class FollowServiceImpl implements FollowService {
         notificationService.sendNotification(
                 followedId,
                 Notification.builder()
-                    .status(NotificationStatus.FOLLOW)
+                    .type(NotificationType.FOLLOW)
                     .createdTime(Date.from(Instant.now()))
                     .receiver(followedUser)
-                    .redirectUrl(null)
+                    .redirectUrl("/author/" + follower.getUsername())
                     .message(follower.getDisplayName() + " đã theo dõi bạn")
                     .title("Thông báo")
                     .build()
@@ -131,17 +128,4 @@ public class FollowServiceImpl implements FollowService {
                 .build();
     }
 
-    @Override
-    public Map<String, Long> getFollowCount(Long userId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        long followersCount = followRepository.countByFollowedUser(user);
-        long followingCount = followRepository.countByFollower(user);
-
-        return Map.of(
-                "followersCount", followersCount,
-                "followingCount", followingCount
-        );
-    }
 }

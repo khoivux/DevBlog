@@ -7,7 +7,7 @@ import com.dev_blog.entity.CommentEntity;
 import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
-import com.dev_blog.enums.NotificationStatus;
+import com.dev_blog.enums.NotificationType;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.CommentMapper;
 import com.dev_blog.repository.CommentRepository;
@@ -76,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
         notificationService.sendNotification(
                 post.getAuthor().getId(),
                 Notification.builder()
-                        .status(NotificationStatus.COMMENT)
+                        .type(NotificationType.COMMENT)
                         .message(user.getDisplayName() + " đã bình luận bài viết của bạn")
                         .title("Thông báo")
                         .build()
@@ -95,5 +95,14 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.save(comment);
 
         return commentMapper.toResponse(comment, dateTimeUtil);
+    }
+
+    @Override
+    public String deleteComment(Long commentId) {
+        CommentEntity comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_EXISTED));
+        commentRepository.deleteAllByParentId(commentId);
+        commentRepository.delete(comment);
+        return "Xóa bình luận thành công";
     }
 }

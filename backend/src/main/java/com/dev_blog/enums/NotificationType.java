@@ -1,8 +1,9 @@
 package com.dev_blog.enums;
 
-public enum NotificationStatus {
+public enum NotificationType {
     COMMENT,
     WARNING,
     FOLLOW,
-    SYSTEM
+    SYSTEM,
+    POST_PENDING
 }

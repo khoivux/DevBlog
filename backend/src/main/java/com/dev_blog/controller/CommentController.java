@@ -43,4 +43,11 @@ public class CommentController {
                 .message("Chỉnh sửa bình luận thành công")
                 .build();
     }
+
+    @DeleteMapping("/")
+    public ApiResponse<Object> deleteComment(@RequestParam Long commentId) {
+        return ApiResponse.builder()
+                .message(commentService.deleteComment(commentId))
+                .build();
+    }
 }

@@ -7,4 +7,6 @@ public interface CommentService {
     PageResponse<CommentDTO> getCommentsByPost(int page, int size, Long postId);
     CommentDTO createComment(CommentDTO request);
     CommentDTO editComment(CommentDTO commentDTO);
+
+    String deleteComment(Long commentId);
 }

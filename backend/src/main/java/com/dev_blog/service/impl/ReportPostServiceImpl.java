@@ -1,17 +1,14 @@
 package com.dev_blog.service.impl;
 
-import com.dev_blog.entity.Notification;
 import com.dev_blog.dto.request.ReportPostRequest;
 import com.dev_blog.dto.request.SearchRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.ReportPostResponse;
 import com.dev_blog.entity.ReportPostEntity;
 import com.dev_blog.enums.ErrorCode;
-import com.dev_blog.enums.NotificationStatus;
 import com.dev_blog.enums.Status;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.ReportPostMapper;
-import com.dev_blog.repository.NotificationRepository;
 import com.dev_blog.repository.PostRepository;
 import com.dev_blog.repository.ReportPostRepository;
 import com.dev_blog.repository.UserRepository;
@@ -27,7 +24,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +35,6 @@ public class ReportPostServiceImpl implements ReportPostService {
     private final ReportPostRepository reportPostRepository;
     private final ReportPostMapper reportPostMapper;
     private final NotificationService notificationService;
-    private final NotificationRepository notificationRepository;
 
     @Override
     public ReportPostResponse createReport(ReportPostRequest request) {
@@ -81,23 +76,13 @@ public class ReportPostServiceImpl implements ReportPostService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
-    public String handelReport(Long reportId, Status status) {
+    public String handleReport(Long reportId, Status status) {
         ReportPostEntity report = reportPostRepository.findById(reportId)
                 .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));
         report.setStatus(status);
         reportPostRepository.save(report);
 
         if(status == Status.APPROVED) {
-            notificationService.sendNotification(
-                    report.getAuthor().getId(),
-                    Notification.builder()
-                        .status(NotificationStatus.SYSTEM)
-                        .createdTime(Date.from(Instant.now()))
-                        .receiver(report.getAuthor())
-                        .title("Thông báo")
-                        .message(String.format("Báo cáo về bài viết '%s' đã được xử lý.", report.getPost().getTitle()))
-                        .build()
-            );
             return "Đã xử lý báo cáo";
         }
         return "Đã từ chối báo cáo";

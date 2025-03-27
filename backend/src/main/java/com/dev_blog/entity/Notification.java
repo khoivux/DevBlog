@@ -1,6 +1,6 @@
 package com.dev_blog.entity;
 
-import com.dev_blog.enums.NotificationStatus;
+import com.dev_blog.enums.NotificationType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,9 +32,9 @@ public class Notification {
     @Column(name = "created_at")
     Date createdTime;
 
-    @Column(name = "status")
+    @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    NotificationStatus status;
+    NotificationType type;
 
     @Column(name = "message")
     String message;

@@ -41,7 +41,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Edit Category")
-    @PostMapping("/edit")
+    @PutMapping("/edit")
     public ApiResponse<?> editCategory(@Valid @RequestBody CategoryDTO request) {
         return ApiResponse.builder()
                 .data(categoryService.editCategory(request))
@@ -50,7 +50,7 @@ public class CategoryController {
     }
 
     @Operation(summary = "Delete Category")
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public ApiResponse<?> deleteCategory(@RequestParam Long categoryId) {
         categoryService.deleteCategory(categoryId);
         return ApiResponse.builder()

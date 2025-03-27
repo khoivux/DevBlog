@@ -19,14 +19,16 @@ public class UserController {
     private final UserService userService;
     private final FollowService followService;
 
-    @Operation(summary = "Get All User")
+    @Operation(summary = "Get User List")
     @GetMapping("/list")
     public ApiResponse<?> getAll(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "5") int size
+            @RequestParam(value = "size", defaultValue = "5") int size,
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "sortBy", required = false) String sortBy
     ) {
         return ApiResponse.builder()
-                .data(userService.findAll(page, size))
+                .data(userService.getList(query, sortBy, page, size))
                 .build();
     }
 
@@ -63,14 +65,6 @@ public class UserController {
     }
 
     @Operation(summary = "Get Followers")
-    @GetMapping("/{userId}/count-follow")
-    public ApiResponse<?> countFollow(@PathVariable Long userId) {
-        return ApiResponse.builder()
-                .data(followService.getFollowCount(userId))
-                .build();
-    }
-
-    @Operation(summary = "Get Followers")
     @GetMapping("/{username}/followers")
     public ApiResponse<?> getFollowers(
             @PathVariable String username,
@@ -89,6 +83,16 @@ public class UserController {
             @RequestParam(value = "size", defaultValue = "5") int size) {
         return ApiResponse.builder()
                 .data(followService.getFollowing(page, size, username))
+                .build();
+    }
+
+    @Operation(summary = "Change Password")
+    @GetMapping("/change-password")
+    public ApiResponse<?> changePassword(
+            @RequestParam String oldPassword,
+            @RequestParam String  newPassword) {
+        return ApiResponse.builder()
+                .message(userService.changePassword(oldPassword, newPassword))
                 .build();
     }
 }

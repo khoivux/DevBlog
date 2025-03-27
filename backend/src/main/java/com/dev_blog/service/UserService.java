@@ -9,14 +9,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public interface UserService {
     UserResponse updateProfile(UserUpdateRequest request);
     UserResponse findByUsername(String username);
-    PageResponse<UserResponse> findAll(int page, int size);
-    PageResponse<UserResponse> searchUser(String query, String sortBy, int page, int size);
-
+    PageResponse<UserResponse> getList(String query, String sortBy, int page, int size);
     String changePassword(String oldPassword, String newPassword);
-
     @PreAuthorize("hasRole('ADMIN')")
-    String setRole(String username, String type);
-
+    String setRole(String username, String role);
     @PreAuthorize("hasRole('ADMIN')")
     String blockOrActive(String username, Boolean blocked);
 }
