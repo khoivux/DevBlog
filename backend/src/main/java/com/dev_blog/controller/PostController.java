@@ -98,6 +98,14 @@ public class PostController {
                 .data(postService.votePost(postId, VoteType.valueOf(voteType.toUpperCase())))
                 .build();
     }
+
+    @Operation(summary = "Check Vote Post")
+    @GetMapping("/vote/{postId}")
+    public ApiResponse<Object> checkVote(@PathVariable Long postId) {
+        return ApiResponse.builder()
+                .data(postService.checkVote(postId))
+                .build();
+    }
 }
 
 

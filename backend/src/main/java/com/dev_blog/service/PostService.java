@@ -21,5 +21,8 @@ public interface PostService {
     PageResponse<PostResponse> getList(SearchRequest request, int page, int size);
 
     void increaseView(Long postId);
+
+    String checkVote(Long postId);
+
     boolean isAuthor(Long postId);
 }

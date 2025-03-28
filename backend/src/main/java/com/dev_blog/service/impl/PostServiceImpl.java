@@ -199,8 +199,11 @@ public class PostServiceImpl implements PostService {
         UserEntity currUser = SecurityUtil.getCurrUser();
         Optional<PostVoteEntity> postVote = postVoteRepository.findByPostAndVoter(post, currUser);
 
-        if(voteType == VoteType.NONE)
+        if(voteType == VoteType.NONE) {
             postVote.ifPresent(postVoteRepository::delete);
+            return "Vote thành công";
+        }
+
 
         postVote.ifPresentOrElse(
                 existingVote -> {
@@ -236,6 +239,13 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+    @Override
+    public String checkVote(Long postId) {
+        PostEntity post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
+        Optional<PostVoteEntity> postVote = postVoteRepository.findByPostAndVoter(post, SecurityUtil.getCurrUser());
+        return postVote.map(postVoteEntity -> postVoteEntity.getType() == VoteType.LIKE ? "LIKE" : "DISLIKE").orElse("NONE");
+    }
 
     @Override
      public boolean isAuthor(Long postId) {

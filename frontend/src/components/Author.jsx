@@ -16,30 +16,18 @@ const Author = ({ username}) => {
   const [currUser, setCurrUser] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
 
-  useEffect(() => {
-    // Lấy user từ sessionStorage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setCurrUser(JSON.parse(storedUser)); // Parse JSON để dùng
-    }
-  }, []);
-
-  useEffect(() => {
-    const fetchAuthor = async () => {
-      try {
-        const data = await getAuthor(username);
-        if (data) {
-          setAuthor(data);
-        } else {
-          setError("Bạn chưa đăng nhập!");
-        }
-      } catch (err) {
-        setError(err.message);
+  const fetchAuthor = async () => {
+    try {
+      const data = await getAuthor(username);
+      if (data) {
+        setAuthor(data);
+      } else {
+        setError("Bạn chưa đăng nhập!");
       }
-    };
-
-    fetchAuthor();
-  }, [username]);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   // Xử lý theo dõi hoặc bỏ theo dõi
   const handleFollow = async () => {
@@ -78,7 +66,11 @@ const Author = ({ username}) => {
   };
 
   useEffect(() => {
-  
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setCurrUser(JSON.parse(storedUser)); // Parse JSON để dùng
+    }
+    fetchAuthor();
     fetchData();
   }, [username]);
   
@@ -209,55 +201,7 @@ const Author = ({ username}) => {
         </div>
       </Modal>
 
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        contentLabel="Chỉnh sửa thông tin tác giả"
-        className="bg-white p-6 rounded-xl shadow-lg w-[450px] border border-gray-300 outline-none"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-xl font-bold text-center mb-4">Chỉnh sửa thông tin</h2>
-
-
-        <div className="flex items-center gap-4 mb-2">
-          {/* Ảnh đại diện */}
-          <img
-            src="/avatar.png"
-            alt="Avatar"
-            className="w-20 h-20 rounded-full border border-gray-300 object-cover"
-          />
-
-          {/* Nút chọn ảnh */}
-          <input
-            type="file"
-            accept="image/*"
-            className="text-sm text-gray-600"
-          />
-        </div>
-
-
-        <div className="space-y-2">
-          {inputFields.map(({ label, name, type }) => (
-            <div key={name}>
-              <label className="block font-semibold">{label}</label>
-              {type === "textarea" ? (
-                <textarea name={name} className={inputClass} />
-              ) : (
-                <input type={type} name={name} className={inputClass} />
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-end gap-2 mt-2">
-          <button onClick={closeModal} className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">
-            Hủy
-          </button>
-          <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            Lưu thay đổi
-          </button>
-        </div>
-      </Modal>
+      
 
 
     </div>

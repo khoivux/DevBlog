@@ -98,5 +98,18 @@ export const getPosts = async (
       throw new Error("Lỗi kết nối đến server!");
     }
   };
+  
+  export const checkVote = async (postId) => {
+    try {
+      const response = await axiosClient.get(`${API_URL}/vote/${postId}`, null);
+  
+      return response.data.data; // Trả về dữ liệu từ API
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || "Lỗi khi vote bài viết!");
+      }
+      throw new Error("Lỗi kết nối đến server!");
+    }
+  };
 
   

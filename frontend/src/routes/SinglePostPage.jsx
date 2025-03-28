@@ -5,7 +5,7 @@ import Topic from "../components/Topic";
 import Author from "../components/Author";
 import Comments from "../components/Comments";
 import { FaThumbsUp, FaThumbsDown } from "react-icons/fa";
-import { getSinglePost, votePost } from "../service/postService.js";
+import { getSinglePost, votePost, checkVote } from "../service/postService.js";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 
@@ -18,53 +18,62 @@ const SinglePostPage = () => {
     const [post, setPost] = useState(null);
     const [error, setError] = useState("");
     const [likes, setLikes] = useState(0);
+    const [typeLike, setTypeLike] = useState(null);
     const [showScroll, setShowScroll] = useState(false);
     
-    useEffect(() => {
-      if (post?.content) {
-        // Đợi React cập nhật DOM trước khi highlight
-        setTimeout(() => {
-          document.querySelectorAll("pre code").forEach((block) => {
-            hljs.highlightElement(block);
-          });
-        }, 0);
-      }
-    }, [post]);
     
 
-    useEffect(() => {
-      const fetchPost = async () => {
-        try {
-          const data = await getSinglePost(postId);
-          if (data) {
-            setPost(data);
-          } else {
-            setError("Bạn chưa đăng nhập!");
-          }
-        } catch (err) {
-          setError(err.message);
+    const fetchPost = async () => {
+      try {
+        const data = await getSinglePost(postId);
+        if (data) {
+          setPost(data);
+        } else {
+          setError("Bạn chưa đăng nhập!");
         }
-      };
-  
-      fetchPost();
-    }, [postId]);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    const fetchVoteType = async () => {
+      try {
+        const type = await checkVote(postId);
+        if (type) {
+          setTypeLike(type);
+        } else {
+          setError("Bạn chưa đăng nhập!");
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    };
   
     const handleVote = async (type) => {
       if (!post) return; // Đảm bảo post đã có dữ liệu trước khi vote
   
       const oldLikes = likes; // Lưu trạng thái cũ để rollback nếu lỗi
-  
+      const newVoteType = typeLike === type ? "NONE" : type;
       // Cập nhật state ngay lập tức để UI thay đổi ngay
-      setLikes((prevLikes) => (type === "LIKE" ? prevLikes + 1 : Math.max(prevLikes - 1, 0)));
-  
+      
       try {
-        const result = await votePost(postId, type);
+        const result = await votePost(postId, newVoteType);
+        fetchPost()
+        fetchVoteType()
         console.log("Vote thành công:", result);
       } catch (error) {
         console.error("Lỗi vote:", error.message);
         setLikes(oldLikes); // Rollback state nếu API lỗi
       }
     };
+
+
+    useEffect(() => {
+      fetchPost()
+      fetchVoteType()
+    }, [postId]);
+    
+
     // Theo dõi vị trí cuộn
     useEffect(() => {
         const handleScroll = () => {
@@ -118,12 +127,26 @@ const SinglePostPage = () => {
                   dangerouslySetInnerHTML={{ __html: post.content.replace(/<\/pre>\n<pre><code>/g, "</code></pre>\n<pre><code>")  }} 
                 />
                 {/* Like / Unlike Button - Đặt dưới nội dung */}
+                  {/* Like / Unlike Button */}
                   <div className="flex justify-end items-center gap-4 p-4 border-t">
-                    <button onClick={() => handleVote("LIKE")} className="flex items-center gap-2 text-gray-500 hover:text-blue-500">
+                    {/* Nút LIKE */}
+                    <button
+                      onClick={() => handleVote(typeLike === "LIKE" ? "NONE" : "LIKE")}
+                      className={`flex items-center gap-2 ${
+                        typeLike === "LIKE" ? "text-blue-500" : "text-gray-500"
+                      } hover:text-blue-500`}
+                    >
                       <FaThumbsUp size={20} /> <span>{post.like}</span>
                     </button>
-                    <button onClick={() => handleVote("DISLIKE")} className="flex items-center gap-2 text-gray-500 hover:text-red-500">
-                      <FaThumbsDown size={20} /> <span></span>
+
+                    {/* Nút DISLIKE */}
+                    <button
+                      onClick={() => handleVote(typeLike === "DISLIKE" ? "NONE" : "DISLIKE")}
+                      className={`flex items-center gap-2 ${
+                        typeLike === "DISLIKE" ? "text-red-500" : "text-gray-500"
+                      } hover:text-red-500`}
+                    >
+                      <FaThumbsDown size={20} />
                     </button>
                   </div>
                 </div>
