@@ -3,10 +3,9 @@ package com.dev_blog.util;
 
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.Role;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.repository.UserRepository;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -26,17 +25,23 @@ public class SecurityUtil {
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    public static String getRole() {
-        return String.valueOf(SecurityContextHolder.getContext()
-                .getAuthentication().getAuthorities());
+    public static boolean isMod() {
+        return getRoles().contains(Role.MOD.name());
     }
 
-    public static void deleteCookies(HttpServletResponse response) {
-        // Xóa cookie JWToken
-        Cookie jwtCookie = new Cookie("JWToken", "");
-        jwtCookie.setHttpOnly(true); // Bảo mật chống XSS
-        jwtCookie.setPath("/"); // Áp dụng cho toàn bộ ứng dụng
-        jwtCookie.setMaxAge(0); // Xóa ngay lập tức
-        response.addCookie(jwtCookie);
+    public static boolean isAdmin() {
+        return getRoles().contains(Role.ADMIN.name());
     }
+
+    public static boolean isNormalUser() {
+        return !isAdmin() && !isMod();
+    }
+
+    private static String getRoles() {
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .toString();
+    }
+
 }

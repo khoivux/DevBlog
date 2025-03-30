@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,6 +30,9 @@ public class CommentEntity {
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)
     PostEntity post;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReportCommentEntity> reportComments;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")

@@ -126,6 +126,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         user.setIs_blocked(blocked);
         userRepository.save(user);
-        return "Khóa thành công";
+        if(blocked)
+            return "Khóa tài khoản thành công!";
+        return "Mở khóa tài khoản thành công";
     }
 }

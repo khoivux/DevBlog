@@ -4,6 +4,7 @@ import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.service.UploadService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import java.io.IOException;
 public class UploadController {
     private final UploadService uploadService;
 
+    @Operation(summary = "Upload File")
     @PostMapping("")
     public ApiResponse<?> uploadFile (@RequestParam("file") MultipartFile file) {
         try {

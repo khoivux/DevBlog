@@ -21,7 +21,7 @@ public class UserController {
 
     @Operation(summary = "Get User List")
     @GetMapping("/list")
-    public ApiResponse<?> getAll(
+    public ApiResponse<?> getUserList(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
             @RequestParam(value = "query", required = false) String query,
@@ -87,7 +87,7 @@ public class UserController {
     }
 
     @Operation(summary = "Change Password")
-    @GetMapping("/change-password")
+    @PutMapping("/change-password")
     public ApiResponse<?> changePassword(
             @RequestParam String oldPassword,
             @RequestParam String  newPassword) {

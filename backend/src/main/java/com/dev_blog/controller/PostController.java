@@ -99,7 +99,7 @@ public class PostController {
                 .build();
     }
 
-    @Operation(summary = "Check Vote Post")
+    @Operation(summary = "Check Post Vote")
     @GetMapping("/vote/{postId}")
     public ApiResponse<Object> checkVote(@PathVariable Long postId) {
         return ApiResponse.builder()

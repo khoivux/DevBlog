@@ -1,9 +1,9 @@
 package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.CommentDTO;
-import com.dev_blog.entity.Notification;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.entity.CommentEntity;
+import com.dev_blog.entity.Notification;
 import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -97,6 +98,7 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toResponse(comment, dateTimeUtil);
     }
 
+    @Transactional
     @Override
     public String deleteComment(Long commentId) {
         CommentEntity comment = commentRepository.findById(commentId)

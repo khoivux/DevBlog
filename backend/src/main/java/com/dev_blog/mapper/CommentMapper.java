@@ -16,7 +16,7 @@ public interface CommentMapper {
         dto.setParentId(Optional.ofNullable(commentEntity.getParent()).map(CommentEntity::getId).orElse(null));
         dto.setId(commentEntity.getId());
         dto.setAuthorId(commentEntity.getAuthor().getId());
-        dto.setAuthorName(commentEntity.getAuthor().getUsername());
+        dto.setAuthorUsername(commentEntity.getAuthor().getUsername());
         dto.setContent(commentEntity.getContent());
         dto.setPostId(commentEntity.getPost().getId());
         dto.setCreatedTime(dateTimeUtil.format(commentEntity.getCreatedTime()));

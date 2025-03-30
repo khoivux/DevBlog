@@ -47,8 +47,6 @@ public class PostServiceImpl implements PostService {
     private final FollowService followService;
     private final NotificationService notificationService;
 
-
-
     @Override
     public PageResponse<PostResponse> getList(SearchRequest request, int page, int size) {
         Map<String, Sort> sortOptions = Map.of(
@@ -90,9 +88,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse createPost(PostCreateRequest postRequest) {
         Long authorId = SecurityUtil.getCurrUser().getId();
-        String status = SecurityUtil.getRole().contains(Role.ADMIN.toString()) || SecurityUtil.getRole().contains(Role.MOD.toString())
-                ? Status.APPROVED.name() : Status.PENDING.name();
-
+        String status = SecurityUtil.isMod() ? Status.APPROVED.name() : Status.PENDING.name();
         // Lưu bài viết mới
         PostEntity newPost = postRepository.save(PostEntity.builder()
                 .author(userRepository.getReferenceById(authorId))
@@ -126,7 +122,8 @@ public class PostServiceImpl implements PostService {
         post.setTitle(postRequest.getTitle());
         post.setModifiedTime(Instant.now());
         post.setThumbnailUrl(postRequest.getThumbnailUrl());
-
+        if(SecurityUtil.isNormalUser())
+            post.setStatus(Status.PENDING);
         PostResponse postResponse = postMapper.toResponse(postRepository.save(post));
         postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
 
@@ -175,7 +172,7 @@ public class PostServiceImpl implements PostService {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
-        if (!(SecurityUtil.getRole().contains("ADMIN") ||  SecurityUtil.getRole().contains("MOD"))
+        if (SecurityUtil.isNormalUser()
                 && post.getStatus() != (Status.APPROVED)
                 && !post.getAuthor().getUsername().equals(SecurityUtil.getCurrUser().getUsername())) {
             throw new AppException(ErrorCode.ACCESS_DENIED);
@@ -257,7 +254,7 @@ public class PostServiceImpl implements PostService {
 
     private List<PostResponse> pageDataToResponseList(Page<PostEntity> pageData, String status) {
         String username = SecurityUtil.getCurrUser().getUsername();
-        boolean isAdmin = SecurityUtil.getRole().contains("ADMIN") ||  SecurityUtil.getRole().contains("MOD");
+        boolean isAdmin = SecurityUtil.isMod();
         // Chỉ là adin hoặc bài viết được duyệt hoặc chủ bài viết mới nhìn thấy
         return pageData.getContent().stream()
                 .filter(post -> isAdmin || post.getStatus() == (Status.APPROVED) ||

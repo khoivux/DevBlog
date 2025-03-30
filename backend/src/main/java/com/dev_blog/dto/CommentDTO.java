@@ -14,9 +14,9 @@ import lombok.experimental.FieldDefaults;
 public class CommentDTO {
     Long id;
     Long postId;
-    Long authorId;
     Long parentId;
-    String authorName;
+    Long authorId;
+    String authorUsername;
     @NotBlank(message = "EMPTY_DATA")
     String content;
     String createdTime;

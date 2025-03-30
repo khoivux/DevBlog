@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.List;
 
 @Entity
 @Getter
@@ -49,4 +50,13 @@ public class PostEntity {
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     CategoryEntity category;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<PostVoteEntity> postVotes;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<CommentEntity> comments;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReportPostEntity> reportPosts;
 }

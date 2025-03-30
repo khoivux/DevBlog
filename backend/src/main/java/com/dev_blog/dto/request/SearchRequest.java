@@ -14,5 +14,6 @@ public class SearchRequest {
     String status;
 
     public SearchRequest(String query, Long categoryId, String sortBy) {
+
     }
 }

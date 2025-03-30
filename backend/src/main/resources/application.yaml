@@ -27,8 +27,8 @@ spring:
       mail.smtp.starttls.required: true
 
 jwt:
-  signerKey: 6jW9+wO5FTah7bT9tMhRxc6NG5S4UEx5VnnDV6MTkItMP7LEHJc5OdIX/luzm5gh
-  valid-duration: 3600 #in second
+  signerKey: ${SIGNER_KEY}
+  valid-duration: 360000 #in second
   refreshable-duration: 360000
 
 server:
@@ -42,6 +42,6 @@ openapi:
     version: 1.0.0
 
 cloudinary:
-  cloud-name: drdjvonsx
-  api-key: 662879543464571
-  api-secret: VJsM9WEr-C2N5QKif7vwUU1PfyI
+  cloud-name: ${CLOUD_NAME}
+  api-key: ${CLOUD_API_KEY}
+  api-secret: ${CLOUD_API_SECRET}

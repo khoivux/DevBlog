@@ -4,6 +4,7 @@ import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.enums.NotificationType;
 import com.dev_blog.service.NotificationService;
 import com.dev_blog.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class NotificationController {
     private final PostService postService;
     private final NotificationService notificationService;
 
+    @Operation(summary = "Get User's Notification")
     @GetMapping("/")
     public ApiResponse<?> getNotificationsOfReceiver(
             @RequestParam(value = "page", defaultValue = "1") int page,
@@ -30,6 +32,8 @@ public class NotificationController {
                 .data(notificationService.getNotificationsOfReceiver(receiverId, page, size))
                 .build();
     }
+
+    @Operation(summary = "Send Notification")
     @PostMapping("/")
     public ApiResponse<?> sendNotification(
             @RequestParam List<Long> receiverIds,
