@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
         user.setIs_blocked(blocked);
         userRepository.save(user);
         if(blocked)
-            return "Khóa tài khoản thành công!";
-        return "Mở khóa tài khoản thành công";
+            return "Khóa tài khoản @" + user.getUsername() + "thành công!";
+        return "Mở khóa tài khoản @" + user.getUsername() + " thành công";
     }
 }

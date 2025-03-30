@@ -7,13 +7,11 @@ import com.dev_blog.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin")
-@PreAuthorize("hasRole('ADMIN')")
 @Tag(name = "Admin Controller")
 public class AdminController {
     private final PostService postService;
