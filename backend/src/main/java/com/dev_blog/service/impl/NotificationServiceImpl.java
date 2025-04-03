@@ -18,6 +18,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -44,10 +46,12 @@ public class NotificationServiceImpl implements NotificationService {
             UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
             Notification notification = Notification.builder()
+                    .createdTime(Date.from(Instant.now()))
                     .receiver(user)
                     .message(message)
                     .redirectUrl(redirectUrl)
                     .type(type)
+                    .isRead(false)
                     .build();
             sendNotification(userId, notification);
         }
@@ -56,7 +60,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public PageResponse<Notification> getNotificationsOfReceiver(Long receiverId, int page, int size) {
-        Sort sort = Sort.by("createdTime").ascending();
+        Sort sort = Sort.by("createdTime").descending();
 
         Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<Notification> pageData = notificationRepository.findByReceiver(userRepository.getReferenceById(receiverId), pageable);
@@ -68,5 +72,15 @@ public class NotificationServiceImpl implements NotificationService {
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent())
                 .build();
+    }
+
+    @Override
+    public String markAsRead(Long userId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdAndIsReadFalse(userId);
+        for (Notification notification : notifications) {
+            notification.setIsRead(true);
+        }
+        notificationRepository.saveAll(notifications);
+        return "Đã cập nhật trạng thái thông báo";
     }
 }

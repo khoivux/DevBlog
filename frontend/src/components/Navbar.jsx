@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation,useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { logout } from "../service/authService";
-// import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
-
+import NotificationDropdown from "./NotificationDropdown";
+import "moment/locale/vi";
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const location = useLocation();
@@ -14,7 +14,7 @@ const Navbar = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Lưu thông tin user vào state
+      setUser(JSON.parse(storedUser)); 
     }
   }, []);
 
@@ -28,7 +28,17 @@ const Navbar = () => {
       console.log("Lỗi khi đăng xuất:");
     }
   };
-  
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const updatedUser = JSON.parse(localStorage.getItem("user"));
+      setUser(updatedUser);
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
 
   // Kiểm tra nếu đang ở trang admin
@@ -36,7 +46,7 @@ const Navbar = () => {
   return (
     <div className="w-full h-16 md:h-20 flex items-center justify-between">
       {/* LOGO */}
-      <Link to="/" className="flex items-center gap-4 text-2xl font-bold">
+      <Link to="/" className="flex items-center gap-4 text-2xl  font-bold">
         <img src="/logo.png" className="cursor-pointer w-8 h-8" alt="Logo" />
         <span>DevBlog</span>
       </Link>
@@ -66,13 +76,17 @@ const Navbar = () => {
             <a href="/write" className="py-2 px-4 rounded-3xl bg-[#c1c1f7] text-gray-700 hover:scale-105">
               Tạo bài viết mới
             </a>
+
+            <NotificationDropdown/>
+
             {/* Hiển thị avatar nếu user đã đăng nhập */}
             {user ? (
               <div className="relative  flex items-center" onClick={() => setDropdownOpen(!dropdownOpen)}>
                 <img
-                  src={user.avatarUrl || "/avatar.png"} // Dùng avatar từ Cloudinary, fallback nếu null
+                  src={user.avatarUrl || "https://res.cloudinary.com/drdjvonsx/image/upload/v1741858825/ad2h5wifjk0xdqmawf9x.png"} // Dùng avatar từ Cloudinary, fallback nếu null
                   alt="User Avatar"
-                  className="w-16 h-16 rounded-full border"
+                  className="w-16 h-16 rounded-full border-4"
+                  style={{ borderColor: "#D1D5DB" }}
                 />
                 {dropdownOpen && (
                 <div className="absolute top-full right-0 mt-2 w-40 bg-white shadow-lg rounded-lg overflow-hidden">

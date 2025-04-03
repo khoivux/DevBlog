@@ -30,6 +30,9 @@ public class PostEntity {
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     String content;
 
+    @Column(name = "description", nullable = false)
+    String description;
+
     @Column(name = "created_time", nullable = false)
     Instant createdTime;
 

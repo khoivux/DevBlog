@@ -28,4 +28,5 @@ public class PostResponse {
     CategoryDTO category;
     String status;
     String thumbnailUrl;
+    String description;
 }

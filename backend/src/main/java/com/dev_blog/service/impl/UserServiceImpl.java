@@ -70,14 +70,13 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         ValidUserUtil.validateUserUpdate(request, user);
 
+        if(request.getAvatarUrl() != null) user.setAvatarUrl(request.getAvatarUrl());
         user.setDisplayName(request.getDisplayName());
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
         user.setUsername(request.getUsername());
         user.setPhone(request.getPhone());
-        user.setEmail(request.getEmail());
-        if(!request.getAvatarUrl().isEmpty())
-            user.setAvatarUrl(request.getAvatarUrl());
+
 
         return userMapper.toResponseDTO(userRepository.save(user));
     }

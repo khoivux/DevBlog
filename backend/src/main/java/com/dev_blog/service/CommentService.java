@@ -4,9 +4,9 @@ import com.dev_blog.dto.CommentDTO;
 import com.dev_blog.dto.response.PageResponse;
 
 public interface CommentService {
-    PageResponse<CommentDTO> getCommentsByPost(int page, int size, Long postId);
+    PageResponse<CommentDTO> getParentComments(int page, int size, Long postId);
+    PageResponse<CommentDTO> getChildComments(int page, int size, Long parentId);
     CommentDTO createComment(CommentDTO request);
     CommentDTO editComment(CommentDTO commentDTO);
-
     String deleteComment(Long commentId);
 }

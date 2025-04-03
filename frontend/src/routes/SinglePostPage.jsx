@@ -1,5 +1,5 @@
 import { Link} from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Topic from "../components/Topic";
 import Author from "../components/Author";
@@ -20,6 +20,8 @@ const SinglePostPage = () => {
     const [likes, setLikes] = useState(0);
     const [typeLike, setTypeLike] = useState(null);
     const [showScroll, setShowScroll] = useState(false);
+    const [searchQuery, setSearchQuery] = useState(null);
+    const navigate = useNavigate();
     
     
 
@@ -66,6 +68,14 @@ const SinglePostPage = () => {
         setLikes(oldLikes); // Rollback state nếu API lỗi
       }
     };
+
+    const handleSearch = () => {
+      if (searchQuery.trim()) {
+      navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
+      } else {
+      navigate("/search"); // Nếu rỗng thì chỉ chuyển đến /search
+      }
+  };
 
 
     useEffect(() => {
@@ -127,9 +137,7 @@ const SinglePostPage = () => {
                   dangerouslySetInnerHTML={{ __html: post.content.replace(/<\/pre>\n<pre><code>/g, "</code></pre>\n<pre><code>")  }} 
                 />
                 {/* Like / Unlike Button - Đặt dưới nội dung */}
-                  {/* Like / Unlike Button */}
                   <div className="flex justify-end items-center gap-4 p-4 border-t">
-                    {/* Nút LIKE */}
                     <button
                       onClick={() => handleVote(typeLike === "LIKE" ? "NONE" : "LIKE")}
                       className={`flex items-center gap-2 ${
@@ -138,8 +146,6 @@ const SinglePostPage = () => {
                     >
                       <FaThumbsUp size={20} /> <span>{post.like}</span>
                     </button>
-
-                    {/* Nút DISLIKE */}
                     <button
                       onClick={() => handleVote(typeLike === "DISLIKE" ? "NONE" : "DISLIKE")}
                       className={`flex items-center gap-2 ${
@@ -156,9 +162,7 @@ const SinglePostPage = () => {
             
             {/* Topic Section */}
             <div className="w-1/4 px-3 min-h-screen mt-11 flex flex-col">
-                {/* Author bình thường, không sticky */}
                 <div className="hidden md:flex bg-white rounded-3xl xl:rounded-full p-4 shadow-custom gap-8 mb-4">
-                    {/* Ô tìm kiếm */}
                     <div className="bg-gray-100 p-2 rounded-full flex gap-2 w-full max-w-2xl">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -173,6 +177,9 @@ const SinglePostPage = () => {
                         </svg>
                         <input
                             type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSearch()} // Nhấn Enter để tìm kiếm
                             placeholder="Tìm bài viết..."
                             className="bg-transparent outline-none w-full"
                         />
@@ -190,7 +197,7 @@ const SinglePostPage = () => {
                 </div>
             </div>
         </div>
-        <Comments/>
+        <Comments postId={postId}/>
 
         {/* Nút trở về đầu trang */}
       {showScroll && (

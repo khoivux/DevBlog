@@ -31,8 +31,6 @@ public class ValidUserUtil {
     public static  void validateUserUpdate(UserUpdateRequest request, UserEntity user) {
         if (!request.getUsername().equals(user.getUsername()) && userRepository.existsByUsername(request.getUsername())) {
             throw new AppException(ErrorCode.USER_EXISTED);
-        } else if (!request.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
-            throw new AppException(ErrorCode.EMAIL_EXISTED);
         } else if (!request.getPhone().equals(user.getPhone()) && userRepository.existsByPhone(request.getPhone())) {
             throw new AppException(ErrorCode.PHONENUMBER_EXISTED);
         }

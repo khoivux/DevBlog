@@ -34,7 +34,7 @@ public class PostController {
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
-        SearchRequest searchRequest = new SearchRequest(query,  categoryId, sortBy, status.toLowerCase());
+        SearchRequest searchRequest = new SearchRequest(query,  categoryId, sortBy, status.toUpperCase());
         return ApiResponse.<PageResponse<PostResponse>>builder()
                 .data(postService.getList(searchRequest, page, size))
                 .message("Danh sách bài viết")

@@ -4,7 +4,7 @@ const API_URL = "http://localhost:8081/api/v1/post";
 export const getPosts = async (    
     page = 1,
     size = 5,
-    query = "",
+    query = null,
     categoryId = null,
     sortBy = "id",
     status = "APPROVED"
@@ -58,7 +58,7 @@ export const getPosts = async (
         console.error("Lỗi khi đăng bài:", error.response?.data || error.message);
         return null;
     }
-};
+  };
 
   export const getPostsByAuthorId = async (
     sortBy, 

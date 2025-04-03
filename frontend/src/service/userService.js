@@ -95,4 +95,17 @@ export const getUser = async (username) => {
       throw new Error("Lỗi kết nối đến server!");
     }
   };
+
+  export const editProfile = async (request) => {
+    try {
+      const response = await axiosClient.post(`${API_URL}/edit`, request);
+
+      return response.data.data; 
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message || "Lỗi khi hủy theo dõi người dùng!");
+      }
+      throw new Error("Lỗi kết nối đến server!");
+    }
+  };
   

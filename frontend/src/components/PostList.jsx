@@ -6,7 +6,7 @@ import { getPosts, getPostsByAuthorId } from "../service/postService.js";
 const PostList = ({
   page = 1,
   size = 5,
-  query = "",
+  query = null,
   categoryId = null,
   sortBy = "newest",
   status = "APPROVED",
@@ -43,7 +43,6 @@ const PostList = ({
       }
       setLoading(false);
     };
-
     fetchPosts();
   }, [currentPage, size, query, categoryId, sortBy, status, authorId]);
 

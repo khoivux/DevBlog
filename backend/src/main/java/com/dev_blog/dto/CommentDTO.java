@@ -9,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentDTO {
     Long id;
@@ -21,4 +20,8 @@ public class CommentDTO {
     String content;
     String createdTime;
     String modifiedTime;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String replyTo;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String usernameReply;
 }

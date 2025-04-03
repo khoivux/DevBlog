@@ -117,7 +117,7 @@ const Write = () => {
             <form className="flex flex-col gap-6 flex-1 mb-6" onSubmit={handleSubmit}>
                 <label className="w-max p-2 shadow-custom rounded-xl text-lg text-gray-500 bg-white flex items-center gap-2 cursor-pointer">
                     <input type="file" accept=".jpeg, .img, .jpg" className="hidden" onChange={handleImageChange} />
-                    <img src="https://res-console.cloudinary.com/drdjvonsx/thumbnails/v1/image/upload/v1742441196/aWNvbi1pbWFnZS01MTJfaTFpbWNk/drilldown" alt="icon" className="w-6 h-6" />
+                    <img src="https://res.cloudinary.com/drdjvonsx/image/upload/v1742441196/icon-image-512_i1imcd.png" alt="icon" className="w-6 h-6" />
                     Thêm ảnh bìa
                 </label>
 

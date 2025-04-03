@@ -22,14 +22,14 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @Operation(summary = "Get User's Notification")
-    @GetMapping("/")
+    @GetMapping("/{userId}")
     public ApiResponse<?> getNotificationsOfReceiver(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
-            @RequestParam(value = "receiverId") Long receiverId
+            @PathVariable Long userId
     ) {
         return ApiResponse.builder()
-                .data(notificationService.getNotificationsOfReceiver(receiverId, page, size))
+                .data(notificationService.getNotificationsOfReceiver(userId, page, size))
                 .build();
     }
 
@@ -41,6 +41,16 @@ public class NotificationController {
     ) {
         return ApiResponse.builder()
                 .message(notificationService.sendToUsers(receiverIds, message, null, NotificationType.SYSTEM))
+                .build();
+    }
+
+    @Operation(summary = "Mark As Read")
+    @PostMapping("/mark-as-read/{userId}")
+    public ApiResponse<?> markAsRead(
+            @PathVariable Long userId
+    ) {
+        return ApiResponse.builder()
+                .message(notificationService.markAsRead(userId))
                 .build();
     }
 }

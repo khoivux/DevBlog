@@ -5,15 +5,17 @@ import com.dev_blog.entity.CommentEntity;
 import com.dev_blog.util.DateTimeUtil;
 import org.mapstruct.Mapper;
 
-import java.util.Optional;
-
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
 
     default CommentDTO toResponse(CommentEntity commentEntity, DateTimeUtil dateTimeUtil) {
         CommentDTO dto = new CommentDTO();
-        dto.setParentId(Optional.ofNullable(commentEntity.getParent()).map(CommentEntity::getId).orElse(null));
+        if(commentEntity.getParent() != null) {
+            dto.setParentId(commentEntity.getId());
+            dto.setReplyTo(commentEntity.getParent().getAuthor().getDisplayName());
+            dto.setUsernameReply(commentEntity.getParent().getAuthor().getUsername());
+        }
         dto.setId(commentEntity.getId());
         dto.setAuthorId(commentEntity.getAuthor().getId());
         dto.setAuthorUsername(commentEntity.getAuthor().getUsername());

@@ -39,6 +39,6 @@ public class Notification {
     @Column(name = "message")
     String message;
 
-    @Column(name = "title")
-    String title;
+    @Column(name = "isRead")
+    Boolean isRead;
 }

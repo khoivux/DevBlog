@@ -15,7 +15,7 @@ public enum ErrorCode {
     INVALID_EMAIL(1005, "Email không hợp lệ", HttpStatus.BAD_REQUEST),
     INVALID_PHONE(1006, "Số điện thoại không hợp lệ", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED(1007, "Email đã tồn tại", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(1008, "Authentication failed", HttpStatus.UNAUTHORIZED),
+    UNAUTHENTICATED(1008, "Xác thực tài khoản thất bại", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1009, "Bạn không được cấp quyền", HttpStatus.FORBIDDEN),
     PASSWORD_NOT_MATCHED(1010, "Mật khẩu xác nhận không đúng", HttpStatus.BAD_REQUEST),
     POST_NOT_EXISTED(1011, "Bài viết không tồn tại", HttpStatus.NOT_FOUND),

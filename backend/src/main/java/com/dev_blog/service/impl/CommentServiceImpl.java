@@ -25,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +40,31 @@ public class CommentServiceImpl implements CommentService {
     private final NotificationService notificationService;
 
     @Override
-    public PageResponse<CommentDTO> getCommentsByPost(int page, int size, Long postId) {
+    public PageResponse<CommentDTO> getParentComments(int page, int size, Long postId) {
         Sort sort = Sort.by("createdTime").descending();
 
         Pageable pageable = PageRequest.of(page - 1, size, sort);
-        Page<CommentEntity> pageData = commentRepository.findByPostId(postId, pageable);
+        Page<CommentEntity> pageData = commentRepository.findByPostIdAndParentIdIsNull(postId, pageable);
+
+        List<CommentDTO> list = pageData.getContent().stream()
+                .map(comment -> commentMapper.toResponse(comment, dateTimeUtil))
+                .toList();
+
+        return PageResponse.<CommentDTO>builder()
+                .currentPage(page)
+                .pageSize(size)
+                .totalPage(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .data(list)
+                .build();
+    }
+
+    @Override
+    public PageResponse<CommentDTO> getChildComments(int page, int size, Long parentId) {
+        Sort sort = Sort.by("created_time").descending();
+
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+        Page<CommentEntity> pageData = commentRepository.findAllChildren(parentId, pageable);
 
         List<CommentDTO> list = pageData.getContent().stream()
                 .map(comment -> commentMapper.toResponse(comment, dateTimeUtil))
@@ -67,21 +89,27 @@ public class CommentServiceImpl implements CommentService {
         CommentEntity comment = CommentEntity.builder()
                 .post(post)
                 .author(user)
-                .parent(commentRepository.findById(commentDTO.getParentId()).orElse(null))
+                .parent(commentDTO.getParentId() != null ?
+                        commentRepository.findById(commentDTO.getParentId()).orElse(null) : null)
                 .content(commentDTO.getContent())
                 .createdTime(Instant.now())
                 .modifiedTime(Instant.now())
                 .build();
         commentRepository.save(comment);
 
-        notificationService.sendNotification(
-                post.getAuthor().getId(),
-                Notification.builder()
-                        .type(NotificationType.COMMENT)
-                        .message(user.getDisplayName() + " đã bình luận bài viết của bạn")
-                        .title("Thông báo")
-                        .build()
-        );
+        if(!Objects.equals(commentDTO.getAuthorId(), post.getAuthor().getId())) {
+            notificationService.sendNotification(
+                    post.getAuthor().getId(),
+                    Notification.builder()
+                            .type(NotificationType.COMMENT)
+                            .isRead(false)
+                            .createdTime(Date.from(Instant.now()))
+                            .message(user.getDisplayName() + " đã bình luận bài viết của bạn")
+                            .receiver(post.getAuthor())
+                            .redirectUrl("/post/" + post.getId())
+                            .build()
+            );
+        }
 
         return commentMapper.toResponse(comment, dateTimeUtil);
     }

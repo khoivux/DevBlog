@@ -9,11 +9,11 @@ import { useSearchParams } from "react-router-dom";
 const SearchResultPage = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    // Lấy giá trị `query` từ URL nếu có
     const initialQuery = searchParams.get("query") || "";
     const sortBy = searchParams.get("sort") || "";
     const [searchQuery, setSearchQuery] = useState(initialQuery);
-    // Cập nhật `searchQuery` khi URL thay đổi
+
+    
     useEffect(() => {
         setSearchQuery(initialQuery);
     }, [initialQuery]);

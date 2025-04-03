@@ -17,15 +17,27 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
     private final CommentService commentService;
 
-    @Operation(summary = "Get Post's Comment")
+    @Operation(summary = "Get Comments")
     @GetMapping("/{postId}")
-    public ApiResponse<PageResponse<CommentDTO>> getCommentsByPost(
+    public ApiResponse<PageResponse<CommentDTO>> getComments(
             @PathVariable Long postId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
         return ApiResponse.<PageResponse<CommentDTO>>builder()
-                .data(commentService.getCommentsByPost(page, size, postId))
+                .data(commentService.getParentComments(page, size, postId))
+                .build();
+    }
+
+    @Operation(summary = "Get Children Comment")
+    @GetMapping("/children/{parentId}")
+    public ApiResponse<PageResponse<CommentDTO>> getChildComments(
+            @PathVariable Long parentId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "5") int size
+    ) {
+        return ApiResponse.<PageResponse<CommentDTO>>builder()
+                .data(commentService.getChildComments(page, size, parentId))
                 .build();
     }
 

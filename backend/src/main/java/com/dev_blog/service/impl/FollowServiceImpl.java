@@ -60,7 +60,7 @@ public class FollowServiceImpl implements FollowService {
                     .receiver(followedUser)
                     .redirectUrl("/author/" + follower.getUsername())
                     .message(follower.getDisplayName() + " đã theo dõi bạn")
-                    .title("Thông báo")
+                    .isRead(false)
                     .build()
         );
 

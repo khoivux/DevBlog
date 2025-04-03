@@ -28,7 +28,7 @@ const PostListItem = ({ post }) => {
             <span> |  {post.created} </span>
             </div>
             <p className='pr-4'>
-              {post.content.length > 130 ? `${post.content.slice(0, 130)}...` : post.content}
+              {post.description.length > 130 ? `${post.description.slice(0, 130)}...` : post.description}
             </p>
 
             <div className="flex items-center gap-2 text-gray-400 text-sm">

@@ -35,17 +35,17 @@ public class DateTimeUtil {
 
     private String formatInSeconds(Instant instant){
         long elapseSeconds = ChronoUnit.SECONDS.between(instant, Instant.now());
-        return String.format("%s seconds", elapseSeconds);
+        return String.format("%s giây trước", elapseSeconds);
     }
 
     private String formatInMinutes(Instant instant){
         long elapseMinutes = ChronoUnit.MINUTES.between(instant, Instant.now());
-        return String.format("%s minutes", elapseMinutes);
+        return String.format("%s phút trước", elapseMinutes);
     }
 
     private String formatInHours(Instant instant){
         long elapseHours = ChronoUnit.HOURS.between(instant, Instant.now());
-        return String.format("%s hours", elapseHours);
+        return String.format("%s tiếng trước", elapseHours);
     }
 
     private String formatInDate(Instant instant){

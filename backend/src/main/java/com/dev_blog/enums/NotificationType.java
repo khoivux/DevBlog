@@ -5,5 +5,6 @@ public enum NotificationType {
     WARNING,
     FOLLOW,
     SYSTEM,
-    POST_PENDING
+    POST_PENDING,
+    NEW_POST
 }

@@ -6,7 +6,6 @@ import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.service.FollowService;
 import com.dev_blog.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +41,7 @@ public class UserController {
 
     @Operation(summary = "Edit User")
     @PostMapping("/edit")
-    public ApiResponse<?> updateProfile(@Valid @ModelAttribute("userUpdate") UserUpdateRequest request) {
+    public ApiResponse<?> updateProfile(@RequestBody UserUpdateRequest request) {
         return ApiResponse.builder()
                 .data(userService.updateProfile(request))
                 .build();

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import Modal from "react-modal";
+import Follower from "./modal/Follower.jsx";
+import EditProfile from "./modal/EditProfile.jsx";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
 import { User, Heart, Pencil } from "lucide-react";
 import { getAuthor, getFollowers, getFollowing, followUser, unfollowUser} from "../service/userService.js";
 import { Link } from "react-router-dom";
-Modal.setAppElement("#root"); // Đảm bảo modal hoạt động đúng
+// Đảm bảo modal hoạt động đúng
 
 const Author = ({ username}) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -15,6 +16,7 @@ const Author = ({ username}) => {
   const [error, setError] = useState(null);
   const [currUser, setCurrUser] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const fetchAuthor = async () => {
     try {
@@ -42,6 +44,13 @@ const Author = ({ username}) => {
     } catch (error) {
       alert(error.message);
     }
+  };
+
+  const handleSaveProfile = (updatedUser) => {
+    setAuthor(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser)); // Cập nhật vào localStorage
+    // Phát sự kiện để navbar cũng cập nhật ngay lập tức
+    window.dispatchEvent(new Event("storage"));
   };
 
   const fetchData = async () => {
@@ -96,9 +105,13 @@ const Author = ({ username}) => {
 
       {/* Avatar & Author Info */}
       <div className="flex items-center gap-4 mb-3">
-        <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center">
-          <img src='/avatar.png' alt="" />
-        </div>
+    
+          <img
+            src={author.avatarUrl} 
+            className="w-16 h-16 border-4 rounded-full flex items-center justify-center" 
+            style={{ borderColor: "#D1D5DB" }}
+          />
+     
         <Link to={`/author/${author.username}`} className="text-lg font-bold hover:text-red-500">
           {author.displayName}
           <p href="/author" className="italic font-semibold text-base text-gray-500">@{author.username}</p>
@@ -141,10 +154,10 @@ const Author = ({ username}) => {
           // Nếu là chính chủ thì hiển thị nút "Thay đổi thông tin"
           <button
           // Hàm mở modal chỉnh sửa
-            onClick={() => openModal("Chỉnh sửa thông tin", currUser)}
+            onClick={() => setEditModalOpen(true)}
             className="block mx-auto mt-2 bg-blue-500 text-white font-semibold py-2 px-4 rounded-full hover:scale-105 transition"
           >
-            Thay đổi thông tin
+            Chỉnh sửa hồ sơ
           </button>
         ) : (
           // Nếu không phải chính chủ thì hiển thị nút "+Theo dõi"
@@ -158,52 +171,20 @@ const Author = ({ username}) => {
           </button>
         )}
       </div>
-
-
       
-      
-
-
-       {/* Reusable Modal */}
-       <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={() => setModalIsOpen(false)}
-        contentLabel={modalTitle}
-        className="bg-white p-6 rounded-xl shadow-lg w-[300px] border border-gray-300 outline-none"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-xl font-bold text-center mb-4">{modalTitle}</h2>
-
-        {/* Danh sách followers hoặc following */}
-        <div className="max-h-60 overflow-y-auto space-y-3">
-          {modalData.length > 0 ? (
-            modalData.map((user) => (
-              <div key={user.id} className="flex items-center gap-3 border-b pb-2">
-                <img src={user.avatarUrl} alt={user.displayName} className="w-10 h-10 rounded-full object-cover" />
-                <a href={`/author/${user.username}`} className="text-sm text-gray-700 font-semibold hover:text-red-500">
-                  {user.displayName}
-                </a>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-500">Không có dữ liệu</p>
-          )}
-        </div>
-
-        {/* Nút đóng */}
-        <div className="flex justify-end mt-4">
-          <button
-            onClick={() => setModalIsOpen(false)}
-            className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
-          >
-            Đóng
-          </button>
-        </div>
-      </Modal>
-
-      
-
-
+       {/* Component Follower */}
+      <Follower 
+        isOpen={modalIsOpen} 
+        onClose={() => setModalIsOpen(false)} 
+        title={modalTitle} 
+        data={modalData} 
+      />
+      <EditProfile
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        user={author}
+        onSave={handleSaveProfile}
+      />
     </div>
   );
 };

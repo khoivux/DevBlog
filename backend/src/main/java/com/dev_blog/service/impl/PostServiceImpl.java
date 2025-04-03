@@ -95,6 +95,7 @@ public class PostServiceImpl implements PostService {
                 .category(categoryRepository.getReferenceById(postRequest.getCategoryId()))
                 .title(postRequest.getTitle())
                 .content(postRequest.getContent())
+                .description(postRequest.getDescription())
                 .thumbnailUrl(postRequest.getThumbnailUrl())
                 .status(Status.valueOf(status))
                 .views(0L)
@@ -102,12 +103,14 @@ public class PostServiceImpl implements PostService {
                 .modifiedTime(Instant.now())
                 .build());
 
-        notificationService.sendToUsers(
-                userRepository.findModeratorIds(),
-                "Một bài viết mới đang chờ duyệt",
-                "/admin/posts",
-                NotificationType.POST_PENDING
-        );
+        if(!SecurityUtil.isMod()) {
+            notificationService.sendToUsers(
+                    userRepository.findModeratorIds(),
+                    "Một bài viết mới đang chờ duyệt",
+                    "/admin/posts",
+                    NotificationType.POST_PENDING
+            );
+        }
         return postMapper.toResponse(newPost);
     }
 
@@ -155,9 +158,10 @@ public class PostServiceImpl implements PostService {
             List<UserResponse> followers = followService.getFollowers(1, 5, post.getAuthor().getUsername()).getData();
             for(UserResponse follower : followers) {
                 Notification notification = Notification.builder()
+                        .type(NotificationType.NEW_POST)
                         .createdTime(Date.from(Instant.now()))
                         .message(post.getAuthor().getDisplayName() + " đã đăng một bài viết mới")
-                        .redirectUrl("/post/" +     post.getId())
+                        .redirectUrl("/post/" + post.getId())
                         .receiver(userRepository.getReferenceById(follower.getId()))
                         .build();
                 notificationService.sendNotification(follower.getId(), notification);
@@ -253,12 +257,25 @@ public class PostServiceImpl implements PostService {
     }
 
     private List<PostResponse> pageDataToResponseList(Page<PostEntity> pageData, String status) {
+
+        if(Objects.equals(status, Status.APPROVED.toString())) {
+            return pageData.getContent().stream()
+                    .filter(post -> post.getStatus() == (Status.APPROVED))
+                    .map(post -> {
+                        PostResponse postResponse = postMapper.toResponse(post);
+                        postResponse.setAuthorUsername(post.getAuthor().getUsername());
+                        postResponse.setAuthorName(post.getAuthor().getDisplayName());
+                        postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
+                        return postResponse;
+                    }).toList();
+        }
+
         String username = SecurityUtil.getCurrUser().getUsername();
         boolean isAdmin = SecurityUtil.isMod();
         // Chỉ là adin hoặc bài viết được duyệt hoặc chủ bài viết mới nhìn thấy
         return pageData.getContent().stream()
                 .filter(post -> isAdmin || post.getStatus() == (Status.APPROVED) ||
-                        post.getAuthor().getUsername().equals(username) || Objects.equals(status, Status.APPROVED.toString())
+                        post.getAuthor().getUsername().equals(username)
                 )
                 .map(post -> {
                     PostResponse postResponse = postMapper.toResponse(post);
