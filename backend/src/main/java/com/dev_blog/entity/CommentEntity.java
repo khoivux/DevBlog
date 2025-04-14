@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -31,12 +32,15 @@ public class CommentEntity {
     @JoinColumn(name = "post_id", nullable = false)
     PostEntity post;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ReportCommentEntity> reportComments;
 
     @ManyToOne
     @JoinColumn(name = "parent_id")
-    CommentEntity parent;
+    private CommentEntity parent;
+
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CommentEntity> replies = new ArrayList<>();
 
     @Column(name = "created_time", nullable = false)
     Instant createdTime = Instant.now();

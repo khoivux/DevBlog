@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class OtpResponse {
-    String otp;
+public class OtpDTO {
+    String content;
     LocalDateTime expiryTime;
 }

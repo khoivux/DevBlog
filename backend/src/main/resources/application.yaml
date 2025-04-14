@@ -9,6 +9,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 300000 # optional: timeout in milliseconds
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html

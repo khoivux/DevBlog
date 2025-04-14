@@ -34,10 +34,10 @@ public class AdminController {
     }
 
     @Operation(summary = "Block User")
-    @PutMapping("/block/{username}/{block}")
+    @PutMapping("/block")
     public ApiResponse<Object> blockOrEnable(
-            @PathVariable String username,
-            @PathVariable boolean block)
+            @RequestParam String username,
+            @RequestParam Boolean block)
     {
         return ApiResponse.builder()
                 .message(userService.blockOrActive(username, block))
@@ -45,9 +45,9 @@ public class AdminController {
     }
 
     @Operation(summary = "Set Mod")
-    @PutMapping("/set-roles/{username}")
+    @PutMapping("/set-roles")
     public ApiResponse<Object> setRoles(
-            @PathVariable String username,
+            @RequestParam String username,
             @RequestParam String role)
     {
         return ApiResponse.builder()

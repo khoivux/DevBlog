@@ -1,4 +1,4 @@
-package com.dev_blog.config;
+package com.dev_blog.security;
 
 import com.dev_blog.dto.response.ErrorResponse;
 import com.dev_blog.enums.ErrorCode;

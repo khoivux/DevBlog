@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -18,4 +20,7 @@ public class CategoryEntity {
     Long id;
     @Column(name = "name", nullable = false)
     String name;
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
+    private List<PostEntity> posts;
 }

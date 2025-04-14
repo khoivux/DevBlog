@@ -23,7 +23,7 @@ public class CategoryController {
     public ApiResponse<?> getList(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
-            @RequestParam String query
+            @RequestParam(required = false) String query
     ) {
         return ApiResponse.builder()
                 .data(categoryService.getList(page, size, query))

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback,useRef, useMemo  } from "react";
 import { getCategories } from "../service/categoryService.js";
 import { uploadFile } from "../service/uploadService.js";
 import { createPost } from "../service/postService.js";
@@ -10,6 +10,7 @@ import { Description, Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 const Write = () => {
+    const quillRef = useRef(null);
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -23,7 +24,6 @@ const Write = () => {
     const [description, setDescription] = useState("");
     const [content, setContent] = useState("");
     const [categoryId, setCategoryId] = useState("");
-
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -35,6 +35,47 @@ const Write = () => {
         };
         fetchCategories();
     }, []);
+
+    const modules = useMemo(() => {
+        return {
+          toolbar: {
+            container: [
+              [{ header: [1, 2, 3, false] }],
+              ["bold", "italic", "underline", "strike"],
+              [{ list: "ordered" }, { list: "bullet" }],
+              ["link", "image"],
+              ["clean"],
+            ],
+            handlers: {
+              image: () => {
+                const input = document.createElement("input");
+                input.setAttribute("type", "file");
+                input.setAttribute("accept", "image/*");
+                input.click();
+      
+                input.onchange = async () => {
+                  const file = input.files[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                      const base64 = reader.result;
+                      if (quillRef.current) {
+                        const editor = quillRef.current.getEditor();
+                        const range = editor.getSelection();
+                        if (range) {
+                          editor.insertEmbed(range.index, "image", base64);
+                        }
+                      }
+                    };
+                  }
+                };
+              },
+            },
+          },
+        };
+      }, [quillRef]);
+      
 
     const handleImageChange = (event) => {
 
@@ -72,32 +113,53 @@ const Write = () => {
             console.error("Lỗi cắt ảnh:", error);
         }
     };
+    
+    const uploadContentImages = async (htmlContent) => {
+        const imgRegex = /<img[^>]+src="data:image\/[^"]+"[^>]*>/g;
+        const srcRegex = /src="([^"]+)"/;
+      
+        const matches = htmlContent.match(imgRegex) || [];
+      
+        for (const imgTag of matches) {
+          const base64Match = imgTag.match(srcRegex);
+          if (base64Match && base64Match[1].startsWith("data:image/")) {
+            const base64 = base64Match[1];
+            const res = await fetch(base64);
+            const blob = await res.blob();
+            const file = new File([blob], "inline-image.jpg", { type: blob.type });
+      
+            const uploadedUrl = await uploadFile(file);
+            htmlContent = htmlContent.replace(base64, uploadedUrl);
+          }
+        }
+      
+        return htmlContent;
+      };
+      
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Chuyển từ Object URL sang Blob
-        const response = await fetch(croppedImage);
-        const blob = await response.blob();
-        // Tạo File từ Blob
+        const res = await fetch(croppedImage);
+        const blob = await res.blob();
         const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-
-        // Upload file lên backend
         const uploadedImageUrl = await uploadFile(file);
-
+      
+        const updatedContent = await uploadContentImages(content);
+      
         try {
-            const postData = {
-                title,
-                description,
-                content,
-                categoryId,
-                thumbnailUrl: uploadedImageUrl,
-            };
-            const post = await createPost(postData);
-            alert("Bài viết đã được đăng thành công!");
-            navigate(`/post/${post.id}`);
+          const postData = {
+            title,
+            description,
+            content: updatedContent,
+            categoryId,
+            thumbnailUrl: uploadedImageUrl,
+          };
+          const post = await createPost(postData);
+          alert("Bài viết đã được đăng thành công!");
+          navigate(`/post/${post.id}`);
         } catch (error) {
-            console.error("Lỗi đăng bài:", error);
+          console.error("Lỗi đăng bài:", error);
         }
     };
 
@@ -112,7 +174,7 @@ const Write = () => {
         }
     }, [isOpen]);
     return (
-        <div className='h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] flex flex-col gap-4'>
+<div className='min-h-screen flex flex-col gap-4'>
             <h1 className="text-cl font-light">Tạo bài viết mới</h1>
             <form className="flex flex-col gap-6 flex-1 mb-6" onSubmit={handleSubmit}>
                 <label className="w-max p-2 shadow-custom rounded-xl text-lg text-gray-500 bg-white flex items-center gap-2 cursor-pointer">
@@ -148,9 +210,18 @@ const Write = () => {
                     value={description} onChange={(e) => setDescription(e.target.value)}
                 />
 
-                <ReactQuill theme="snow" className="h-full min-h-[450px] flex-1 rounded-xl bg-white shadow-custom" 
-                    value={content} onChange={setContent}
+                <div className="h-[450px]">
+                <ReactQuill
+                    ref={quillRef}
+                    theme="snow"
+                    value={content}
+                    onChange={setContent}
+                    modules={modules}
+                    className="ql-editor rounded-xl bg-white shadow-custom h-full"
                 />
+                </div>
+
+
 
                 <button className="bg-blue-800 text-white font-medium rounded-xl mb-4 p-2 w-36 disabled:bg-blue-400 disabled:cursor-not-allowed">
                     Đăng bài

@@ -40,7 +40,9 @@ public class FollowServiceImpl implements FollowService {
     public String followUser(Long followedId) {
         UserEntity followedUser = userRepository.findById(followedId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
+        if(followedUser.getIsBlocked()) {
+            throw new AppException(ErrorCode.BLOCKED_USER);
+        }
         UserEntity follower = SecurityUtil.getCurrUser();
         if(followRepository.existsByFollowerAndFollowedUser(follower, followedUser)) {
             return "Đã theo dõi người dùng";

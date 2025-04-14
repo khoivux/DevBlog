@@ -3,7 +3,6 @@ package com.dev_blog.service.impl;
 import com.dev_blog.dto.request.*;
 import com.dev_blog.dto.response.AuthResponse;
 import com.dev_blog.dto.response.IntrospectResponse;
-import com.dev_blog.dto.response.OtpResponse;
 import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.entity.InvalidatedTokenEntity;
 import com.dev_blog.entity.UserEntity;
@@ -25,13 +24,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -44,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final EmailSerivce emailSerivce;
+    private final StringRedisTemplate redisTemplate;
 
     protected String DEFAULT_AVATAR_URL = "http://res.cloudinary.com/drdjvonsx/image/upload/v1741858825/ad2h5wifjk0xdqmawf9x.png";
 
@@ -72,17 +71,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public OtpResponse forgotPassword(String userEmail) {
-        String otp = generateOTP(6);
-        emailSerivce.sendEmail(
-                userEmail,
-                "Mã OTP xác minh",
-                "Mã OTP của bạn là: " + otp + "\nMã có hiệu lực trong 5 phút."
-        );
-        return OtpResponse.builder()
-                .otp(otp)
-                .expiryTime(LocalDateTime.now().plusMinutes(5))
-                .build();
+    public boolean verifyEmail(String email, String otp) {
+        String storedOtp = redisTemplate.opsForValue().get(email);
+        if (storedOtp != null && storedOtp.equals(otp)) {
+            redisTemplate.delete(email);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -94,14 +90,12 @@ public class AuthServiceImpl implements AuthService {
         return "Đặt lại mật khẩu thành công";
     }
 
-
-
     @Override
     public AuthResponse authenticated(AuthRequest requestDTO) {
         UserEntity user = userRepository.findByUsername(requestDTO.getUsername())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if(user.getIs_blocked())
+        if(Boolean.TRUE.equals(user.getIsBlocked()))
             throw new AppException(ErrorCode.BLOCKED_USER);
 
         boolean authenticated = passwordEncoder.matches(requestDTO.getPassword(), user.getPassword());
@@ -117,6 +111,7 @@ public class AuthServiceImpl implements AuthService {
                 .build();
     }
 
+    @Override
     public String logout(LogoutRequest request) throws JOSEException, ParseException {
         SignedJWT signedJWT = verifyToken(request.getToken(), false);
         String jit = signedJWT.getJWTClaimsSet().getJWTID();
@@ -161,7 +156,6 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         String token = generateToken(user);
-        // Tao token moi
         return AuthResponse.builder()
                 .authenticated(true)
                 .token(token)
@@ -212,15 +206,5 @@ public class AuthServiceImpl implements AuthService {
             log.error("Cannot create token!", e);
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-    }
-
-    private String generateOTP(Integer length) {
-        String characters = "ABCDEFGHJKLMNOPQRSTUVWXYZabcdefghjklmnopqrstwzx0123456789";
-        SecureRandom random = new SecureRandom();
-        StringBuilder otp = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            otp.append(characters.charAt(random.nextInt(characters.length())));
-        }
-        return otp.toString();
     }
 }

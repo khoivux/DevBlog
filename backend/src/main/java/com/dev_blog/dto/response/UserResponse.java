@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,4 +22,6 @@ public class UserResponse {
     String phone;
     String email;
     String avatarUrl;
+    Boolean isBlocked;
+    Set<String> roles;
 }

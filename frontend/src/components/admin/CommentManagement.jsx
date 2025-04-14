@@ -1,7 +1,7 @@
 import { Tooltip } from "@material-tailwind/react";
 import { useState } from "react";
 import { EyeIcon, TrashIcon, ExclamationTriangleIcon, CheckIcon} from "@heroicons/react/24/solid";
-import ConfirmDeleteModal from "../ConfirmDeleteModal.jsx"
+import ConfirmDeleteModal from "../modal/ConfirmModal";
 const CommentManagement = ({ status }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 

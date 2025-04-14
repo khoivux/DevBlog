@@ -1,4 +1,4 @@
-package com.dev_blog.config;
+package com.dev_blog.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +30,7 @@ public class SecurityConfig {
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/api/v1/auth/**",
+            "/api/v1/email/**",
             "/ws/**"
     };
 

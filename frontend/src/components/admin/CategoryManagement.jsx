@@ -1,49 +1,115 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { Tooltip } from "@material-tailwind/react";
 import { TrashIcon, PencilIcon } from "@heroicons/react/24/solid";
-import Modal from "react-modal";
+import { getCategories, createCategory, deleteCat, updateCategory } from "../../service/categoryService";
+import { Pagination } from "antd";
+import ConfirmDeleteModal from "../modal/ConfirmModal";
+import EditCategoryModal from "../modal/EditCategory";
+import { useRef } from "react";
 const CategoryManagement = () => {
+  const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [pageSize, setPagesize] = useState(8);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [catQuery, setCatQuery] = useState("");
+  const inputRef = useRef(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [categoryName, setCategoryName] = useState("Lập trình");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  // Mở modal chỉnh sửa
-  const openEditModal = () => setIsEditModalOpen(true);
-  const closeEditModal = () => setIsEditModalOpen(false);
-
-  // Mở modal xác nhận xóa
-  const openDeleteModal = () => setIsDeleteModalOpen(true);
-  const closeDeleteModal = () => setIsDeleteModalOpen(false);
-
-  const handleSave = () => {
-    console.log("Lưu danh mục:", categoryName);
-    closeModal();
+  const openDeleteModal = (category) => {
+    setSelectedCategory(category);
+    setIsDeleteModalOpen(true);
+  };
+  
+  const closeDeleteModal = () => {
+    setSelectedCategory(null);
+    setIsDeleteModalOpen(false);
   };
 
-   // Xác nhận xóa danh mục
-   const handleDelete = () => {
-    console.log("Danh mục đã bị xóa:", categoryName);
-    closeDeleteModal();
+  const openEditModal = (category) => {
+    setSelectedCategory({ ...category });
+    setIsEditModalOpen(true);
+  };
+  
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedCategory(null);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories(currentPage, pageSize, catQuery);
+      setCategories(response.data.data);
+      setTotalElements(response.data.totalElements);
+    } catch (error) {
+      setError(error.message); 
+    }
+  };
+  const handleCreate = async () => {
+    try {
+      const response = await createCategory(newCategoryName.trim());
+      setNewCategoryName("");
+      fetchCategories();
+    } catch (error) {
+      setError(error.message); 
+    }
+  };
 
-  const categories = [
-    { id: 1, name: "Thuật toán", postCount: 12 },
-    { id: 2, name: "Java", postCount: 8 },
-    { id: 3, name: "Game", postCount: 15 },
-  ];
+  const handleUpdate = async () => {
+    try {
+      const response = await updateCategory(selectedCategory);
+      fetchCategories();
+      closeEditModal();
+    } catch (error) {
+      setError(error.message); 
+    }
+  };
+  
+  const handleConfirmDelete = async () => {
+    if (!selectedCategory) return;
+    try {
+      const response = await deleteCat(selectedCategory.id);
+      fetchCategories();
+    } catch (error) {
+      console.error("Lỗi xóa danh mục:", error.message);
+    } finally {
+      closeDeleteModal();
+    }
+  };
+  
+  useEffect(() => {
+    fetchCategories();
+  }, [currentPage, pageSize, catQuery]);
 
-  // Sắp xếp theo số lượng bài viết
   const sortedCategories = [...categories].sort((a, b) =>
-    sortOrder === "asc" ? a.postCount - b.postCount : b.postCount - a.postCount
+    sortOrder === "asc" ? a.countPosts - b.countPosts : b.countPosts - a.countPosts
   );
 
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Quản lý danh mục</h2>
+        {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+      </div>
+      <div className="flex space-x-2 mb-4">
+        <input
+          type="text"
+          placeholder="Tên danh mục"
+          className="border px-2 py-1 text-sm rounded w-1/2"
+          value={catQuery}
+          onChange={(e) => setCatQuery(e.target.value)}
+        />
+        
+        <button
+          className="bg-green-500 text-white px-4 py-1 rounded"
+        >
+          Tìm kiếm
+        </button>
       </div>
       {/* Ô thêm danh mục */}
       <div className="flex space-x-2 mb-4">
@@ -51,9 +117,14 @@ const CategoryManagement = () => {
           type="text"
           placeholder="Tên danh mục mới"
           className="border px-2 py-1 text-sm rounded w-1/2"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
         />
         
-        <button className="bg-green-500 text-white px-4 py-1 rounded">
+        <button
+          className="bg-green-500 text-white px-4 py-1 rounded"
+          onClick={handleCreate}
+        >
           Thêm mới
         </button>
       </div>
@@ -71,94 +142,63 @@ const CategoryManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedCategories.map((category, index) => (
-            <tr key={category.id} className="text-center border">
-              <td className="border">{category.id}</td>
-              <td className="border">{category.name}</td>
-              <td className="border">{category.postCount}</td>
-              <td className="border py-1 space-x-1">
-                <Tooltip content="Chỉnh sửa">
+          {sortedCategories.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="text-center py-4 text-gray-500">
+                Không có dữ liệu
+              </td>
+            </tr>
+          ) : (
+            sortedCategories.map((category) => (
+              <tr key={category.id} className="text-center border">
+                <td className="border">{category.id}</td>
+                <td className="border">{category.name}</td>
+                <td className="border">{category.countPosts}</td>
+                <td className="border py-1 space-x-1">
+                  <Tooltip content="Chỉnh sửa">
+                    <button className="bg-green-500 text-white p-2 rounded hover:bg-pink-600 transition"
+                    onClick={() => openEditModal(category)}>
+                      <PencilIcon className="h-4 w-4" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip content="Xóa bài">
                   <button
-                    onClick={openEditModal}
-                    className="bg-pink-500 text-white p-2 rounded hover:bg-pink-600 transition"
+                    className="bg-red-500 text-white p-2 rounded"
+                    onClick={() => openDeleteModal(category)}
                   >
-                    <PencilIcon className="h-4 w-4" />
-                  </button>
-                </Tooltip>
-                <Tooltip content="Xóa bài">
-                  <button onClick={openDeleteModal}
-                  className="bg-red-500 text-white p-2 rounded">
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </Tooltip>
-              </td>
-            </tr>
-          ))}
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
-
-      
-      {/* Modal Chỉnh sửa danh mục */}
-      <Modal
-        isOpen={isEditModalOpen}
-        onRequestClose={closeEditModal}
-        contentLabel="Chỉnh sửa danh mục"
-        className="bg-white p-6 rounded-xl shadow-lg w-[400px] border border-gray-300 outline-none"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-xl font-bold text-center mb-4">Chỉnh sửa danh mục</h2>
-        {/* Input Nhập tên danh mục */}
-        <div>
-          <label className="block font-semibold mb-1">Tên danh mục</label>
-          <input
-            type="text"
-            value={categoryName}
-            onChange={(e) => setCategoryName(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Nút Hủy & Lưu */}
-        <div className="flex justify-end gap-2 mt-4">
-          <button onClick={closeEditModal} className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">
-            Hủy
-          </button>
-          <button onClick={handleSave} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            Lưu thay đổi
-          </button>
-        </div>
-      </Modal>
-
-      {/* Modal Xác nhận xóa danh mục */}
-      <Modal
+      {totalElements > 0 && (
+      <div className="flex justify-center mt-4">
+        <Pagination
+          current={currentPage}
+          total={totalElements}
+          pageSize={pageSize}
+          onChange={(page) => setCurrentPage(page)}
+          showSizeChanger={false}
+        />
+      </div>)}
+      <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
-        onRequestClose={closeDeleteModal}
-        contentLabel="Xác nhận xóa danh mục"
-        className="bg-white p-6 rounded-xl shadow-lg w-[350px] border border-gray-300 outline-none"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-xl font-bold text-center mb-4 text-red-600">
-          Xóa danh mục
-        </h2>
-        <p className="text-center text-gray-600 mb-4">
-          Bạn có chắc chắn muốn xóa danh mục <b>{categoryName}</b> không?
-        </p>
-
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={closeDeleteModal}
-            className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
-          >
-            Hủy
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-          >
-            Xóa
-          </button>
-        </div>
-      </Modal>
+        onClose={closeDeleteModal}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa danh mục"
+        message={`Bạn có chắc muốn xóa danh mục "${selectedCategory?.name}"?\nTất cả bài viết thuộc danh mục này sẽ bị xóa.`}
+      />
+      <EditCategoryModal
+        isOpen={isEditModalOpen}
+        onClose={closeEditModal}
+        category={selectedCategory}
+        onChange={setSelectedCategory}
+        onSave={handleUpdate}
+      />
     </div>
   );
 };

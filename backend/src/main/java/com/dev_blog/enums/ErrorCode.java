@@ -28,8 +28,9 @@ public enum ErrorCode {
     EMPTY_DATA(10018, "Dữ liệu không được trống", HttpStatus.BAD_REQUEST),
     UPLOAD_FAIL(10019, "Không thể tải file", HttpStatus.BAD_REQUEST),
     NOT_HAVE_ROLE(1020, "Người dùng không có quyền này", HttpStatus.NOT_FOUND),
-    BLOCKED_USER(1021 ,"Tài khoản của bạn đã bị khóa do vi phạm chính sách", HttpStatus.BAD_REQUEST),
+    BLOCKED_USER(1021 ,"Tài khoản bị khóa do vi phạm chính sách", HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD(1022 ,"Mật khẩu không đúng", HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_EXISTED(1023 ,"Email chưa được đăng ký", HttpStatus.NOT_FOUND),
     ;
     private final int code;
     private final String message;

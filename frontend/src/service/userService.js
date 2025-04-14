@@ -37,7 +37,7 @@ export const getUser = async (username) => {
         },
       });
   
-      return response.data.data.data; // Trả về dữ liệu từ API
+      return response.data.data.data; 
     } catch (error) {
       if (error.response) {
         throw new Error(error.response.data.message || "Lỗi khi vote bài viết!");
@@ -59,10 +59,10 @@ export const getUser = async (username) => {
         },
       });
   
-      return response.data.data.data; // Trả về dữ liệu từ API
+      return response.data.data.data; 
     } catch (error) {
       if (error.response) {
-        throw new Error(error.response.data.message || "Lỗi khi vote bài viết!");
+        throw new Error(error.response.data.message);
       }
       throw new Error("Lỗi kết nối đến server!");
     }
@@ -72,11 +72,10 @@ export const getUser = async (username) => {
     try {
       const response = await axiosClient.post(`${API_URL}/follow/${followedId}`);
       
-      // Trả về thông báo từ API (theo cấu trúc ApiResponse)
       return response.data.message; 
     } catch (error) {
       if (error.response) {
-        throw new Error(error.response.data.message || "Lỗi khi follow người dùng!");
+        throw new Error(error.response.data.message);
       }
       throw new Error("Lỗi kết nối đến server!");
     }
@@ -85,12 +84,11 @@ export const getUser = async (username) => {
   export const unfollowUser = async (followedId) => {
     try {
       const response = await axiosClient.post(`${API_URL}/unfollow/${followedId}`);
-      
-      // Trả về thông báo từ API (theo cấu trúc ApiResponse)
+
       return response.data.message; 
     } catch (error) {
       if (error.response) {
-        throw new Error(error.response.data.message || "Lỗi khi hủy theo dõi người dùng!");
+        throw new Error(error.response.data.message);
       }
       throw new Error("Lỗi kết nối đến server!");
     }
@@ -103,9 +101,29 @@ export const getUser = async (username) => {
       return response.data.data; 
     } catch (error) {
       if (error.response) {
-        throw new Error(error.response.data.message || "Lỗi khi hủy theo dõi người dùng!");
+        throw new Error(error.response.data.message);
       }
       throw new Error("Lỗi kết nối đến server!");
     }
   };
   
+  export const getList = async (
+    query,
+    page = 1,
+    size = 5,) => {
+    try {
+      const response = await axiosClient.get(`${API_URL}/list`,{
+        params: {
+          query,
+          page,
+          size
+        },
+      });
+      return response.data.data; 
+    } catch (error) {
+      if (error.response) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error("Lỗi kết nối đến server!");
+    }
+  };

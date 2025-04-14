@@ -60,3 +60,10 @@ body {
     padding-left: 20px;
   }
   
+  .ql-editor img {
+    width: 30%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    margin: 12px 0;
+  }

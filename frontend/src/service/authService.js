@@ -60,3 +60,22 @@ export const logout = async () => {
     throw new Error("Lỗi kết nối đến server!");
   }
 };
+
+export const verifyEmail = async (email, otp) => {
+  try {
+    const response = await axiosClient.post(`${API_URL}/verify-email`, {
+      params: {
+        email,
+        otp,
+      },
+   });
+    return response.data.data; // Trả về boolean
+  } catch (error) {
+    if (error.response) {
+      // Lấy thông tin từ ErrorResponse
+      const message  = error.response.data.message;
+      throw new Error(message); 
+    }
+    throw new Error("Lỗi kết nối đến server!");
+  }
+}

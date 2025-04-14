@@ -1,4 +1,4 @@
-package com.dev_blog.config;
+package com.dev_blog.security;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

@@ -7,6 +7,7 @@ import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.entity.Notification;
 import com.dev_blog.entity.UserEntity;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.NotificationType;
 import com.dev_blog.enums.Role;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.UserMapper;
@@ -44,8 +45,10 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<UserEntity> pageData = userRepository.findByKeyword(query, pageable);
 
-        List<UserResponse> userList = pageData.getContent().stream().map(userMapper::toResponseDTO).toList();
-
+        List<UserResponse> userList = pageData.getContent().stream()
+                .filter(user -> !user.getRoles().contains(Role.ADMIN.name()))
+                .map(userMapper::toResponseDTO)
+                .toList();
         return PageResponse.<UserResponse>builder()
                 .currentPage(page)
                 .totalPage(pageData.getTotalPages())
@@ -59,7 +62,13 @@ public class UserServiceImpl implements UserService {
     public UserResponse findByUsername(String username) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toResponseDTO(user);
+    }
 
+    @Override
+    public UserResponse findByEmail(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
         return userMapper.toResponseDTO(user);
     }
 
@@ -77,7 +86,6 @@ public class UserServiceImpl implements UserService {
         user.setUsername(request.getUsername());
         user.setPhone(request.getPhone());
 
-
         return userMapper.toResponseDTO(userRepository.save(user));
     }
 
@@ -89,6 +97,7 @@ public class UserServiceImpl implements UserService {
 
         if(!authenticated)
             throw new AppException(ErrorCode.WRONG_PASSWORD);
+
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return "Đổi mật khẩu thành công";
@@ -109,6 +118,7 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         Notification notification = Notification.builder()
+                .type(NotificationType.SYSTEM)
                 .createdTime(Date.from(Instant.now()))
                 .message("Bạn được cấp quit mod" +
                         "\n Bạn có thể duyệt bài, duyệt báo cáo")
@@ -123,9 +133,9 @@ public class UserServiceImpl implements UserService {
     public String blockOrActive(String username, Boolean blocked) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        user.setIs_blocked(blocked);
+        user.setIsBlocked(blocked);
         userRepository.save(user);
-        if(blocked)
+        if(Boolean.TRUE.equals(blocked))
             return "Khóa tài khoản @" + user.getUsername() + "thành công!";
         return "Mở khóa tài khoản @" + user.getUsername() + " thành công";
     }

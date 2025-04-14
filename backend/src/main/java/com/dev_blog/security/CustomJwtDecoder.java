@@ -1,4 +1,4 @@
-package com.dev_blog.config;
+package com.dev_blog.security;
 
 import com.dev_blog.dto.request.IntrospectRequest;
 import com.dev_blog.service.AuthService;

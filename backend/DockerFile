@@ -1,0 +1,2 @@
+FROM openjdk:21
+ARG FILE_JAR=target

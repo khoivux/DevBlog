@@ -1,7 +1,7 @@
 import { Tooltip } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import ConfirmDeleteModal from "../ConfirmDeleteModal.jsx"
+import ConfirmDeleteModal from "../modal/ConfirmModal";
 import { EyeIcon, TrashIcon, ExclamationTriangleIcon, CheckIcon, PencilIcon } from "@heroicons/react/24/solid";
 
 const PostManagement = ({ status }) => {

@@ -39,6 +39,14 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Get User by Email")
+    @GetMapping("/email/{email}")
+    public ApiResponse<?> getByEmail(@PathVariable("email") String username) {
+        return ApiResponse.builder()
+                .data(userService.findByUsername(username))
+                .build();
+    }
+
     @Operation(summary = "Edit User")
     @PostMapping("/edit")
     public ApiResponse<?> updateProfile(@RequestBody UserUpdateRequest request) {

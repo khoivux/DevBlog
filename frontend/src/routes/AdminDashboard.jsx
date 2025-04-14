@@ -29,9 +29,6 @@ const AdminDashboard = () => {
           {activeTab === "posts" && <PostManagement status={postStatus || "approved"} />}
           {activeTab === "users" && <UserManagement />}
           {activeTab === "categories" && <CategoryManagement />}
-          <div className="flex justify-center ml-60">
-            <Pagination />
-          </div>
         </div>
       </main>
     </div>

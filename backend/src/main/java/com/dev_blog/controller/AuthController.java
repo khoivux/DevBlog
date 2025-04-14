@@ -8,7 +8,6 @@ import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.service.AuthService;
-import com.dev_blog.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +25,6 @@ import java.text.ParseException;
 @Tag(name = "Auth Controller")
 public class AuthController {
     private final AuthService authService;
-    private final UserService userService;
 
     @Operation(summary = "Sign-in")
     @PostMapping("/login")
@@ -82,12 +80,11 @@ public class AuthController {
         }
     }
 
-    @Operation(summary = "Forgot password")
-    @PostMapping("/forgot-password")
-    public ApiResponse<Object> sendOTP(@RequestParam String email) {
+    @Operation(summary = "Verify Email")
+    @PostMapping("/verify-email")
+    public ApiResponse<Object> verifyEmail(@RequestParam String email, @RequestParam String otp) {
         return ApiResponse.builder()
-                .data(authService.forgotPassword(email))
-                .message("Gửi OTP thành công")
+                .data(authService.verifyEmail(email, otp))
                 .build();
     }
 

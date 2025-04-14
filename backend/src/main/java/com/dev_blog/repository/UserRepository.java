@@ -18,12 +18,20 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByUsername(@NotBlank(message = "INVALID_USERNAME") String userName);
     boolean existsByEmail(String email);
     boolean existsByPhone(String phone);
-    @Query("SELECT u.id FROM UserEntity u WHERE 'MOD' MEMBER OF u.roles")
-    List<Long> findModeratorIds();
+
     Optional<UserEntity> findByUsername(String username);
+    Optional<UserEntity> findByEmail(String email);
+
+    @Query(nativeQuery = true, value = "SELECT u.id FROM user u " +
+            "JOIN user_entity_roles ur ON u.id = ur.user_entity_id " +
+            "WHERE ur.role = 'MOD'")
+    List<Long> findModeratorIds();
+
     @Query(nativeQuery = true, value = "SELECT * FROM `user` " +
-            "WHERE LOWER(username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR LOWER(display_name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+            "WHERE (:keyword IS NULL OR " +
+            "LOWER(username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(display_name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR LOWER(SUBSTRING_INDEX(email, '@', 1)) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<UserEntity> findByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
 
