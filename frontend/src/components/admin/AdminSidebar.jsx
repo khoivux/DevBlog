@@ -49,7 +49,7 @@ const AdminSidebar = ({ setActiveTab, setPostStatus, setCommentStatus  }) => {
                   <ListItemPrefix><ChevronRightIcon className="h-3 w-5" /></ListItemPrefix>
                   Bài viết đã duyệt
                 </ListItem>
-                <ListItem onClick={() => { setActiveTab("posts"); setPostStatus("unapproved"); }}>
+                <ListItem onClick={() => { setActiveTab("posts"); setPostStatus("pending"); }}>
                   <ListItemPrefix><ChevronRightIcon className="h-3 w-5 mr-auto font-normal text-base" /></ListItemPrefix>
                   Bài viết chưa duyệt
                 </ListItem>

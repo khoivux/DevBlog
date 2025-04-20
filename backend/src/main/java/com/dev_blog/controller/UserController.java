@@ -6,6 +6,7 @@ import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.service.FollowService;
 import com.dev_blog.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class UserController {
     private final FollowService followService;
 
     @Operation(summary = "Get User List")
-    @GetMapping("/list")
+    @GetMapping("/")
     public ApiResponse<?> getUserList(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
@@ -49,9 +50,10 @@ public class UserController {
 
     @Operation(summary = "Edit User")
     @PostMapping("/edit")
-    public ApiResponse<?> updateProfile(@RequestBody UserUpdateRequest request) {
+    public ApiResponse<?> updateProfile(@Valid @RequestBody UserUpdateRequest request) {
         return ApiResponse.builder()
                 .data(userService.updateProfile(request))
+                .message("Chỉnh sửa hồ sơ thành công")
                 .build();
     }
 

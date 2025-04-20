@@ -26,7 +26,7 @@ const AdminDashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-lg w-full min-h-[650px]">
           {activeTab === "reportPost" && postStatus && <PostManagement status={postStatus} />}
           {activeTab === "reportComment" && commentStatus && <CommentManagement status={commentStatus} />}
-          {activeTab === "posts" && <PostManagement status={postStatus || "approved"} />}
+          {activeTab === "posts" && <PostManagement status={postStatus} />}
           {activeTab === "users" && <UserManagement />}
           {activeTab === "categories" && <CategoryManagement />}
         </div>

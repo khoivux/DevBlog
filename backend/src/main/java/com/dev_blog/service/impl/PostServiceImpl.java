@@ -50,7 +50,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PageResponse<PostResponse> getList(SearchRequest request, int page, int size) {
         Map<String, Sort> sortOptions = Map.of(
-                "newest", Sort.by("created_time").descending(),
+                "latest", Sort.by("created_time").descending(),
                 "oldest", Sort.by("created_time").ascending(),
                 "popular", Sort.by("views").descending()
         );
@@ -128,7 +128,8 @@ public class PostServiceImpl implements PostService {
         if(SecurityUtil.isNormalUser())
             post.setStatus(Status.PENDING);
         PostResponse postResponse = postMapper.toResponse(postRepository.save(post));
-        postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
+        postResponse.setCreatedTime(dateTimeUtil.format(post.getCreatedTime()));
+        postResponse.setModifiedTime(dateTimeUtil.format(post.getModifiedTime()));
 
         return postResponse;
     }
@@ -183,9 +184,10 @@ public class PostServiceImpl implements PostService {
         }
 
         PostResponse postResponse = postMapper.toResponse(post);
-        postResponse.setAuthorUsername(post.getAuthor().getUsername());
         postResponse.setAuthorName(post.getAuthor().getDisplayName());
-        postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
+        postResponse.setAuthorUsername(post.getAuthor().getUsername());
+        postResponse.setCreatedTime(dateTimeUtil.format(post.getCreatedTime()));
+        postResponse.setModifiedTime(dateTimeUtil.format(post.getModifiedTime()));
         postResponse.setLike(postVoteRepository.countVotesByPostId(postId, VoteType.LIKE));
         postResponse.setDislike(postVoteRepository.countVotesByPostId(postId, VoteType.DISLIKE));
 
@@ -265,7 +267,8 @@ public class PostServiceImpl implements PostService {
                         PostResponse postResponse = postMapper.toResponse(post);
                         postResponse.setAuthorUsername(post.getAuthor().getUsername());
                         postResponse.setAuthorName(post.getAuthor().getDisplayName());
-                        postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
+                        postResponse.setCreatedTime(dateTimeUtil.format(post.getCreatedTime()));
+                        postResponse.setModifiedTime(dateTimeUtil.format(post.getModifiedTime()));
                         return postResponse;
                     }).toList();
         }
@@ -281,7 +284,8 @@ public class PostServiceImpl implements PostService {
                     PostResponse postResponse = postMapper.toResponse(post);
                     postResponse.setAuthorUsername(post.getAuthor().getUsername());
                     postResponse.setAuthorName(post.getAuthor().getDisplayName());
-                    postResponse.setCreated(dateTimeUtil.format(post.getCreatedTime()));
+                    postResponse.setCreatedTime(dateTimeUtil.format(post.getCreatedTime()));
+                    postResponse.setModifiedTime(dateTimeUtil.format(post.getModifiedTime()));
                     return postResponse;
                 }).toList();
     }

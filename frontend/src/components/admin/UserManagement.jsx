@@ -1,5 +1,6 @@
 import { Tooltip } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
+import { useToast } from "../../contexts/ToastContext";
 import { Pagination } from "antd";
 import { KeyIcon, LockOpenIcon, BellIcon, LockClosedIcon, MinusCircleIcon } from "@heroicons/react/24/solid";
 import ConfirmModal from "../modal/ConfirmModal";
@@ -16,6 +17,8 @@ const UserManagement = () => {
   const [isLockModalOpen, setIsLockModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+  const { showToast } = useToast();
+
 
   const fetchUsers = async () => {
       try {
@@ -23,7 +26,7 @@ const UserManagement = () => {
         setUsers(response.data);
         setTotalElements(response.data.totalElements);
       } catch (error) {
-        setError(error.message); 
+        showToast("error", error.message);
       }
     };
 
@@ -51,9 +54,10 @@ const UserManagement = () => {
     try {
       const response = await blockUser(selectedUser);
       fetchUsers(); // Refresh lại danh sách
+      showToast("success", response.message);
       setSelectedUser(null);
     } catch (error) {
-      setError(error.message);
+      showToast("error", error.message);
     } finally {
       closeLockModal();
     }
@@ -65,8 +69,9 @@ const UserManagement = () => {
       const response = await setRole({ username: selectedUser.username, role: newRole });
       setSelectedUser(null);
       fetchUsers();
+      showToast("success", response.message);
     } catch (error) {
-      setError(error.message);
+      showToast("error", error.message);
     } finally {
       closeRoleModal();
     }

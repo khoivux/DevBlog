@@ -46,6 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
             UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
             Notification notification = Notification.builder()
+                    .isRead(false)
                     .createdTime(Date.from(Instant.now()))
                     .receiver(user)
                     .message(message)

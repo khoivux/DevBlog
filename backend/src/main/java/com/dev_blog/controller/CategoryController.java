@@ -19,7 +19,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @Operation(summary = "All Category")
-    @GetMapping("/list")
+    @GetMapping("/")
     public ApiResponse<?> getList(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size,
@@ -35,7 +35,7 @@ public class CategoryController {
     @PostMapping("/create")
     public ApiResponse<?> createCategory(@RequestParam String categoryName) {
         return ApiResponse.builder()
-                .data(categoryService.createCategory(categoryName))
+                .data(categoryService.createCategory(categoryName.trim()))
                 .message("Tạo danh mục thành công")
                 .build();
     }

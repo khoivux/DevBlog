@@ -85,6 +85,7 @@ public class UserServiceImpl implements UserService {
         user.setLastname(request.getLastname());
         user.setUsername(request.getUsername());
         user.setPhone(request.getPhone());
+        user.setIntroduction(request.getIntroduction());
 
         return userMapper.toResponseDTO(userRepository.save(user));
     }
@@ -120,8 +121,9 @@ public class UserServiceImpl implements UserService {
         Notification notification = Notification.builder()
                 .type(NotificationType.SYSTEM)
                 .createdTime(Date.from(Instant.now()))
-                .message("Bạn được cấp quit mod" +
-                        "\n Bạn có thể duyệt bài, duyệt báo cáo")
+                .isRead(false)
+                .message("Bạn được cấp quyền kiểm duyệt" +
+                        "\n Bạn có thể duyệt bài/báo cáo")
                 .receiver(user)
                 .build();
         notificationService.sendNotification(user.getId(), notification);
@@ -136,7 +138,7 @@ public class UserServiceImpl implements UserService {
         user.setIsBlocked(blocked);
         userRepository.save(user);
         if(Boolean.TRUE.equals(blocked))
-            return "Khóa tài khoản @" + user.getUsername() + "thành công!";
+            return "Khóa tài khoản @" + user.getUsername() + " thành công!";
         return "Mở khóa tài khoản @" + user.getUsername() + " thành công";
     }
 }

@@ -25,7 +25,7 @@ public enum ErrorCode {
     ACCESS_DENIED(1015, "Không cho phép truy cập", HttpStatus.NOT_FOUND),
     REPORT_NOT_EXISTED(1016, "Báo cáo không tồn tại", HttpStatus.NOT_FOUND),
     COMMENT_NOT_EXISTED(1017, "Bình luaanj không tồn tại", HttpStatus.NOT_FOUND),
-    EMPTY_DATA(10018, "Dữ liệu không được trống", HttpStatus.BAD_REQUEST),
+    EMPTY_DATA(10018, "Ô nhập không được để trống", HttpStatus.BAD_REQUEST),
     UPLOAD_FAIL(10019, "Không thể tải file", HttpStatus.BAD_REQUEST),
     NOT_HAVE_ROLE(1020, "Người dùng không có quyền này", HttpStatus.NOT_FOUND),
     BLOCKED_USER(1021 ,"Tài khoản bị khóa do vi phạm chính sách", HttpStatus.BAD_REQUEST),

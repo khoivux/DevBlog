@@ -8,7 +8,7 @@ const PostList = ({
   size = 5,
   query = null,
   categoryId = null,
-  sortBy = "newest",
+  sortBy = "latest",
   status = "APPROVED",
   authorId = null,
   setTotalPosts,
@@ -29,8 +29,6 @@ const PostList = ({
         } else {
           response = await getPosts(currentPage, size, query, categoryId, sortBy, status);
         }
-
-        console.log("API Response:", response.data); // Debug log
 
         const { totalPage, totalElements, data } = response.data;
 

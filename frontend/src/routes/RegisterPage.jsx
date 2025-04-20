@@ -29,7 +29,6 @@ const RegisterPage = () => {
   
     try {
       const response = await register(formData);
-      alert(response.message);   
       navigate("/login");
     } catch (err) {
       setError(err.message); // Hiển thị lỗi từ backend

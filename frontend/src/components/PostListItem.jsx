@@ -25,7 +25,7 @@ const PostListItem = ({ post }) => {
             <Link to={`/author/${post.authorUsername}`} className="text-blue-500 hover:underline hover:text-red-500">
               {post.authorName}
             </Link>
-            <span> |  {post.created} </span>
+            <span> |  {post.createdTime} </span>
             </div>
             <p className='pr-4'>
               {post.description.length > 130 ? `${post.description.slice(0, 130)}...` : post.description}

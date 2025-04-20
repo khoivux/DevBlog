@@ -89,7 +89,7 @@ const NotificationDropdown = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="z-50 relative">
       <button
         className="relative text-2xl p-2 rounded-full hover:bg-gray-200 transition duration-200"
         onClick={() => {

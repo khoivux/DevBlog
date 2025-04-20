@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
-
 @Builder
 @Getter
 @Setter
@@ -18,11 +16,10 @@ public class PostResponse {
     Long id;
     String title;
     String content;
-    String created;
+    String createdTime;
+    String modifiedTime;
     Long like;
     Long dislike;
-    Instant createdTime;
-    Instant modifiedTime;
     String authorName;
     String authorUsername;
     CategoryDTO category;

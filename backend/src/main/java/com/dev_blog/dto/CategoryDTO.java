@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CategoryDTO {
     Long id;
-    @NotBlank
+    @NotBlank(message = "EMPTY_DATA")
     String name;
     Long countPosts;
 }

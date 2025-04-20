@@ -4,7 +4,7 @@ const API_URL = "http://localhost:8081/api/v1/category";
 
 export const getCategories = async (page, size, query = null) => {
     try {
-        const response = await axiosClient.get(`${API_URL}/list`, {
+        const response = await axiosClient.get(`${API_URL}/`, {
             params: { page, size, query }, // Truy vấn bằng query params
         });
         return response.data; 
@@ -26,7 +26,7 @@ export const getCategories = async (page, size, query = null) => {
         },
       });
       
-        return response.data.data; 
+        return response.data; 
       } catch (error) {
         if (error.response) {
           const message  = error.response.data.message;
@@ -43,7 +43,7 @@ export const getCategories = async (page, size, query = null) => {
         params: { categoryId },
       });
       
-        return response.data.data; 
+        return response.data; 
       } catch (error) {
         if (error.response) {
           const message  = error.response.data.message;
@@ -57,7 +57,7 @@ export const getCategories = async (page, size, query = null) => {
     try {
       const response = await axiosClient.put(`${API_URL}/edit`, category);
       
-        return response.data.data; 
+        return response.data; 
       } catch (error) {
         if (error.response) {
           const message  = error.response.data.message;

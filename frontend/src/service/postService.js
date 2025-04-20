@@ -11,7 +11,7 @@ export const getPosts = async (
  ) => {
     try {
       
-      const response = await axiosClient.get(`${API_URL}/list`, {
+      const response = await axiosClient.get(`${API_URL}/`, {
         params: {
           page,
           size,
@@ -50,13 +50,23 @@ export const getPosts = async (
 
   export const createPost = async (postData) => {
     try {
-        const response = await axiosClient.post(`${API_URL}/add`, postData);
+        const response = await axiosClient.post(`${API_URL}/create`, postData);
 
         console.log("Đăng bài thành công:", response.data);
         return response.data.data;
     } catch (error) {
         console.error("Lỗi khi đăng bài:", error.response?.data || error.message);
         return null;
+    }
+  };
+
+  export const deletePost = async (postId) => {
+    try {
+      const response = await axiosClient.delete(`${API_URL}/delete/${postId}`);
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || "Lỗi kết nối đến server!";
+      throw new Error(message);
     }
   };
 

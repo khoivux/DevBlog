@@ -61,6 +61,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @PreAuthorize("hasAnyRole('ADMIN')")
     public CategoryDTO createCategory(String categoryName) {
+
+        if(categoryName.isEmpty())
+            throw new AppException(ErrorCode.EMPTY_DATA);
         if(categoryRepository.existsByName(categoryName))
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
 

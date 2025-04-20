@@ -71,9 +71,9 @@ const Homepage = () => {
       <div className="flex gap-4 mb-4">
         <button
           className={`px-4 py-2 text-lg font-medium ${
-            activeTab === "newest" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            activeTab === "latest" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
           }`}
-          onClick={() => handleTabChange("newest")}
+          onClick={() => handleTabChange("latest")}
         >
           Bài viết mới nhất
         </button>

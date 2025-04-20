@@ -4,13 +4,13 @@ const API_URL = "http://localhost:8081/api/v1/admin";
 
 export const blockUser = async ({ username, isBlocked }) => {
     try {
-      const response = await axiosClient.put(`${API_URL}/block`, null, {
+      const response = await axiosClient.patch(`${API_URL}/block`, null, {
         params: {
           username,
           block: !isBlocked,
         },
       });
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const message = error.response?.data?.message || "Lỗi kết nối đến server!";
       throw new Error(message);
@@ -19,15 +19,36 @@ export const blockUser = async ({ username, isBlocked }) => {
   
   export const setRole = async ({ username, role }) => {
     try {
-      const response = await axiosClient.put(`${API_URL}/set-roles`, null, {
+      const response = await axiosClient.patch(`${API_URL}/set-roles`, null, {
         params: {
           username,
           role,
         },
       });
-      return response.data.data;
+      return response.data;
     } catch (error) {
       const message = error.response?.data?.message || "Lỗi kết nối đến server!";
       throw new Error(message);
     }
   }; 
+
+  export const approvePost = async (postId) => {
+    try {
+      const response = await axiosClient.patch(`${API_URL}/approve/${postId}`);
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || "Lỗi kết nối đến server!";
+      throw new Error(message);
+    }
+  };
+
+  export const rejectPost = async (postId) => {
+    try {
+      const response = await axiosClient.patch(`${API_URL}/reject/${postId}`);
+      return response.data;
+    } catch (error) {
+      const message = error.response?.data?.message || "Lỗi kết nối đến server!";
+      throw new Error(message);
+    }
+  };
+  

@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { useState, useEffect, useRef } from "react";
+import { useToast } from "../../contexts/ToastContext";
+import { FaSortUp, FaSortDown } from "react-icons/fa";
 import { Tooltip } from "@material-tailwind/react";
 import { TrashIcon, PencilIcon } from "@heroicons/react/24/solid";
 import { getCategories, createCategory, deleteCat, updateCategory } from "../../service/categoryService";
 import { Pagination } from "antd";
 import ConfirmDeleteModal from "../modal/ConfirmModal";
 import EditCategoryModal from "../modal/EditCategory";
-import { useRef } from "react";
+
 const CategoryManagement = () => {
   const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
@@ -20,6 +21,7 @@ const CategoryManagement = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { showToast } = useToast();
 
   const openDeleteModal = (category) => {
     setSelectedCategory(category);
@@ -47,7 +49,7 @@ const CategoryManagement = () => {
       setCategories(response.data.data);
       setTotalElements(response.data.totalElements);
     } catch (error) {
-      setError(error.message); 
+      showToast("error", error.message);
     }
   };
   const handleCreate = async () => {
@@ -55,8 +57,9 @@ const CategoryManagement = () => {
       const response = await createCategory(newCategoryName.trim());
       setNewCategoryName("");
       fetchCategories();
+      showToast("success", response.message);
     } catch (error) {
-      setError(error.message); 
+      showToast("error", error.message);
     }
   };
 
@@ -65,8 +68,9 @@ const CategoryManagement = () => {
       const response = await updateCategory(selectedCategory);
       fetchCategories();
       closeEditModal();
+      showToast("success", response.message);
     } catch (error) {
-      setError(error.message); 
+      showToast("error", error.message);
     }
   };
   
@@ -75,8 +79,9 @@ const CategoryManagement = () => {
     try {
       const response = await deleteCat(selectedCategory.id);
       fetchCategories();
+      showToast("success", response.message);
     } catch (error) {
-      console.error("Lỗi xóa danh mục:", error.message);
+      showToast("error", error.message);
     } finally {
       closeDeleteModal();
     }
@@ -175,7 +180,7 @@ const CategoryManagement = () => {
           )}
         </tbody>
       </table>
-      {totalElements > 0 && (
+      {totalElements > pageSize && (
       <div className="flex justify-center mt-4">
         <Pagination
           current={currentPage}

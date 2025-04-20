@@ -44,3 +44,19 @@ if(user == null) throw new Error("Bạn chưa đăng nhập")
           throw new Error("Lỗi kết nối đến server!");
     }
 };
+
+export const sendNotification = async (receiverIds, message) => {
+    try {
+      const response = await axiosClient.post("/notifications", null, {
+        params: {
+          receiverIds,  // danh sách ID
+          message,      // nội dung thông báo
+        },
+      });
+      return response.data;
+    } catch (error) {
+      const message =
+        error.response?.data?.message || "Không thể gửi thông báo!";
+      throw new Error(message);
+    }
+  };

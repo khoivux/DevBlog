@@ -98,7 +98,7 @@ export const getUser = async (username) => {
     try {
       const response = await axiosClient.post(`${API_URL}/edit`, request);
 
-      return response.data.data; 
+      return response.data; 
     } catch (error) {
       if (error.response) {
         throw new Error(error.response.data.message);
@@ -112,7 +112,7 @@ export const getUser = async (username) => {
     page = 1,
     size = 5,) => {
     try {
-      const response = await axiosClient.get(`${API_URL}/list`,{
+      const response = await axiosClient.get(`${API_URL}/`,{
         params: {
           query,
           page,

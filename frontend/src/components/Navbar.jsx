@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Tooltip } from "@material-tailwind/react";
 import { useLocation,useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { logout } from "../service/authService";
@@ -70,9 +71,12 @@ const Navbar = () => {
           </div>
 
           {/* DESKTOP MENU */}
-          <div className="hidden md:flex items-center gap-4 xl:gap-8 font-medium">
-            <a href="/">Trang chủ</a>
-            <a href="/">Xu hướng</a>
+          <div className="hidden md:flex items-center gap-5 font-medium">
+            <a href="/" >Trang chủ</a>
+            {user?.roles?.includes("MOD") && (
+              <a href="/admin">Quản trị</a>
+            )}
+
             <a href="/write" className="py-2 px-4 rounded-3xl bg-[#c1c1f7] text-gray-700 hover:scale-105">
               Tạo bài viết mới
             </a>
@@ -81,7 +85,7 @@ const Navbar = () => {
 
             {/* Hiển thị avatar nếu user đã đăng nhập */}
             {user ? (
-              <div className="relative  flex items-center" onClick={() => setDropdownOpen(!dropdownOpen)}>
+              <div className="z-50 relative  flex items-center" onClick={() => setDropdownOpen(!dropdownOpen)}>
                 <img
                   src={user.avatarUrl || "https://res.cloudinary.com/drdjvonsx/image/upload/v1741858825/ad2h5wifjk0xdqmawf9x.png"} // Dùng avatar từ Cloudinary, fallback nếu null
                   alt="User Avatar"

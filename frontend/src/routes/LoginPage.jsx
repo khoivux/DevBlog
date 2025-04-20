@@ -13,8 +13,8 @@ const Login = () => {
     setError("");
 
     try {
-      const { token, authenticated } = await login(username, password);
-      if (authenticated) {
+      const response = await login(username, password);
+      if (response.authenticated) {
         const user = await getUser(username);
         localStorage.setItem("user", JSON.stringify(user)); // Hiển thị thông tin người dùng đăng nhập
         navigate("/");

@@ -18,15 +18,16 @@ public class AdminController {
     private final UserService userService;
 
     @Operation(summary = "Approve Post")
-    @PutMapping("/approve/{postId}")
+    @PatchMapping("/approve/{postId}")
     public ApiResponse<Object> approvePost(@PathVariable Long postId) {
         return ApiResponse.builder()
                 .message(postService.handlePost(postId, Status.APPROVED))
+                .data(postService.getSinglePost(postId))
                 .build();
     }
 
     @Operation(summary = "Reject Post")
-    @PutMapping("/reject/{postId}")
+    @PatchMapping("/reject/{postId}")
     public ApiResponse<Object> rejectPost(@PathVariable Long postId) {
         return ApiResponse.builder()
                 .message(postService.handlePost(postId, Status.REJECTED))
@@ -34,7 +35,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Block User")
-    @PutMapping("/block")
+    @PatchMapping("/block")
     public ApiResponse<Object> blockOrEnable(
             @RequestParam String username,
             @RequestParam Boolean block)
@@ -45,7 +46,7 @@ public class AdminController {
     }
 
     @Operation(summary = "Set Mod")
-    @PutMapping("/set-roles")
+    @PatchMapping("/set-roles")
     public ApiResponse<Object> setRoles(
             @RequestParam String username,
             @RequestParam String role)

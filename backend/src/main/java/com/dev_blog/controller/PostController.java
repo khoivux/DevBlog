@@ -25,12 +25,12 @@ public class PostController {
     private SecurityUtil securityUtil;
 
     @Operation(summary = "All Post")
-    @GetMapping("/list")
+    @GetMapping("/")
     public ApiResponse<PageResponse<PostResponse>> getList(
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam(value = "status", defaultValue = "APPROVED") String status,
+            @RequestParam(value = "status") String status,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
@@ -42,8 +42,8 @@ public class PostController {
     }
 
 
-    @Operation(summary = "Add New Post")
-    @PostMapping("/add")
+    @Operation(summary = "Create New Post")
+    @PostMapping("/create")
     public ApiResponse<PostResponse> handlePost(@RequestBody PostCreateRequest postRequest) {
         return ApiResponse.<PostResponse>builder()
                 .data(postService.createPost(postRequest))
@@ -83,8 +83,8 @@ public class PostController {
     }
 
     @Operation(summary = "Delete Post")
-    @DeleteMapping("/delete")
-    public ApiResponse<Object> deletePost(@RequestParam Long postId) {
+    @DeleteMapping("/delete/{postId}")
+    public ApiResponse<Object> deletePost(@PathVariable Long postId) {
         return ApiResponse.builder()
                 .message(postService.deletePost(postId))
                 .build();

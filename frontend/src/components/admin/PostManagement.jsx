@@ -1,177 +1,161 @@
 import { Tooltip } from "@material-tailwind/react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import ConfirmDeleteModal from "../modal/ConfirmModal";
-import { EyeIcon, TrashIcon, ExclamationTriangleIcon, CheckIcon, PencilIcon } from "@heroicons/react/24/solid";
-
+import { useState, useEffect } from "react";
+import ConfirmModal from "../modal/ConfirmModal";
+import { useToast } from "../../contexts/ToastContext";
+import { EyeIcon, TrashIcon, ExclamationTriangleIcon, CheckIcon, XCircleIcon } from "@heroicons/react/24/solid";
+import { Pagination } from "antd";
+import { getPosts, deletePost } from "../../service/postService";
+import { getCategories } from "../../service/categoryService";
+import { approvePost, rejectPost } from "../../service/adminService";
+import PostView from "../modal/PostView";
 const PostManagement = ({ status }) => {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [categoryId, setCategoryId] = useState(null);
+  const [sortBy, setSortBy] = useState(null);
+  const [query, setQuery] = useState(null);
+  const [pageSize, setPagesize] = useState(8);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const { showToast } = useToast();
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [confirmType, setConfirmType] = useState(null); // "approve" | "reject"
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-  // Mở modal xóa với thông tin phù hợp
-  const openDeleteModal = () => {
-    setIsDeleteModalOpen(true);
+  const openConfirmModal = (post, type) => {
+    setSelectedPost(post);
+    setConfirmType(type); // "approve" hoặc "reject"
+    setIsConfirmModalOpen(true);
+  };
+  
+  const closeConfirmModal = () => {
+    setSelectedPost(null);
+    setConfirmType(null);
+    setIsConfirmModalOpen(false);
+  };
+  
+
+
+  const openViewModal = (post) => {
+    setSelectedPost(post);
+    setIsViewModalOpen(true);
+  };
+  
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedPost(null);
+  };
+  
+
+
+  const fetchPosts = async () => {
+    try{
+      const response = await getPosts(currentPage, pageSize, query, categoryId, sortBy, status);
+      setPosts(response.data.data.filter((post) => post.status === status));
+      setTotalElements(response.data.totalElements);
+    } catch (error) {
+      showToast("error", error.message);
+    }
   };
 
-  // Đóng modal
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setDeleteItem(null);
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories(1, 1000, null);
+      setCategories(response.data.data);
+    } catch (error) {
+      showToast("error", error.message);
+    }
   };
 
-  // Hàm xử lý xóa
-  const handleDelete = () => {
-    console.log(`Đã xóa`);
-    closeDeleteModal();
+  const handleConfirm = async () => {
+    try {
+      let response
+      if (confirmType === "approve") {
+        response = await approvePost(selectedPost.id);
+      } else if (confirmType === "reject") {
+        response = await rejectPost(selectedPost.id);
+      } else {
+        response = await deletePost(selectedPost.id)
+      }
+      showToast("success", response.message);
+      fetchPosts();
+    } catch (error) {
+      showToast("error", error.message);
+    } finally {
+      closeConfirmModal();
+    }
   };
-  const allPosts = [
-    {
-      id: 1,
-      title: "4 tính chất lập trình hướng đối tượng",
-      author: "ABC",
-      approved: true,
-      cat: "OOP",
-      date: "2025-02-28 10:30",
-      reported: false,
-    },
-    {
-      id: 2,
-      title: "Tìm hiểu về Segment Tree",
-      author: "ABC",
-      approved: true,
-      date: "2025-02-28 12:00",
-      reported: false,
-      cat: "DSA",
-    },
-    {
-      id: 3,
-      title: "Git và GitHub cho người mới",
-      author: "ABC",
-      approved: true,
-      reported: true,
-      date: "2025-02-28 10:30",
-      description: "Spam nội dung không liên quan",
-      reporter: "Nguyễn Văn A",
-      cat: "Tools",
-    },
-    {
-      id: 4,
-      title: "Cấu trúc dữ liệu cây",
-      author: "XYZ",
-      approved: true,
-      reported: true,
-      date: "2025-02-28 10:30",
-      description: "Ngôn ngữ không phù hợp",
-      reporter: "Trần Thị B",
-      cat: "DSA",
-    },
-    {
-      id: 5,
-      title: "4 tính chất lập trình hướng đối tượng",
-      author: "ABC",
-      approved: true,
-      date: "2025-02-28 10:30",
-      reported: false,
-      cat: "OOP",
-    },
-    {
-      id: 6,
-      title: "Tìm hiểu về Segment Tree",
-      author: "ABC",
-      approved: false,
-      date: "2025-02-28 12:00",
-      reported: false,
-      cat: "DSA",
-    },
-    {
-      id: 7,
-      title: "Git và GitHub cho người mới",
-      author: "ABC",
-      approved: false,
-      reported: true,
-      date: "2025-02-28 10:30",
-      description: "Spam nội dung không liên quan",
-      reporter: "Nguyễn Văn A",
-      cat: "Tools",
-    },
-    {
-      id: 8,
-      title: "Cấu trúc dữ liệu cây",
-      author: "XYZ",
-      approved: false,
-      reported: true,
-      date: "2025-02-28 10:30",
-      description: "Ngôn ngữ không phù hợp",
-      reporter: "Trần Thị B",
-      cat: "DSA",
-    },
-    {
-      id: 9,
-      title: "4 tính chất lập trình hướng đối tượng",
-      author: "ABC",
-      approved: false,
-      date: "2025-02-28 10:30",
-      reported: false,
-      cat: "OOP",
-    },
-    {
-      id: 10,
-      title: "Tìm hiểu về Segment Tree",
-      author: "ABC",
-      approved: false,
-      date: "2025-02-28 12:00",
-      reported: false,
-      cat: "DSA",
-    },
-  ];
+  
 
-  let posts;
-  if (status === "approved") {
-    posts = allPosts.filter((post) => post.approved);
-  } else if (status === "unapproved") {
-    posts = allPosts.filter((post) => !post.approved);
-  } else if (status === "report") {
-    posts = allPosts.filter((post) => post.reported);
-  }
+  useEffect(() => {
+      fetchPosts();
+    }, [currentPage, pageSize, query, categoryId, sortBy, status]);
+
+    useEffect(() => {
+      fetchCategories();
+    }, [status]);
 
   return (
     <div className="w-full">
       <h2 className="text-xl font-bold text-center mb-4">
         {status === "approved"
           ? "Bài viết đã duyệt"
-          : status === "unapproved"
+          : status === "pending"
           ? "Bài viết chưa duyệt"
           : "Báo cáo vi phạm"}
       </h2>
-      <div className="flex space-x-2 mb-4 ml-10">
-        <div className="">
-                  <label htmlFor="" className="text-base font-medium pr-3">Danh mục</label>
-                  <select name="category" id="" className="p-2 rounded-lg bg-white">
-                      <option value="">AI</option>
-                      <option value="">Android</option>
-                      <option value="">Java</option>
-                      <option value="">DSA</option>
-                      <option value="">OOP</option>
-                      <option value="">Game</option>
-                  </select>
-              </div>
+      <div className="flex items-center space-x-4 mb-4 ml-10">
+        <div className="flex items-center space-x-2">
+          <label htmlFor="category" className="text-base font-medium">Danh mục</label>
+          <select
+            name="category"
+            id="category"
+            className="p-2 rounded-lg bg-white border text-sm"
+            value={categoryId || ""}
+            onChange={(e) => {
+              setCategoryId(e.target.value || null);
+              setCurrentPage(1); // reset về trang đầu khi lọc
+            }}
+          >
+            <option value="">-- Chọn danh mục --</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+
+        </div>
+
         <input
           type="text"
-          placeholder="Tìm kiếm..."
-          className="border px-2 py-1 text-sm rounded w-1/2"
+          placeholder="Nhập tên bài viết..."
+          className="border px-2 py-2 text-sm rounded w-1/2"
+          value={query || ""}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+          }}
         />
-        
-        <button className="bg-green-500 text-white px-4 py-1 rounded">
-          Tìm kiếm
-        </button>
+
       </div>
+
       <div className="flex space-x-2 mb-4 ml-10">
         <div className="">
                   <label htmlFor="" className="text-base font-medium pr-3">Sắp xếp theo</label>
-                  <select name="category" id="" className="p-2 rounded-lg bg-white">
-                      <option value="">Thời gian đăng</option>
-                      <option value="">Tiêu đề</option>
-                      <option value="">Danh mục</option>
-                      <option value="">...</option>
+                  <select
+                    name="sortBy"
+                    id="sortBy"
+                    className="p-2 rounded-lg bg-white"
+                    value={sortBy || ""}
+                    onChange={(e) => {
+                      setSortBy(e.target.value || null);
+                      setCurrentPage(1); // reset về trang đầu
+                    }}
+                  >
+                    <option value="">-- Chọn sắp xếp --</option>
+                    <option value="latest">Mới nhất</option>
+                    <option value="oldest">Cũ nhất</option>
+                    <option value="popular">Phổ biến nhất</option>
                   </select>
               </div>
       </div>
@@ -180,7 +164,6 @@ const PostManagement = ({ status }) => {
         <table className="border-collapse border border-gray-300 text-sm w-full max-w-[95%]">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border p-2">Mã bài viết</th>
               <th className="border p-2">Tiêu đề</th>
               <th className="border p-2">Danh mục</th>
               <th className="border p-2">Tác giả</th>
@@ -199,10 +182,9 @@ const PostManagement = ({ status }) => {
           <tbody>
             {posts.map((post) => (
               <tr key={post.id} className="text-center border">
-                <td className="border p-2">{post.id}</td>
                 <td className="border p-2 break-words whitespace-normal">{post.title}</td>
-                <td className="border p-2 break-words whitespace-normal">{post.cat}</td>
-                <td className="border p-2 break-words whitespace-normal">{post.author}</td>
+                <td className="border p-2 break-words whitespace-normal">{post.category.name}</td>
+                <td className="border p-2 break-words whitespace-normal">{post.authorName}</td>
 
                 {status === "report" ? (
                   <>
@@ -210,69 +192,53 @@ const PostManagement = ({ status }) => {
                     <td className="border p-2 break-words whitespace-normal">{post.reporter}</td>
                   </>
                 ) : (
-                  <td className="border p-2">{post.date}</td>
+                  <td className="border p-2">{post.createdTime}</td>
                 )}
 
                 <td className="border p-2 flex gap-2 justify-center">
-                  {status === "report" ? (
+                  {status === "pending" ? (
                     <>
                       <Tooltip content="Xem bài">
-                        <Link
-                          to="/post"
-                          target="_blank" // Mở trong tab mới
+                        <button
+                          onClick={() => openViewModal(post)}
                           className="bg-blue-500 text-white p-2 rounded inline-flex items-center"
                         >
                           <EyeIcon className="h-4 w-4" />
-                        </Link>
+                        </button>
                       </Tooltip>
 
-                      <Tooltip content="Bỏ qua">
-                        <button className="bg-green-500 text-white p-2 rounded">
+                      <Tooltip content="Duyệt bài">
+                        <button
+                          onClick={() => openConfirmModal(post, "approve")}
+                          className="bg-green-500 text-white p-2 rounded"
+                        >
                           <CheckIcon className="h-4 w-4" />
                         </button>
                       </Tooltip>
 
-                      <Tooltip content="Thông báo">
-                        <button className="bg-orange-500 text-white p-2 rounded">
-                          <ExclamationTriangleIcon className="h-4 w-4" />
-                        </button>
-                      </Tooltip>
-
-                      <Tooltip content="Xóa bài">
-                        <button onClick={openDeleteModal}
+                      <Tooltip content="Từ chối">
+                        <button 
+                        onClick={() => openConfirmModal(post, "reject")}
                          className="bg-red-500 text-white p-2 rounded">
-                          <TrashIcon className="h-4 w-4" />
+                          <XCircleIcon className="h-4 w-4" />
                         </button>
                       </Tooltip>
                     </>
                   ) : (
                     <>
                       <Tooltip content="Xem bài">
-                        <Link
-                          to="/post"
-                          target="_blank" // Mở trong tab mới
+                        <button
+                          onClick={() => openViewModal(post)}
                           className="bg-blue-500 text-white p-2 rounded inline-flex items-center"
                         >
                           <EyeIcon className="h-4 w-4" />
-                        </Link>
-                      </Tooltip>
-
-                      <Tooltip content="Chỉnh sửa">
-                        <button className="bg-pink-500 text-white p-2 rounded">
-                          <PencilIcon className="h-4 w-4" />
                         </button>
                       </Tooltip>
 
-                      {!post.approved && (
-                        <Tooltip content="Duyệt bài viết" className="bg-black">
-                          <button className="bg-green-500 text-white p-2 rounded">
-                            <CheckIcon className="h-4 w-4" />
-                          </button>
-                        </Tooltip>
-                      )}
-
                       <Tooltip content="Xóa bài">
-                        <button onClick={openDeleteModal} className="bg-red-500 text-white p-2 rounded" >
+                        <button 
+                        onClick={() => openConfirmModal(post, "delete")}
+                        className="bg-red-500 text-white p-2 rounded" >
                           <TrashIcon className="h-4 w-4" />
                         </button>
                       </Tooltip>
@@ -285,15 +251,47 @@ const PostManagement = ({ status }) => {
           </tbody>
         </table>
       </div>
-      {/* Modal Xác nhận xóa */}
-      <ConfirmDeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
-        onConfirm={handleDelete}
-        title={`Xác nhận xóa`}
-        message={`Bạn có chắc chắn muốn xóa bài viết không?`}
-        type={'post'}
+
+      {totalElements > pageSize && (
+      <div className="flex justify-center mt-4">
+        <Pagination
+          current={currentPage}
+          total={totalElements}
+          pageSize={pageSize}
+          onChange={(page) => setCurrentPage(page)}
+          showSizeChanger={false}
+        />
+      </div>)}
+
+      <PostView
+        isOpen={isViewModalOpen}
+        onClose={closeViewModal}
+        post={selectedPost}
       />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleConfirm}
+        title={
+          confirmType === "approve"
+            ? "Xác nhận duyệt bài viết"
+            : confirmType === "reject"
+            ? "Xác nhận từ chối bài viết"
+            : "Xác nhận xóa bài viết"
+        }
+        message={
+          confirmType === "approve"
+            ? "Bạn có chắc chắn muốn duyệt bài viết này không?"
+            : confirmType === "reject"
+            ? "Bạn có chắc chắn muốn từ chối bài viết này không?"
+            : "Bạn có chắc chắn muốn xóa bài viết này không?"
+        }
+      />
+
+
+
+      
     </div>
   );
 };

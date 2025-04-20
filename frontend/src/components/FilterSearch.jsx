@@ -5,7 +5,7 @@ const FilterSearch = () => {
   const navigate = useNavigate();
 
   const filterOptions = [
-    { label: "Mới nhất", value: "newest" },
+    { label: "Mới nhất", value: "latest" },
     { label: "Cũ nhất", value: "oldest" },
     { label: "Phổ biến nhất", value: "popular" },
     { label: "Tác giả theo dõi", value: null }

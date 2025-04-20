@@ -67,3 +67,34 @@ body {
     border-radius: 12px;
     margin: 12px 0;
   }
+
+
+  /* Thêm vào tệp CSS hoặc trong tag <style> nếu đang sử dụng inline style */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Áp dụng cho hiệu ứng fadeIn */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+/* Áp dụng cho hiệu ứng fadeOut (áp dụng khi toast bị xóa sau 4s) */
+.animate-fadeOut {
+  animation: fadeOut 0.5s ease-in-out forwards;
+}
+
