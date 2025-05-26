@@ -53,6 +53,10 @@ const AdminSidebar = ({ setActiveTab, setPostStatus, setCommentStatus  }) => {
                   <ListItemPrefix><ChevronRightIcon className="h-3 w-5 mr-auto font-normal text-base" /></ListItemPrefix>
                   Bài viết chưa duyệt
                 </ListItem>
+                <ListItem onClick={() => { setActiveTab("posts"); setPostStatus("hide"); }}>
+                  <ListItemPrefix><ChevronRightIcon className="h-3 w-5 mr-auto font-normal text-base" /></ListItemPrefix>
+                  Bài viết ẩn
+                </ListItem>
               </List>
             </AccordionBody>
           )}

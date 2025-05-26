@@ -2,6 +2,7 @@ package com.dev_blog.security;
 
 import com.dev_blog.dto.response.ErrorResponse;
 import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.util.DateTimeUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +22,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(new Date())
+                .timestamp(DateTimeUtil.formatToVietnamTime(new Date()))
                 .code(errorCode.getCode())
                 .error(errorCode.getStatus().getReasonPhrase())
                 .path(request.getServletPath())

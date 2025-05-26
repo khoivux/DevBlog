@@ -21,7 +21,7 @@ const FilterSearch = () => {
   };
 
   return (
-    <div className="bg-white shadow-custom rounded-[40px] p-4 h-fit">
+    <div className="bg-white shadow-custom rounded-xl p-4 h-fit">
       <h2 className="text-xl text-center font-semibold mb-4 border-b pb-2">Bộ lọc</h2>
       <ul className="space-y-3 pb-2">
         {filterOptions.map(({ label, value }, index) => (

@@ -17,22 +17,21 @@ public class AdminController {
     private final PostService postService;
     private final UserService userService;
 
-    @Operation(summary = "Approve Post")
-    @PatchMapping("/approve/{postId}")
-    public ApiResponse<Object> approvePost(@PathVariable Long postId) {
-        return ApiResponse.builder()
-                .message(postService.handlePost(postId, Status.APPROVED))
-                .data(postService.getSinglePost(postId))
-                .build();
+    @Operation(summary = "Update post status (approve, reject, hide)")
+    @PatchMapping("/status/{postId}")
+    public ApiResponse<Object> updatePostStatus(
+            @PathVariable Long postId,
+            @RequestParam Status status,
+            @RequestParam(required = false) String message) {
+        String responseMessage = postService.handlePost(postId, status, message);
+        ApiResponse.ApiResponseBuilder<Object> responseBuilder = ApiResponse.builder()
+                .message(responseMessage);
+        if (status == Status.APPROVED) {
+            responseBuilder.data(postService.getSinglePost(postId));
+        }
+        return responseBuilder.build();
     }
 
-    @Operation(summary = "Reject Post")
-    @PatchMapping("/reject/{postId}")
-    public ApiResponse<Object> rejectPost(@PathVariable Long postId) {
-        return ApiResponse.builder()
-                .message(postService.handlePost(postId, Status.REJECTED))
-                .build();
-    }
 
     @Operation(summary = "Block User")
     @PatchMapping("/block")

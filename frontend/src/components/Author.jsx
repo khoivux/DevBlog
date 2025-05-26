@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Follower from "./modal/Follower.jsx";
 import EditProfile from "./modal/EditProfile.jsx";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { useToast } from "../contexts/ToastContext.jsx";
 import { User, Heart, Pencil } from "lucide-react";
 import { getAuthor, getFollowers, getFollowing, followUser, unfollowUser} from "../service/userService.js";
 import { Link } from "react-router-dom";
@@ -17,6 +18,7 @@ const Author = ({ username}) => {
   const [currUser, setCurrUser] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const {showToast} = useToast();
 
   const fetchAuthor = async () => {
     try {
@@ -27,7 +29,7 @@ const Author = ({ username}) => {
         setError("Bạn chưa đăng nhập!");
       }
     } catch (err) {
-      setError(err.message);
+      showToast('error', err.message)
     }
   };
 
@@ -41,8 +43,8 @@ const Author = ({ username}) => {
       }
 
       fetchData();
-    } catch (error) {
-      alert(error.message);
+    } catch (err) {
+      showToast('warning', err.message)
     }
   };
 
@@ -70,7 +72,7 @@ const Author = ({ username}) => {
         setIsFollowing(isUserFollowing);
       }
     } catch (err) {
-      setError(err.message);
+      showToast('error', err.message)
     }
   };
 
@@ -100,7 +102,7 @@ const Author = ({ username}) => {
   if (!author) return <p>Đang tải dữ liệu...</p>;
 
   return (
-    <div className="bg-white shadow-lg rounded-[40px] p-4 h-fit border border-gray-200">
+    <div className="bg-white shadow-lg rounded-xl p-4 h-fit border border-gray-200">
       <h2 className="text-xl font-semibold mb-4 text-center border-b pb-2">Tác giả</h2>
 
       {/* Avatar & Author Info */}
@@ -122,14 +124,14 @@ const Author = ({ username}) => {
       <p className="text-gray-600 text-sm mt-2 px-1">{author.introduction}</p>
 
       {/* Social Icons */}
-      <div className="flex gap-3 mt-2">
+      {/* <div className="flex gap-3 mt-2">
         <a href="" target="_blank" rel="noopener noreferrer">
           <FaFacebook className="text-blue-600 text-2xl cursor-pointer" />
         </a>
         <a href="" target="_blank" rel="noopener noreferrer">
           <FaInstagram className="text-pink-500 text-2xl cursor-pointer" />
         </a>
-      </div>
+      </div> */}
 
       {/* Thông tin thống kê */}
       <div className="mt-2 space-y-1">
@@ -143,10 +145,7 @@ const Author = ({ username}) => {
           <a className="text-sm text-gray-600 hover:underline cursor-pointer"
           onClick={() => openModal("Đang theo dõi", following)}>{following.length} đang theo dõi</a>
         </div>
-        <div className="flex items-center gap-1">
-          <Pencil className="w-4 h-4 text-gray-500" />
-          <a href="/author" className="text-sm text-gray-600 hover:underline cursor-pointer">10 bài viết</a>
-        </div>
+
       </div>
 
       <div>

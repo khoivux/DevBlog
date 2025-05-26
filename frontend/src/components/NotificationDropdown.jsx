@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";  // Thêm useRef
 import { Link } from "react-router-dom";
 import { getNotifications, markAsRead } from "../service/notificationService";
 import { IoPersonAddOutline, IoChatbubbleOutline, IoHeartOutline, IoNotificationsOutline } from "react-icons/io5";
@@ -13,10 +13,12 @@ const NotificationDropdown = () => {
   const [stompClient, setStompClient] = useState(null);
   const [user, setUser] = useState(null);
 
+  const dropdownRef = useRef(null);  // Ref cho vùng dropdown
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     setUser(JSON.parse(storedUser)); 
-    console.log(user);
+    // console.log(user);  // Chỗ này console log user ngay sau setUser sẽ là null do state bất đồng bộ
   }, []);
 
   useEffect(() => {
@@ -24,19 +26,16 @@ const NotificationDropdown = () => {
   
     if (user && !stompClient) {
       console.log("User ID: ", user.id);
-      // Chỉ thực hiện WebSocket khi user đã có và stompClient chưa được tạo
       const socket = new SockJS("http://localhost:8081/ws");
   
       const client = new Client({
         webSocketFactory: () => socket,
         onConnect: () => {
           console.log("WebSocket connected");
-  
-          // Đăng ký nhận thông báo cho user
           const userId = user.id;
           client.subscribe(`/user/${userId}/notification`, (message) => {
             const newNotification = JSON.parse(message.body);
-            setNotifications((prev) => [newNotification, ...prev]);  // Thêm thông báo mới vào đầu danh sách
+            setNotifications((prev) => [newNotification, ...prev]);
           });
         },
         onStompError: (frame) => {
@@ -44,16 +43,30 @@ const NotificationDropdown = () => {
         },
       });
   
-      client.activate();  // Kích hoạt kết nối STOMP
-      setStompClient(client);  // Lưu stompClient vào state
+      client.activate();
+      setStompClient(client);
     }
   
     return () => {
       if (stompClient) {
-        stompClient.deactivate();  // Hủy kết nối WebSocket khi component bị hủy
+        stompClient.deactivate();
       }
     };
   }, [user, stompClient]);
+
+  // Xử lý click ngoài dropdown để đóng
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showNotifications && dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showNotifications]);
 
   const fetchNotifications = async () => {
     try {
@@ -66,12 +79,12 @@ const NotificationDropdown = () => {
 
   const markAllAsRead = async () => {
     if(notifications.filter((noti) => !noti.isRead).length > 0) {
-        try {
-            await markAsRead();
-            setNotifications((prev) => prev.map((noti) => ({ ...noti, isRead: true })));
-        } catch (error) {
+      try {
+        await markAsRead();
+        setNotifications((prev) => prev.map((noti) => ({ ...noti, isRead: true })));
+      } catch (error) {
         console.log("Lỗi khi cập nhật thông báo:", error.message);
-        }
+      }
     }
   };
 
@@ -106,7 +119,10 @@ const NotificationDropdown = () => {
       </button>
 
       {showNotifications && (
-        <div className="absolute top-full right-0 mt-3 w-80 bg-white shadow-lg rounded-lg border border-gray-200 overflow-hidden">
+        <div
+          ref={dropdownRef}  // Gán ref cho dropdown container
+          className="absolute top-full right-0 mt-3 w-80 bg-white shadow-lg rounded-lg border border-gray-200 overflow-hidden"
+        >
           <div className="p-2 bg-gray-100 border-b text-gray-700 font-semibold">
             Thông báo
           </div>
@@ -122,9 +138,9 @@ const NotificationDropdown = () => {
                   className="cursor-pointer flex items-center gap-4 p-2 border-b bg-white
                           hover:bg-gray-100 hover:shadow-lg hover:-translate-y-1
                           transition duration-300 ease-in-out rounded-lg"
-                    onClick={() => {
-                    setShowNotifications(!showNotifications);
-                    }}
+                  onClick={() => {
+                    setShowNotifications(false); // Đóng dropdown khi click vào 1 thông báo
+                  }}
                 >
                   <div className="text-2xl">{getNotificationIcon(noti.type)}</div>
                   <div className="flex-1">

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 
 
 @Repository
@@ -25,4 +26,14 @@ public interface PostRepository extends JpaRepository<PostEntity, Long> {
                                  @Param("status") String status,
                                  @Param("categoryId") Long categoryId,
                                  Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM PostEntity p " +
+            "WHERE p.author.id = :userId " +
+            "AND (:startDate IS NULL OR p.createdTime >= :startDate) " +
+            "AND (:endDate IS NULL OR p.createdTime < :endDate)")
+    Long countPost(@Param("userId") Long userId,
+                              @Param("startDate") Instant startDate,
+                              @Param("endDate") Instant endDate);
+
+
 }

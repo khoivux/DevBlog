@@ -25,12 +25,12 @@ public class ReportController {
     @GetMapping("/post/list")
     public ApiResponse<?> getReportPostList(
             @RequestParam(value = "query", required = false) String query,
-            @RequestParam(value = "sortBy", defaultValue = "newest") String sortBy,
+            @RequestParam(value = "sortBy", defaultValue = "latest") String sortBy,
             @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
-        SearchRequest request = new SearchRequest(query,  categoryId, sortBy);
+            SearchRequest request = new SearchRequest(query,  categoryId, sortBy);
         return ApiResponse.builder()
                 .data(reportPostService.getList(request, page, size))
                 .build();
@@ -41,11 +41,12 @@ public class ReportController {
     public ApiResponse<?> createReportPost(@RequestBody ReportPostRequest request) {
         return ApiResponse.builder()
                 .data(reportPostService.createReport(request))
+                .message("Báo cáo thành công!")
                 .build();
     }
 
     @Operation(summary = "Handle Report Post")
-    @PutMapping("/post/{reportId}")
+    @PatchMapping("/post/{reportId}")
     public ApiResponse<?> handleReportPost(@PathVariable Long reportId,
                                            @RequestParam String status) {
         return ApiResponse.builder()
@@ -56,7 +57,7 @@ public class ReportController {
     @Operation(summary = "Get Report Comment")
     @GetMapping("/comment/list")
     public ApiResponse<?> getReportCommentList(
-            @RequestParam(value = "sortBy", defaultValue = "newest") String sortBy,
+            @RequestParam(value = "sortBy", defaultValue = "latest") String sortBy,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
@@ -70,11 +71,12 @@ public class ReportController {
     public ApiResponse<?> createReportComment(@RequestBody ReportCommentDTO request) {
         return ApiResponse.builder()
                 .data(reportCommentService.createReport(request))
+                .message("Báo cáo thành công")
                 .build();
     }
 
     @Operation(summary = "Handle Report Comment")
-    @PutMapping("/comment/{reportId}")
+    @PatchMapping("/comment/{reportId}")
     public ApiResponse<?> handleReportComment(@PathVariable Long reportId,
                                               @RequestParam String status) {
         return ApiResponse.builder()

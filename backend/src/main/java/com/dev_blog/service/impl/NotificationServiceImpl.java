@@ -31,10 +31,10 @@ public class NotificationServiceImpl implements NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
-    public void sendNotification(Long userId, Notification notification) {
+    public void sendNotification(Notification notification) {
         notificationRepository.save(notification);
         messagingTemplate.convertAndSendToUser(
-                String.valueOf(userId),
+                String.valueOf(notification.getReceiver().getId()),
                 "/notification",
                 notification
         );
@@ -54,7 +54,7 @@ public class NotificationServiceImpl implements NotificationService {
                     .type(type)
                     .isRead(false)
                     .build();
-            sendNotification(userId, notification);
+            sendNotification(notification);
         }
         return "Gửi thông báo thành công";
     }

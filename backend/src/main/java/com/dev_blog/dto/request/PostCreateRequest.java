@@ -12,7 +12,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostCreateRequest {
-    @NotBlank(message = "EMPTY_DATA")
     Long categoryId;
     @NotBlank(message = "EMPTY_DATA")
     String description;
@@ -20,7 +19,6 @@ public class PostCreateRequest {
     String title;
     @NotBlank(message = "EMPTY_DATA")
     String content;
-    @NotBlank(message = "EMPTY_DATA")
     String thumbnailUrl;
 }
 

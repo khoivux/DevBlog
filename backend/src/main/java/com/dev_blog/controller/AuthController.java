@@ -85,14 +85,15 @@ public class AuthController {
     public ApiResponse<Object> verifyEmail(@RequestParam String email, @RequestParam String otp) {
         return ApiResponse.builder()
                 .data(authService.verifyEmail(email, otp))
+                .message("Xác thực OTP thành công")
                 .build();
     }
 
     @Operation(summary = "Reset password")
-    @PostMapping("/reset-password")
-    public ApiResponse<Object> resetPassword(@RequestParam String email, @RequestParam String password) {
+    @PutMapping("/reset-password")
+    public ApiResponse<Object> resetPassword(@RequestParam String email, @RequestParam String password, @RequestParam String confirmPassword) {
         return ApiResponse.builder()
-                .message(authService.resetPassword(password, email))
+                .message(authService.resetPassword(email, password, confirmPassword))
                 .build();
     }
 }

@@ -1,14 +1,15 @@
-import { useEffect, useState, useCallback,useRef, useMemo  } from "react";
+import { useEffect, useState, useCallback,useRef, useMemo} from "react";
 import { getCategories } from "../service/categoryService.js";
 import { uploadFile } from "../service/uploadService.js";
-import { createPost } from "../service/postService.js";
+import { createPost, getSinglePost, editPost } from "../service/postService.js";
 import "react-quill/dist/quill.snow.css";
 import ReactQuill from "react-quill";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../utils/cropImage";
-import { Description, Dialog } from "@headlessui/react";
+import { Dialog } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useToast } from "../contexts/ToastContext.jsx";
 const Write = () => {
     const quillRef = useRef(null);
     const navigate = useNavigate();
@@ -24,13 +25,17 @@ const Write = () => {
     const [description, setDescription] = useState("");
     const [content, setContent] = useState("");
     const [categoryId, setCategoryId] = useState("");
+    const { showToast } = useToast();
+    const { postId } = useParams();
+
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const response = await getCategories(1, 1000, "");
                 setCategories(response.data.data);
             } catch (error) {
-                console.error("Lỗi tải danh mục:", error.message);
+                showToast("error", error.message);
             }
         };
         fetchCategories();
@@ -136,32 +141,47 @@ const Write = () => {
         return htmlContent;
       };
       
-
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        const res = await fetch(croppedImage);
-        const blob = await res.blob();
-        const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
-        const uploadedImageUrl = await uploadFile(file);
-      
+    try {
+        let thumbnailUrl = null;
+
+        // Nếu là ảnh mới base64 (ảnh người dùng vừa crop)
+        if (croppedImage && !croppedImage.startsWith('http://res')) {
+            const res = await fetch(croppedImage);
+            const blob = await res.blob();
+            const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+            thumbnailUrl = await uploadFile(file);
+        }
+
         const updatedContent = await uploadContentImages(content);
-      
-        try {
-          const postData = {
+
+        const postData = {
+            id: postId, // cần thiết khi sửa
             title,
             description,
             content: updatedContent,
             categoryId,
-            thumbnailUrl: uploadedImageUrl,
-          };
-          const post = await createPost(postData);
-          alert("Bài viết đã được đăng thành công!");
-          navigate(`/post/${post.id}`);
-        } catch (error) {
-          console.error("Lỗi đăng bài:", error);
+            thumbnailUrl, // null nếu không đổi
+        };
+
+        if (postId) {
+            // EDIT
+            const response = await editPost(postData);
+            showToast("success", response.message);
+            navigate(`/post/${postId}`);
+        } else {
+            // CREATE
+            const response = await createPost(postData);
+            showToast("success", response.message);
+            navigate(`/post/${response.data.id}`);
         }
-    };
+    } catch (error) {
+        showToast("error", error.message);
+    }
+};
+
 
     useEffect(() => {
         if (isOpen) {
@@ -173,9 +193,30 @@ const Write = () => {
             document.body.style.paddingRight = "";
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        const fetchPost = async () => {
+        if(postId) {
+             try {
+                const post = await getSinglePost(postId);
+                setTitle(post.title);
+                setDescription(post.description);
+                setContent(post.content);
+                setCategoryId(post.category.id);
+                setCroppedImage(post.thumbnailUrl); 
+            } catch (error) {
+                console.error("Lỗi khi lấy bài viết:", error);
+            }
+        };
+        }
+        fetchPost();
+    }, [postId]);
     return (
 <div className='min-h-screen flex flex-col gap-4'>
-            <h1 className="text-cl font-light">Tạo bài viết mới</h1>
+            <h1 className="text-cl font-light">
+                {postId ? "Chỉnh sửa bài viết" : "Tạo bài viết mới"}
+            </h1>
+
             <form className="flex flex-col gap-6 flex-1 mb-6" onSubmit={handleSubmit}>
                 <label className="w-max p-2 shadow-custom rounded-xl text-lg text-gray-500 bg-white flex items-center gap-2 cursor-pointer">
                     <input type="file" accept=".jpeg, .img, .jpg" className="hidden" onChange={handleImageChange} />
@@ -224,8 +265,9 @@ const Write = () => {
 
 
                 <button className="bg-blue-800 text-white font-medium rounded-xl mb-4 p-2 w-36 disabled:bg-blue-400 disabled:cursor-not-allowed">
-                    Đăng bài
+                    {postId ? "Sửa bài" : "Đăng bài"}
                 </button>
+
             </form>
 
             {/* MODAL CẮT ẢNH */}

@@ -11,6 +11,8 @@ import com.dev_blog.enums.VoteType;
 import com.dev_blog.service.PostService;
 import com.dev_blog.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -20,17 +22,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/post")
+@Tag(name = "Post Controller")
 public class PostController {
     private final PostService postService;
     private SecurityUtil securityUtil;
 
-    @Operation(summary = "All Post")
+    @Operation(summary = "Get Post List")
     @GetMapping("/")
     public ApiResponse<PageResponse<PostResponse>> getList(
             @RequestParam(value = "query", required = false) String query,
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "categoryId", required = false) Long categoryId,
-            @RequestParam(value = "status") String status,
+            @RequestParam(value = "status", defaultValue = "approved") String status,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "5") int size
     ) {
@@ -44,7 +47,7 @@ public class PostController {
 
     @Operation(summary = "Create New Post")
     @PostMapping("/create")
-    public ApiResponse<PostResponse> handlePost(@RequestBody PostCreateRequest postRequest) {
+    public ApiResponse<PostResponse> handlePost(@Valid @RequestBody PostCreateRequest postRequest) {
         return ApiResponse.<PostResponse>builder()
                 .data(postService.createPost(postRequest))
                 .message("Đăng bài thành công")
@@ -74,7 +77,7 @@ public class PostController {
     }
 
     @Operation(summary = "Edit Post")
-    @PostMapping("/edit")
+    @PutMapping("/edit")
     public ApiResponse<PostResponse> editPost(@RequestBody PostRequest postRequest) {
         return ApiResponse.<PostResponse> builder()
                 .data(postService.editPost(postRequest))

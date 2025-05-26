@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,16 +55,20 @@ public class ReportPostServiceImpl implements ReportPostService {
     @Override
     public PageResponse<ReportPostResponse> getList(SearchRequest request, int page, int size) {
         Map<String, Sort> sortOptions = Map.of(
-                "newest", Sort.by("createdTime").descending(),
+                "latest", Sort.by("createdTime").descending(),
                 "oldest", Sort.by("createdTime").ascending()
         );
-        Sort sort = sortOptions.getOrDefault(request.getSortBy(), Sort.by("newest").ascending());
+        Sort sort = sortOptions.getOrDefault(request.getSortBy(), Sort.by("createdTime").ascending());
 
         Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<ReportPostEntity> pageData = reportPostRepository.findByPostTitleAndCategoryId(request.getQuery(),
                 request.getCategoryId(), pageable);
 
-        List<ReportPostResponse> list = reportPostMapper.toResponseList(pageData.getContent());
+        List<ReportPostResponse> list = reportPostMapper.toResponseList(
+                pageData.getContent().stream()
+                        .filter(report -> report.getStatus() == Status.PENDING)
+                        .collect(Collectors.toList())
+        );
 
         return PageResponse.<ReportPostResponse>builder()
                 .currentPage(page)

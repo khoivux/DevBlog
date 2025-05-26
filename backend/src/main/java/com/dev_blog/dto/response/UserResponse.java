@@ -22,6 +22,7 @@ public class UserResponse {
     String phone;
     String email;
     String avatarUrl;
+    Long countPost;
     Boolean isBlocked;
     Set<String> roles;
 }

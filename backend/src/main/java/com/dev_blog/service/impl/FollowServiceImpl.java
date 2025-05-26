@@ -55,7 +55,6 @@ public class FollowServiceImpl implements FollowService {
                         .build());
 
         notificationService.sendNotification(
-                followedId,
                 Notification.builder()
                     .type(NotificationType.FOLLOW)
                     .createdTime(Date.from(Instant.now()))

@@ -1,15 +1,15 @@
 package com.dev_blog.util;
 
+import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.exception.custom.AppException;
 import org.springframework.stereotype.Component;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -52,8 +52,21 @@ public class DateTimeUtil {
     private String formatInDate(Instant instant){
         LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         java.time.format.DateTimeFormatter dateTimeFormatter = java.time.format.DateTimeFormatter
-                .ofPattern("EEEE, dd-MM-yyyy", Locale.forLanguageTag("vi-VN"));
+                .ofPattern(" HH:mm EEEE, dd-MM-yyyy", Locale.forLanguageTag("vi-VN"));
 
         return localDateTime.format(dateTimeFormatter);
+    }
+
+    public static String formatToVietnamTime(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh")); // giờ Việt Nam
+        return sdf.format(date);
+    }
+
+    public static void checkDateRange(Instant startDate, Instant endDate) {
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new AppException(ErrorCode.INVALID_DATE_RANGE);
+        }
+
     }
 }

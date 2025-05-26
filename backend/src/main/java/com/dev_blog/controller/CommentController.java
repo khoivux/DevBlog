@@ -1,6 +1,7 @@
 package com.dev_blog.controller;
 
 import com.dev_blog.dto.CommentDTO;
+import com.dev_blog.dto.request.CommentRequest;
 import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.service.CommentService;
@@ -43,7 +44,7 @@ public class CommentController {
 
     @Operation(summary = "Create Comment")
     @PostMapping("/")
-    public ApiResponse<CommentDTO> createComment(@Valid @RequestBody CommentDTO request) {
+    public ApiResponse<CommentDTO> createComment(@Valid @RequestBody CommentRequest request) {
         return ApiResponse.<CommentDTO> builder()
                 .data(commentService.createComment(request))
                 .message("Bình luận thành công")
@@ -51,7 +52,7 @@ public class CommentController {
     }
 
     @Operation(summary = "Edit Comment")
-    @PutMapping("/")
+    @PatchMapping("/")
     public ApiResponse<CommentDTO> editComment(@Valid @RequestBody CommentDTO request) {
         return ApiResponse.<CommentDTO> builder()
                 .data(commentService.editComment(request))

@@ -82,9 +82,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String resetPassword(String newPassword, String username) {
-        UserEntity user = userRepository.findByUsername(username)
+    public String resetPassword(String email, String newPassword, String confirmPassword) {
+        UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(!newPassword.equals(confirmPassword)) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         return "Đặt lại mật khẩu thành công";
@@ -92,19 +95,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse authenticated(AuthRequest requestDTO) {
-        UserEntity user = userRepository.findByUsername(requestDTO.getUsername())
+        UserEntity user = userRepository.findByUsernameOrEmail(requestDTO.getInput(), requestDTO.getInput())
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if(Boolean.TRUE.equals(user.getIsBlocked()))
             throw new AppException(ErrorCode.BLOCKED_USER);
-
         boolean authenticated = passwordEncoder.matches(requestDTO.getPassword(), user.getPassword());
-
         if(!authenticated)
             throw new AppException(ErrorCode.WRONG_PASSWORD);
-
         var token = generateToken(user);
-
         return AuthResponse.builder()
                 .authenticated(true)
                 .token(token)
@@ -163,20 +162,19 @@ public class AuthServiceImpl implements AuthService {
     }
     // Kiem tra token co hop le khong
     private SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes()); // Kiem tra su dung signerkey
-        SignedJWT signedJWT = SignedJWT.parse(token); // SignedJWT cho phep truy cap thanh phan cua JWT (payload, header,...)
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
+        SignedJWT signedJWT = SignedJWT.parse(token);
 
         Date expiryTime = (isRefresh)
                 ? new Date(signedJWT.getJWTClaimsSet().getIssueTime()
                     .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS).toEpochMilli())
-                : signedJWT.getJWTClaimsSet().getExpirationTime(); // Thoi han cua Token
-        boolean verified = signedJWT.verify(verifier); // Xac minh chu ki
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
+        boolean verified = signedJWT.verify(verifier);
 
-        if(!(verified && expiryTime.after((new Date())))) // Token khong hop le
+        if(!(verified && expiryTime.after((new Date()))))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         String tokenId = signedJWT.getJWTClaimsSet().getJWTID();
-        // Token da duoc logout
         if(invalidatedTokenRepository.existsById(tokenId))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
@@ -186,13 +184,13 @@ public class AuthServiceImpl implements AuthService {
     private String generateToken(UserEntity user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(String.valueOf(user.getId())) // User dang nhap
-                .issuer("khoivux21") // token duoc issue tu ai
+                .subject(String.valueOf(user.getId()))
+                .issuer("khoivux21")
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
-                ))                   // Thoi han ton tai cua token
-                .jwtID(UUID.randomUUID().toString())             // Token Id de kiem tra logout
+                ))
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope", String.join(" ", new ArrayList<>(user.getRoles())))
                 .build();
 
@@ -200,7 +198,7 @@ public class AuthServiceImpl implements AuthService {
         JWSObject jwsObject = new JWSObject(header, payload);
 
         try {
-            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));  // Ki cho token
+            jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
             return jwsObject.serialize();
         } catch (JOSEException e) {
             log.error("Cannot create token!", e);

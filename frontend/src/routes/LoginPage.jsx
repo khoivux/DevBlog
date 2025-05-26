@@ -27,8 +27,13 @@ const Login = () => {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="bg-white p-8 rounded-2xl shadow-custom w-96">
-        <h2 className="text-xl font-semibold text-gray-700 text-center">DevBlog</h2>
-        {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-2">
+            <img src="https://res.cloudinary.com/drdjvonsx/image/upload/v1745129650/logo_vgrbmq.png" alt="Logo" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-700">DevBlog</h2>
+          {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+        </div>
         <form className="mt-6" onSubmit={handleLogin}>
           <input
             type="text"
@@ -48,6 +53,10 @@ const Login = () => {
             Đăng nhập
           </button>
         </form>
+        <div className="flex justify-between mt-4 text-base font-medium text-blue-500">
+          <a href="/register" className="hover:underline">Đăng kí</a>
+          <a href="/forgot-password" className="hover:underline">Quên mật khẩu</a>
+        </div>
       </div>
     </div>
   );

@@ -11,7 +11,10 @@ import com.dev_blog.entity.Notification;
 import com.dev_blog.entity.PostEntity;
 import com.dev_blog.entity.PostVoteEntity;
 import com.dev_blog.entity.UserEntity;
-import com.dev_blog.enums.*;
+import com.dev_blog.enums.ErrorCode;
+import com.dev_blog.enums.NotificationType;
+import com.dev_blog.enums.Status;
+import com.dev_blog.enums.VoteType;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.PostMapper;
 import com.dev_blog.repository.CategoryRepository;
@@ -87,12 +90,13 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostResponse createPost(PostCreateRequest postRequest) {
-        Long authorId = SecurityUtil.getCurrUser().getId();
+        UserEntity author = SecurityUtil.getCurrUser();
         String status = SecurityUtil.isMod() ? Status.APPROVED.name() : Status.PENDING.name();
         // Lưu bài viết mới
         PostEntity newPost = postRepository.save(PostEntity.builder()
-                .author(userRepository.getReferenceById(authorId))
-                .category(categoryRepository.getReferenceById(postRequest.getCategoryId()))
+                .author(author)
+                .category(categoryRepository.findById(postRequest.getCategoryId())
+                        .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED)))
                 .title(postRequest.getTitle())
                 .content(postRequest.getContent())
                 .description(postRequest.getDescription())
@@ -100,7 +104,7 @@ public class PostServiceImpl implements PostService {
                 .status(Status.valueOf(status))
                 .views(0L)
                 .createdTime(Instant.now())
-                .modifiedTime(Instant.now())
+                .modifiedTime(null)
                 .build());
 
         if(!SecurityUtil.isMod()) {
@@ -111,7 +115,9 @@ public class PostServiceImpl implements PostService {
                     NotificationType.POST_PENDING
             );
         }
-        return postMapper.toResponse(newPost);
+        PostResponse response = postMapper.toResponse(newPost);
+        response.setCreatedTime(DateTimeUtil.formatToVietnamTime(new Date()));
+        return response;
     }
 
     @Override
@@ -121,10 +127,14 @@ public class PostServiceImpl implements PostService {
         PostEntity post = postRepository.findById(postRequest.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
+        post.setCategory(categoryRepository.findById(postRequest.getCategoryId())
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED)));
         post.setContent(postRequest.getContent());
         post.setTitle(postRequest.getTitle());
         post.setModifiedTime(Instant.now());
-        post.setThumbnailUrl(postRequest.getThumbnailUrl());
+        post.setDescription(postRequest.getDescription());
+        if(postRequest.getThumbnailUrl() != null)
+            post.setThumbnailUrl(postRequest.getThumbnailUrl());
         if(SecurityUtil.isNormalUser())
             post.setStatus(Status.PENDING);
         PostResponse postResponse = postMapper.toResponse(postRepository.save(post));
@@ -147,29 +157,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
-    public String handlePost(Long postId, Status status) {
+    public String handlePost(Long postId, Status status, String message) {
         PostEntity post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
         post.setStatus(status);
         postRepository.save(post);
-
-        if(status == Status.APPROVED) {
-            // Thông báo cho tất cả người theo dõi
-            List<UserResponse> followers = followService.getFollowers(1, 5, post.getAuthor().getUsername()).getData();
-            for(UserResponse follower : followers) {
-                Notification notification = Notification.builder()
-                        .type(NotificationType.NEW_POST)
-                        .createdTime(Date.from(Instant.now()))
-                        .message(post.getAuthor().getDisplayName() + " đã đăng một bài viết mới")
-                        .redirectUrl("/post/" + post.getId())
-                        .receiver(userRepository.getReferenceById(follower.getId()))
-                        .build();
-                notificationService.sendNotification(follower.getId(), notification);
-            }
-            return "Duyệt bài thành công";
-        }
-        return "Từ chối duyệt thành công";
+        return sendNotyHandlePost(status, post, message);
     }
 
     @Override
@@ -206,8 +200,6 @@ public class PostServiceImpl implements PostService {
             postVote.ifPresent(postVoteRepository::delete);
             return "Vote thành công";
         }
-
-
         postVote.ifPresentOrElse(
                 existingVote -> {
                     existingVote.setType(voteType);
@@ -259,8 +251,13 @@ public class PostServiceImpl implements PostService {
     }
 
     private List<PostResponse> pageDataToResponseList(Page<PostEntity> pageData, String status) {
-
-        if(Objects.equals(status, Status.APPROVED.toString())) {
+        boolean isAnonymous = false;
+        try {
+            String username = SecurityUtil.getCurrUser().getUsername();
+        } catch (Exception e) {
+            isAnonymous = true;
+        }
+        if(isAnonymous || Objects.equals(status, Status.APPROVED.toString())) {
             return pageData.getContent().stream()
                     .filter(post -> post.getStatus() == (Status.APPROVED))
                     .map(post -> {
@@ -288,5 +285,36 @@ public class PostServiceImpl implements PostService {
                     postResponse.setModifiedTime(dateTimeUtil.format(post.getModifiedTime()));
                     return postResponse;
                 }).toList();
+    }
+
+    private String sendNotyHandlePost(Status status, PostEntity post, String message) {
+        if(status == Status.APPROVED) {
+            // Thông báo cho tất cả người theo dõi
+            List<UserResponse> followers = followService.getFollowers(1, 5, post.getAuthor().getUsername()).getData();
+            for(UserResponse follower : followers) {
+                notificationService.sendNotification(
+                        Notification.builder()
+                                .type(NotificationType.NEW_POST)
+                                .isRead(false)
+                                .createdTime(Date.from(Instant.now()))
+                                .message(post.getAuthor().getDisplayName() + " đã đăng một bài viết mới")
+                                .redirectUrl("/post/" + post.getId())
+                                .receiver(userRepository.getReferenceById(follower.getId()))
+                                .build());
+            }
+            return "Duyệt bài thành công";
+        } else if(status == Status.HIDE) {
+            notificationService.sendNotification(
+                    Notification.builder()
+                            .type(NotificationType.SYSTEM)
+                            .isRead(false)
+                            .createdTime(Date.from(Instant.now()))
+                            .message("Bài viết của bạn bị ẩn với lý do: " + message)
+                            .redirectUrl("/post/" + post.getId())
+                            .receiver(post.getAuthor())
+                            .build());
+            return "Ẩn bài viết thành công";
+        }
+        return "Từ chối duyệt thành công";
     }
 }

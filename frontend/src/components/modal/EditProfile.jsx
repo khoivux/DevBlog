@@ -98,7 +98,7 @@ const EditProfile = ({ isOpen, onClose, user, onSave }) => {
     <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Chỉnh sửa hồ sơ" 
       className="bg-white p-6 rounded-xl shadow-lg w-[500px] h-[600px] border border-gray-300 outline-none"
       overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <h2 className="text-xl font-bold text-center mb-4">Chỉnh sửa hồ sơ</h2>
+      <h2 className="text-xl font-bold text-center mb-4">Hồ sơ cá nhân</h2>
 
       <div className="flex gap-4 mb-4 items-start">
   {/* Avatar bên trái */}
@@ -145,7 +145,7 @@ const EditProfile = ({ isOpen, onClose, user, onSave }) => {
 </div>
 <div className="space-y-3">
   {[{
-    label: "Tên đăng nhập",
+    label: "Tên người dùng",
     value: username,
     onChange: setUsername,
   }, {

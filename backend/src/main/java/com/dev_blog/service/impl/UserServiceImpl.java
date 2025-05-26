@@ -1,6 +1,8 @@
 package com.dev_blog.service.impl;
 
 
+import com.dev_blog.dto.request.ChangePasswordRequest;
+import com.dev_blog.dto.request.SearchRequest;
 import com.dev_blog.dto.request.UserUpdateRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.UserResponse;
@@ -11,16 +13,18 @@ import com.dev_blog.enums.NotificationType;
 import com.dev_blog.enums.Role;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.UserMapper;
+import com.dev_blog.repository.PostRepository;
 import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.NotificationService;
+import com.dev_blog.service.UserPostCount;
 import com.dev_blog.service.UserService;
+import com.dev_blog.util.DateTimeUtil;
 import com.dev_blog.util.SecurityUtil;
 import com.dev_blog.util.ValidUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,18 +41,30 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final NotificationService notificationService;
+    private final PostRepository postRepository;
 
     @Override
-    public PageResponse<UserResponse> getList(String query, String sortBy, int page, int size) {
-        Sort sort = Sort.by("id").ascending();
+    public PageResponse<UserResponse> getList(SearchRequest request, int page, int size) {
+        DateTimeUtil.checkDateRange(request.getStartDate(), request.getEndDate());
 
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-        Page<UserEntity> pageData = userRepository.findByKeyword(query, pageable);
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<UserPostCount> pageData = userRepository.findUsersWithPostCount(
+                request.getQuery(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getSortBy(),
+                pageable
+        );
 
-        List<UserResponse> userList = pageData.getContent().stream()
-                .filter(user -> !user.getRoles().contains(Role.ADMIN.name()))
-                .map(userMapper::toResponseDTO)
+        List<UserResponse> userList = pageData.stream()
+                .filter(u -> !u.getUser().getRoles().contains(Role.ADMIN.name()))
+                .map(upc -> {
+                    UserResponse dto = userMapper.toResponseDTO(upc.getUser());
+                    dto.setCountPost(upc.getPostCount());
+                    return dto;
+                })
                 .toList();
+
         return PageResponse.<UserResponse>builder()
                 .currentPage(page)
                 .totalPage(pageData.getTotalPages())
@@ -92,14 +108,15 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public String changePassword(String oldPassword, String newPassword) {
+    public String changePassword(ChangePasswordRequest request) {
+        if(!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_NOT_MATCHED);
+        }
         UserEntity user = SecurityUtil.getCurrUser();
-        boolean  authenticated = passwordEncoder.matches(oldPassword, user.getPassword());
-
-        if(!authenticated)
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new AppException(ErrorCode.WRONG_PASSWORD);
-
-        user.setPassword(passwordEncoder.encode(newPassword));
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
         return "Đổi mật khẩu thành công";
     }
@@ -118,15 +135,16 @@ public class UserServiceImpl implements UserService {
             user.getRoles().remove(Role.MOD.name());
         }
         userRepository.save(user);
-        Notification notification = Notification.builder()
-                .type(NotificationType.SYSTEM)
-                .createdTime(Date.from(Instant.now()))
-                .isRead(false)
-                .message("Bạn được cấp quyền kiểm duyệt" +
-                        "\n Bạn có thể duyệt bài/báo cáo")
-                .receiver(user)
-                .build();
-        notificationService.sendNotification(user.getId(), notification);
+        notificationService.sendNotification(
+                Notification.builder()
+                        .type(NotificationType.SYSTEM)
+                        .createdTime(Date.from(Instant.now()))
+                        .isRead(false)
+                        .message("Bạn được cấp quyền kiểm duyệt" +
+                                "\n Bạn có thể duyệt bài/báo cáo")
+                        .receiver(user)
+                        .build()
+        );
         return "Phân quyền thành công";
     }
 

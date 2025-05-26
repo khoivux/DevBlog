@@ -14,7 +14,10 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostResponse {
     Long id;
+    String status;
+    String thumbnailUrl;
     String title;
+    String description;
     String content;
     String createdTime;
     String modifiedTime;
@@ -23,7 +26,4 @@ public class PostResponse {
     String authorName;
     String authorUsername;
     CategoryDTO category;
-    String status;
-    String thumbnailUrl;
-    String description;
 }

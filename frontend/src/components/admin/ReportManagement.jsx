@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { Table, Button } from "react-bootstrap";
-
+import ConfirmModal from "../modal/ConfirmModal";
 const ReportManagement = () => {
-  const [reports, setReports] = useState([
-    { id: 1, type: "Bài viết", content: "Nội dung vi phạm 1", status: "Chờ xử lý" },
-    { id: 2, type: "Bình luận", content: "Nội dung vi phạm 2", status: "Đã xử lý" },
-  ]);
+  
 
   const handleResolve = (id) => {
     setReports(reports.map(report => report.id === id ? { ...report, status: "Đã xử lý" } : report));

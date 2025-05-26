@@ -6,7 +6,7 @@ export const getPosts = async (
     size = 5,
     query = null,
     categoryId = null,
-    sortBy = "id",
+    sortBy = "latest",
     status = "APPROVED"
  ) => {
     try {
@@ -53,10 +53,14 @@ export const getPosts = async (
         const response = await axiosClient.post(`${API_URL}/create`, postData);
 
         console.log("Đăng bài thành công:", response.data);
-        return response.data.data;
+        return response.data;
     } catch (error) {
-        console.error("Lỗi khi đăng bài:", error.response?.data || error.message);
-        return null;
+        if (error.response) {
+
+            const message  = error.response.data.message;
+            throw new Error(message); 
+          }
+          throw new Error("Lỗi kết nối đến server!");
     }
   };
 
@@ -103,7 +107,7 @@ export const getPosts = async (
       return response.data; // Trả về dữ liệu từ API
     } catch (error) {
       if (error.response) {
-        throw new Error(error.response.data.message || "Lỗi khi vote bài viết!");
+        throw new Error(error.response.data.message);
       }
       throw new Error("Lỗi kết nối đến server!");
     }
@@ -122,4 +126,16 @@ export const getPosts = async (
     }
   };
 
-  
+  export const editPost = async (postData) => {
+    try {
+        const response = await axiosClient.put(`${API_URL}/edit`, postData);
+
+        console.log("Chỉnh sửa bài viết thành công:", response.data);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+        throw new Error(error.response.data.message || "Lỗi khi vote bài viết!");
+      }
+      throw new Error("Lỗi kết nối đến server!");
+    }
+};

@@ -8,11 +8,8 @@ import java.util.List;
 
 public interface NotificationService {
 
-    void sendNotification(Long userId, Notification notification);
-
+    void sendNotification(Notification notification);
     String sendToUsers(List<Long> userIds, String message, String redirectUrl, NotificationType type);
-
     PageResponse<Notification> getNotificationsOfReceiver(Long receiverId, int page, int size);
-
     String markAsRead(Long userId);
 }

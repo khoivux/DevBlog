@@ -14,8 +14,11 @@ import lombok.experimental.FieldDefaults;
 public class PostRequest {
     Long id;
     @NotBlank(message = "EMPTY_DATA")
+    String description;
+    @NotBlank(message = "EMPTY_DATA")
     String title;
     @NotBlank(message = "EMPTY_DATA")
     String content;
+    Long categoryId;
     String thumbnailUrl;
 }

@@ -45,7 +45,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "Mark As Read")
-    @PostMapping("/mark-as-read/{userId}")
+    @PatchMapping("/mark-as-read/{userId}")
     public ApiResponse<?> markAsRead(
             @PathVariable Long userId
     ) {

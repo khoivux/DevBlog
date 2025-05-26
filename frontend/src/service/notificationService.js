@@ -33,7 +33,7 @@ export const markAsRead = async () => {
 const user = storedUser ? JSON.parse(storedUser) : null;  
 if(user == null) throw new Error("Bạn chưa đăng nhập")  
     try {
-        const response = await axiosClient.post(`${API_URL}/mark-as-read/${user.id}`);
+        const response = await axiosClient.patch(`${API_URL}/mark-as-read/${user.id}`);
 
         return response.data; 
     } catch (error) {

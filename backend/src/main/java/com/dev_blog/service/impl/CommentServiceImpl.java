@@ -1,6 +1,7 @@
 package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.CommentDTO;
+import com.dev_blog.dto.request.CommentRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.entity.CommentEntity;
 import com.dev_blog.entity.Notification;
@@ -16,6 +17,7 @@ import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.CommentService;
 import com.dev_blog.service.NotificationService;
 import com.dev_blog.util.DateTimeUtil;
+import com.dev_blog.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -80,26 +82,24 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDTO createComment(CommentDTO commentDTO) {
-        PostEntity post = postRepository.findById(commentDTO.getPostId())
+    public CommentDTO createComment(CommentRequest comment) {
+        PostEntity post = postRepository.findById(comment.getPostId())
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
-        UserEntity user = userRepository.findById(commentDTO.getAuthorId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        UserEntity user = SecurityUtil.getCurrUser();
 
-        CommentEntity comment = CommentEntity.builder()
+        CommentEntity newComment = CommentEntity.builder()
                 .post(post)
                 .author(user)
-                .parent(commentDTO.getParentId() != null ?
-                        commentRepository.findById(commentDTO.getParentId()).orElse(null) : null)
-                .content(commentDTO.getContent())
+                .parent(comment.getParentId() != null ?
+                        commentRepository.findById(comment.getParentId()).orElse(null) : null)
+                .content(comment.getContent())
                 .createdTime(Instant.now())
-                .modifiedTime(Instant.now())
+                .modifiedTime(null)
                 .build();
-        commentRepository.save(comment);
+        commentRepository.save(newComment);
 
-        if(!Objects.equals(commentDTO.getAuthorId(), post.getAuthor().getId())) {
+        if(!Objects.equals(user.getId(), post.getAuthor().getId())) {
             notificationService.sendNotification(
-                    post.getAuthor().getId(),
                     Notification.builder()
                             .type(NotificationType.COMMENT)
                             .isRead(false)
@@ -111,7 +111,7 @@ public class CommentServiceImpl implements CommentService {
             );
         }
 
-        return commentMapper.toResponse(comment, dateTimeUtil);
+        return commentMapper.toResponse(newComment, dateTimeUtil);
     }
 
     @Override
@@ -122,7 +122,6 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(commentDTO.getContent());
         comment.setModifiedTime(Instant.now());
         commentRepository.save(comment);
-
         return commentMapper.toResponse(comment, dateTimeUtil);
     }
 

@@ -42,10 +42,10 @@ const RegisterPage = () => {
         {/* Logo + Title */}
         <div className="flex flex-col items-center">
           <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-2">
-            <img src="logo.png" alt="Logo" />
+            <img src="https://res.cloudinary.com/drdjvonsx/image/upload/v1745129650/logo_vgrbmq.png" alt="Logo" />
           </div>
           <h2 className="text-xl font-semibold text-gray-700">DevBlog</h2>
-          {error && <p className="text-red-500 text-sm text-center mt-2">{error}</p>}
+          
         </div>
 
         {/* Form */}
@@ -123,6 +123,7 @@ const RegisterPage = () => {
               👁
             </span>
           </div>
+          {error && <p className="text-red-500 text-base font-medium text-center mt-2">{error}</p>}
           {/* Nút Đăng ký */}
           <button
             type="submit"
@@ -134,7 +135,10 @@ const RegisterPage = () => {
 
         {/* Links */}
      
-          <a href="/login" className="hover:underline flex justify-between text-sm text-blue-500 mt-4">Đăng nhập</a>
+        <div className="flex justify-between mt-4 text-base font-medium text-blue-500">
+          <a href="/login" className="hover:underline">Đăng nhập</a>
+          <a href="/forgot-password" className="hover:underline">Quên mật khẩu</a>
+        </div>
 
       </div>
     </div>

@@ -7,12 +7,12 @@ import { getCategories, createCategory, deleteCat, updateCategory } from "../../
 import { Pagination } from "antd";
 import ConfirmDeleteModal from "../modal/ConfirmModal";
 import EditCategoryModal from "../modal/EditCategory";
-
+import CustomPagination from "../CustomPagination";
 const CategoryManagement = () => {
   const [error, setError] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [categories, setCategories] = useState([]);
-  const [pageSize, setPagesize] = useState(8);
+  const [pageSize, setPageSize] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const [newCategoryName, setNewCategoryName] = useState("");
@@ -180,16 +180,16 @@ const CategoryManagement = () => {
           )}
         </tbody>
       </table>
-      {totalElements > pageSize && (
-      <div className="flex justify-center mt-4">
-        <Pagination
-          current={currentPage}
-          total={totalElements}
-          pageSize={pageSize}
-          onChange={(page) => setCurrentPage(page)}
-          showSizeChanger={false}
-        />
-      </div>)}
+      {totalElements > 0 && (
+      <div className="flex justify-center">
+          <CustomPagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            totalElements={totalElements}
+          />
+        </div>)}
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}

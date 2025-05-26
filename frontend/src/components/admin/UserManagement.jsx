@@ -6,25 +6,34 @@ import { KeyIcon, LockOpenIcon, BellIcon, LockClosedIcon, MinusCircleIcon } from
 import ConfirmModal from "../modal/ConfirmModal";
 import { getList } from "../../service/userService";
 import { blockUser, setRole } from "../../service/adminService";
-import { Link } from "react-router-dom";
+import CustomPagination from "../CustomPagination";
+
 const UserManagement = () => {
   const [error, setError] = useState("");
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState(null);
-  const [pageSize, setPagesize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
   const [isLockModalOpen, setIsLockModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const { showToast } = useToast();
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sortByCount, setSortByCount] = useState("asc");
 
-
-  const fetchUsers = async () => {
+  const formatDateToISO = (dateStr) => {
+    if (!dateStr) return null;
+    // dateStr là "2025-05-02"
+    // chuyển thành "2025-05-02T00:00:00Z"
+    return dateStr + "T00:00:00Z";
+  };
+    const fetchUsers = async () => {
       try {
-        const response = await getList(searchQuery, currentPage, pageSize);
+        const response = await getList(searchQuery, currentPage, pageSize, formatDateToISO(startDate), formatDateToISO(endDate), sortByCount);
         setUsers(response.data);
-        setTotalElements(response.data.totalElements);
+        setTotalElements(response.totalElements);
       } catch (error) {
         showToast("error", error.message);
       }
@@ -80,33 +89,66 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, pageSize, searchQuery]);
+  }, [searchQuery, currentPage, pageSize, startDate, endDate, sortByCount]);
     
 
   return (
     <div className="w-full">
       <h2 className="text-xl font-bold text-center mb-4">Quản lý người dùng</h2>
-      <div className="flex space-x-2 mb-4 ml-10">
-        <input
-          type="text"
-          placeholder="Nhập tên hiển thị, email"
-          className="border px-2 py-1 text-sm rounded w-1/2"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        
-        <button className="bg-green-500 text-white px-4 py-1 rounded">
-          Tìm kiếm
-        </button>
-      </div>
+     <div className="ml-10 mb-4 space-y-3">
+  {/* Dòng 1: Input tìm kiếm full width */}
+  <div>
+    <input
+      type="text"
+      placeholder="Nhập tên hiển thị, email"
+      className="border px-3 py-2 rounded w-full max-w-lg text-sm"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+  </div>
+
+  {/* Dòng 2: Label phía trên các input lọc */}
+  <div>
+    <span className="text-base font-semibold">Lọc theo bài viết</span>
+  </div>
+
+  {/* Dòng 3: 2 ô ngày và 1 select cạnh nhau */}
+  <div className="flex space-x-4 max-w-lg">
+    <input
+      type="date"
+      className="border px-3 py-2 rounded text-sm flex-1"
+      value={startDate}
+      onChange={(e) => setStartDate(e.target.value)}
+      placeholder="Ngày bắt đầu"
+    />
+    <input
+      type="date"
+      className="border px-3 py-2 rounded text-sm flex-1"
+      value={endDate}
+      onChange={(e) => setEndDate(e.target.value)}
+      placeholder="Ngày kết thúc"
+    />
+    <select
+      className="border px-3 py-2 rounded text-sm w-40"
+      value={sortByCount}
+      onChange={(e) => setSortByCount(e.target.value)}
+    >
+      <option value="asc">Số bài tăng dần</option>
+      <option value="desc">Số bài giảm dần</option>
+    </select>
+  </div>
+</div>
+
+
       <div className="flex justify-center px-4">
         <table className="border-collapse border border-gray-300 text-sm w-full max-w-[95%]">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border">Số thứ tự</th>
+              <th className="border">Mã người dùng</th>
               <th className="border">Tên</th>
               <th className="border">Username</th>
               <th className="border">Email</th>
+              <th className="border">Số bài viết</th>
               <th className="border">Quyền hạn</th>
               <th className="border">Hành động</th>
             </tr>
@@ -121,7 +163,7 @@ const UserManagement = () => {
             ) : (
               users.map((user, index) => (
                 <tr key={user.id} className="text-center border">
-                  <td className="border px-1 py-1">{index + 1}</td>
+                  <td className="border px-1 py-1">{user.id}</td>
                   <td className="border px-1 py-1 break-words whitespace-normal">
                     <a
                       href={`/author/${user.username}`}
@@ -144,7 +186,9 @@ const UserManagement = () => {
                   </td>
 
                   <td className="border px-1 py-1 break-words whitespace-normal">{user.email}</td>
+                  <td className="border px-1 py-1">{user.countPost ?? 0}</td> {/* Hiển thị số bài viết */}
                   <td className="border px-1 py-1 break-words whitespace-normal">{[...user.roles].join(', ')}</td>
+                  
                   <td className="border px-1 py-1 space-x-1">
                     {!user.isBlocked ? (
                       <>
@@ -158,16 +202,6 @@ const UserManagement = () => {
                             ) : (
                               <KeyIcon className="h-4 w-4" /> 
                             )}
-                          </a>
-                        </Tooltip>
-
-
-                        <Tooltip content="Thông báo">
-                          <a
-                            href="/#"
-                            className="bg-orange-500 text-white p-2 rounded inline-flex items-center"
-                          >
-                            <BellIcon className="h-4 w-4" />
                           </a>
                         </Tooltip>
 
@@ -204,15 +238,15 @@ const UserManagement = () => {
         </table>
       </div>
       {totalElements > 0 && (
-      <div className="flex justify-center mt-4">
-        <Pagination
-          current={currentPage}
-          total={totalElements}
-          pageSize={pageSize}
-          onChange={(page) => setCurrentPage(page)}
-          showSizeChanger={false}
-        />
-      </div>)}
+      <div className="flex justify-center">
+          <CustomPagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            totalElements={totalElements}
+          />
+        </div>)}
       {/* Modal Xác nhận xóa */}
       <ConfirmModal
         isOpen={isLockModalOpen}

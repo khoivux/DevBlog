@@ -7,7 +7,7 @@ import Pagination from "../components/PaginationComponent";
 import Topic from "../components/Topic";
 const Homepage = () => {
   const [showScroll, setShowScroll] = useState(false);
-  const [activeTab, setActiveTab] = useState("newest");
+  const [activeTab, setActiveTab] = useState("latest");
   const [loading, setLoading] = useState(false);
 
   const handleTabChange = (tab) => {
@@ -49,17 +49,6 @@ const Homepage = () => {
         <span className="text-blue-800">Bài viết</span>
       </div>
 
-      {/* INTRODUCTION */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="w-4/5 text-gray-800 text-2xl md:text-5xl lg:text-5xl font-bold">
-          Cộng đồng chia sẻ và thảo luận kiến thức lập trình, từ cơ bản đến nâng cao.
-          </h1>
-          <p className="mt-8 w-4/5 text-md md:text-xl">
-          Tham gia cộng đồng, kết nối với những người đam mê công nghệ và khám phá lập trình sáng tạo.
-          </p>
-        </div>
-      </div>
 
       {/* CATEGORIES */}
       <MainCategories />

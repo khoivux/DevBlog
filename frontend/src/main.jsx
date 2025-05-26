@@ -14,6 +14,7 @@ import LoginPage from "./routes/LoginPage.jsx";
 import RegisterPage from "./routes/RegisterPage.jsx";
 import AdminDashboard from './routes/AdminDashboard.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
+import ForgotPasswordPage from './routes/ForgotPasswordPage.jsx';
 
 const router = createBrowserRouter([
 
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "/search", element: <SearchResultPage /> },
       { path: "/post/:postId", element: <SinglePostPage /> },
       { path: "/write", element: <Write /> },
+      { path: "/edit/:postId", element: <Write /> }, 
       { path: "/author/:username", element: <AuthorPage /> },
       
     ],
@@ -34,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/login", element: <LoginPage /> },
       { path: "/register", element: <RegisterPage /> },
-
+      { path: "/forgot-password", element: <ForgotPasswordPage /> },
     ],
   },
   {

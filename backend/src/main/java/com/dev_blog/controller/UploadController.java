@@ -5,6 +5,7 @@ import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.service.UploadService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/upload")
 @RequiredArgsConstructor
+@Tag(name = "Upload Controller")
 public class UploadController {
     private final UploadService uploadService;
 

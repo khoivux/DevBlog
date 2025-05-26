@@ -1,14 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import Comment from "./Comment";
 import { getComments, createComment } from "../service/commentService.js";
-
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../contexts/ToastContext.jsx";
 const Comments = ({ postId }) => {
+  const navigate = useNavigate();
+  const storedUser = localStorage.getItem("user");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const [parentId, setParentId] = useState(null);
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageSize, setPageSize] = useState(5);
   const [totalComments, setTotalComments] = useState(0);; // Quản lý số lượng bình luận hiển thị
   const contentRef = useRef();
+  const { showToast } = useToast();
 
   const fetchComments = async () => {
     try {
@@ -22,6 +27,9 @@ const Comments = ({ postId }) => {
   };
 
   const createComments = async () => {
+    if (!currentUser) {
+        showToast('warning', 'Bạn cần đăng nhập tài khoản')
+    }
     const contentToSubmit = contentRef.current.value.trim();
     try {
       const storedUser = localStorage.getItem("user");
@@ -83,7 +91,7 @@ const Comments = ({ postId }) => {
       {/* Hiển thị danh sách bình luận */}
       <div>
         {comments.slice(0, pageSize).map((comment) => (
-          <Comment key={comment.id} comment={comment} />
+          <Comment key={comment.id} comment={comment} reloadComments={fetchComments}/>
         ))}
       </div>
 

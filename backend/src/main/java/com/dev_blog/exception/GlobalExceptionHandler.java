@@ -3,6 +3,7 @@ package com.dev_blog.exception;
 import com.dev_blog.dto.response.ErrorResponse;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
+import com.dev_blog.util.DateTimeUtil;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class GlobalExceptionHandler {
 
     private ErrorResponse buildErrorResponse(ErrorCode errorCode, WebRequest request, String message) {
         return ErrorResponse.builder()
-                .timestamp(new Date())
+                .timestamp(DateTimeUtil.formatToVietnamTime(new Date()))
                 .code(errorCode.getCode())
                 .error(errorCode.getStatus().getReasonPhrase())
                 .path(request.getDescription(false).replace("uri=", ""))

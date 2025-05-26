@@ -1,6 +1,7 @@
 package com.dev_blog.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -16,5 +17,6 @@ public class CategoryDTO {
     Long id;
     @NotBlank(message = "EMPTY_DATA")
     String name;
+    @Schema(hidden = true)
     Long countPosts;
 }

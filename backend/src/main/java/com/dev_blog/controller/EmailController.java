@@ -22,6 +22,7 @@ public class EmailController {
     public ApiResponse<?> sendOTP(@RequestParam String email) {
         return ApiResponse.builder()
                 .data(emailSerivce.sendOTP(email))
+                .message("Đã gửi OTP thành công")
                 .build();
     }
 }

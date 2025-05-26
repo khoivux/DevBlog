@@ -11,7 +11,9 @@ import java.text.ParseException;
 public interface AuthService {
     UserResponse register(RegisterRequest registerRequest);
     boolean verifyEmail(String email, String otp);
-    String resetPassword(String newPassword, String username);
+
+    String resetPassword(String email, String newPassword, String confirmPassword);
+
     AuthResponse authenticated(AuthRequest requestDTO);
     IntrospectResponse introspect(IntrospectRequest requestDTO) throws JOSEException, ParseException;
     AuthResponse refreshToken(RefreshRequest request) throws JOSEException, ParseException;

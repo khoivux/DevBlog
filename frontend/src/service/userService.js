@@ -96,7 +96,7 @@ export const getUser = async (username) => {
 
   export const editProfile = async (request) => {
     try {
-      const response = await axiosClient.post(`${API_URL}/edit`, request);
+      const response = await axiosClient.put(`${API_URL}/edit`, request);
 
       return response.data; 
     } catch (error) {
@@ -107,19 +107,50 @@ export const getUser = async (username) => {
     }
   };
   
-  export const getList = async (
-    query,
-    page = 1,
-    size = 5,) => {
+export const getList = async (
+  query = null,
+  page = 1,
+  size = 10,
+  startDate,
+  endDate,
+  sortBy = "asc"
+) => {
+  try {
+    const params = {
+      query,
+      page,
+      size,
+      sortBy,
+    };
+
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+
+    const response = await axiosClient.get(`${API_URL}/`, {
+      params,
+    });
+
+    return response.data.data;
+  } catch (error) {
+    if (error.response) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("Lỗi kết nối đến server!");
+  }
+};
+
+
+  export const changePassword = async (
+    oldPassword,
+    newPassword,
+    confirmNewPassword) => {
     try {
-      const response = await axiosClient.get(`${API_URL}/`,{
-        params: {
-          query,
-          page,
-          size
-        },
+      const response = await axiosClient.patch(`${API_URL}/change-password`, {
+        oldPassword,
+        newPassword,
+        confirmNewPassword
       });
-      return response.data.data; 
+      return response.data; 
     } catch (error) {
       if (error.response) {
         throw new Error(error.response.data.message);
@@ -127,3 +158,6 @@ export const getUser = async (username) => {
       throw new Error("Lỗi kết nối đến server!");
     }
   };
+
+  
+  

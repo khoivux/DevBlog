@@ -16,7 +16,7 @@ public interface PostService {
     PostResponse getSinglePost(Long postId);
     PageResponse<PostResponse> getPostsByUser(int page, int size, String sortBy, Long userId);
     String deletePost(Long postId);
-    String handlePost(Long postId, Status status);
+    String handlePost(Long postId, Status status, String message);
     String votePost(Long postId, VoteType voteType);
     PageResponse<PostResponse> getList(SearchRequest request, int page, int size);
 

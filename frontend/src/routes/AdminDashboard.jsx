@@ -4,7 +4,7 @@ import Pagination from "../components/PaginationComponent";
 import AdminSidebar from "../components/admin/AdminSidebar.jsx";
 import PostManagement from "../components/admin/PostManagement.jsx";
 import UserManagement from "../components/admin/UserManagement.jsx";
-import CommentManagement from "../components/admin/CommentManagement.jsx";
+import ReportCommentManagement from "../components/admin/ReportCommentManagement.jsx";
 import CategoryManagement from "../components/admin/CategoryManagement.jsx";
 
 const AdminDashboard = () => {
@@ -25,7 +25,7 @@ const AdminDashboard = () => {
       <main className="flex-1 p-6 min-h-screen">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full min-h-[650px]">
           {activeTab === "reportPost" && postStatus && <PostManagement status={postStatus} />}
-          {activeTab === "reportComment" && commentStatus && <CommentManagement status={commentStatus} />}
+          {activeTab === "reportComment" && commentStatus && <ReportCommentManagement status={commentStatus} />}
           {activeTab === "posts" && <PostManagement status={postStatus} />}
           {activeTab === "users" && <UserManagement />}
           {activeTab === "categories" && <CategoryManagement />}

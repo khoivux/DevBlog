@@ -24,7 +24,6 @@ public class CustomJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
-
         try {
             var response = authService.introspect(
                     IntrospectRequest.builder().token(token).build());
@@ -33,14 +32,12 @@ public class CustomJwtDecoder implements JwtDecoder {
         } catch (JOSEException | ParseException e) {
             throw new BadJwtException(e.getMessage());
         }
-
         if (Objects.isNull(nimbusJwtDecoder)) {
             SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
             nimbusJwtDecoder = NimbusJwtDecoder.withSecretKey(secretKeySpec)
                     .macAlgorithm(MacAlgorithm.HS512)
                     .build();
         }
-
         return nimbusJwtDecoder.decode(token);
     }
 }

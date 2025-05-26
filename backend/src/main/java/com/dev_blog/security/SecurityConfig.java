@@ -36,7 +36,9 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS_GET = {
             "/api/v1/post/**",
-            "/api/v1/category/**"
+            "/api/v1/category/**",
+            "/api/v1/comment/**",
+            "/api/v1/users/**"
     };
 
     @Bean
@@ -54,7 +56,6 @@ public class SecurityConfig {
 //                                response.sendRedirect("/sign-in") // Redirect về /sign-in nếu chưa đăng nhập
 //                        )
 //
-
         // Cấu hình OAuth2 xử lý yêu cầu có JWT
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwtConfigurer -> jwtConfigurer

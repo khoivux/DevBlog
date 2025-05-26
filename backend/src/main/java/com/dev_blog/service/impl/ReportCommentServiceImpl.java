@@ -19,8 +19,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,15 +45,19 @@ public class ReportCommentServiceImpl implements ReportCommentService {
     @Override
     public PageResponse<ReportCommentDTO> getList(String sortBy, int page, int size) {
         Map<String, Sort> sortOptions = Map.of(
-                "newest", Sort.by("createdTime").descending(),
+                "latest", Sort.by("createdTime").descending(),
                 "oldest", Sort.by("createdTime").ascending()
         );
-        Sort sort = sortOptions.getOrDefault(sortBy, Sort.by("newest").ascending());
+        Sort sort = sortOptions.getOrDefault(sortBy, Sort.by("createdTime").ascending());
 
         Pageable pageable = PageRequest.of(page - 1, size, sort);
         Page<ReportCommentEntity> pageData = reportCommentRepository.findAll(pageable);
 
-        List<ReportCommentDTO> list = reportCommentMapper.toResponseList(pageData.getContent());
+        List<ReportCommentDTO> list = reportCommentMapper.toResponseList(
+                pageData.getContent().stream()
+                        .filter(report -> report.getStatus() == Status.PENDING)
+                        .collect(Collectors.toList())
+        );
 
         return PageResponse.<ReportCommentDTO>builder()
                 .currentPage(page)
@@ -67,6 +73,8 @@ public class ReportCommentServiceImpl implements ReportCommentService {
         ReportCommentEntity reportComment = ReportCommentEntity.builder()
                 .comment(commentRepository.getReferenceById(request.getCommentId()))
                 .author(userRepository.getReferenceById(request.getAuthorId()))
+                .status(Status.PENDING)
+                .createdTime(Instant.now())
                 .reason(request.getReason())
                 .build();
 
