@@ -1,7 +1,7 @@
 package com.dev_blog.service;
 
 import com.dev_blog.dto.response.PageResponse;
-import com.dev_blog.entity.Notification;
+import com.dev_blog.model.Notification;
 import com.dev_blog.enums.NotificationType;
 
 import java.util.List;

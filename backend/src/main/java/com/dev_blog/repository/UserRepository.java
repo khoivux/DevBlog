@@ -1,7 +1,7 @@
 package com.dev_blog.repository;
 
 
-import com.dev_blog.entity.UserEntity;
+import com.dev_blog.model.UserEntity;
 import com.dev_blog.service.UserPostCount;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.domain.Page;

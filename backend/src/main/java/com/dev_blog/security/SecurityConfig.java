@@ -6,9 +6,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,9 +29,6 @@ public class SecurityConfig {
     private String SIGNER_KEY;
 
     private final String[] PUBLIC_ENDPOINTS = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
             "/api/v1/auth/**",
             "/api/v1/email/**",
             "/ws/**"
@@ -50,27 +50,26 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS_GET).permitAll()
                         .anyRequest().authenticated()
                 )
-                .cors(Customizer.withDefaults()); // Kích hoạt CORS theo CorsConfig
-//                .exceptionHandling(exception -> exception
-//                        .authenticationEntryPoint((request, response, authException) ->
-//                                response.sendRedirect("/sign-in") // Redirect về /sign-in nếu chưa đăng nhập
-//                        )
-//
+                .cors(Customizer.withDefaults());
         // Cấu hình OAuth2 xử lý yêu cầu có JWT
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwtConfigurer -> jwtConfigurer
-                        .decoder(customJwtDecoder) // Phương thức giải mã JWT
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter()) // Chuyển đổi quyền từ JWT
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
-                .bearerTokenResolver(new CookieBearerTokenResolver()) // Đọc JWT từ Cookie
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // Xử lý lỗi xác thực
+                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
         return httpSecurity.build();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return webSecurity ->
+                webSecurity.ignoring()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/**", "/webjars/**");
+    }
 
-    // Chuyen thong tin JWT thanh authorities
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -78,6 +77,10 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
+    }
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean

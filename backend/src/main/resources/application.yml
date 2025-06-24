@@ -13,7 +13,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-      timeout: 300000 # optional: timeout in milliseconds
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
@@ -34,8 +33,8 @@ spring:
 
 jwt:
   signerKey: ${SIGNER_KEY}
-  valid-duration: 360000 #in second
-  refreshable-duration: 360000
+  valid-duration: 1 # hour
+  refreshable-duration: 24
 
 server:
   port: 8081

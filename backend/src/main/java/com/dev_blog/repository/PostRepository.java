@@ -1,7 +1,7 @@
 package com.dev_blog.repository;
 
 
-import com.dev_blog.entity.PostEntity;
+import com.dev_blog.model.PostEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

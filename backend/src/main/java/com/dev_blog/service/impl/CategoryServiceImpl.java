@@ -2,7 +2,7 @@ package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.CategoryDTO;
 import com.dev_blog.dto.response.PageResponse;
-import com.dev_blog.entity.CategoryEntity;
+import com.dev_blog.model.CategoryEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.mapper.CategoryMapper;

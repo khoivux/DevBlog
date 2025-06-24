@@ -3,7 +3,7 @@ package com.dev_blog.mapper;
 
 import com.dev_blog.dto.request.RegisterRequest;
 import com.dev_blog.dto.response.UserResponse;
-import com.dev_blog.entity.UserEntity;
+import com.dev_blog.model.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

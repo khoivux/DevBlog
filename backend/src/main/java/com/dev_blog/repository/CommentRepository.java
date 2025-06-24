@@ -1,6 +1,6 @@
 package com.dev_blog.repository;
 
-import com.dev_blog.entity.CommentEntity;
+import com.dev_blog.model.CommentEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

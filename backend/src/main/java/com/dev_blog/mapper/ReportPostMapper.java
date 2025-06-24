@@ -1,7 +1,7 @@
 package com.dev_blog.mapper;
 
 import com.dev_blog.dto.response.ReportPostResponse;
-import com.dev_blog.entity.ReportPostEntity;
+import com.dev_blog.model.ReportPostEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

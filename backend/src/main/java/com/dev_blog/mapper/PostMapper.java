@@ -2,7 +2,7 @@ package com.dev_blog.mapper;
 
 
 import com.dev_blog.dto.response.PostResponse;
-import com.dev_blog.entity.PostEntity;
+import com.dev_blog.model.PostEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

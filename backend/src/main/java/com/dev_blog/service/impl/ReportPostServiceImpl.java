@@ -4,7 +4,7 @@ import com.dev_blog.dto.request.ReportPostRequest;
 import com.dev_blog.dto.request.SearchRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.ReportPostResponse;
-import com.dev_blog.entity.ReportPostEntity;
+import com.dev_blog.model.ReportPostEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.enums.Status;
 import com.dev_blog.exception.custom.AppException;

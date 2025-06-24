@@ -1,7 +1,7 @@
 package com.dev_blog.mapper;
 
 import com.dev_blog.dto.CommentDTO;
-import com.dev_blog.entity.CommentEntity;
+import com.dev_blog.model.CommentEntity;
 import com.dev_blog.util.DateTimeUtil;
 import org.mapstruct.Mapper;
 

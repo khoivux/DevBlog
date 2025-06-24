@@ -2,9 +2,9 @@ package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.UserResponse;
-import com.dev_blog.entity.FollowEntity;
-import com.dev_blog.entity.Notification;
-import com.dev_blog.entity.UserEntity;
+import com.dev_blog.model.FollowEntity;
+import com.dev_blog.model.Notification;
+import com.dev_blog.model.UserEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.enums.NotificationType;
 import com.dev_blog.exception.custom.AppException;
@@ -74,7 +74,6 @@ public class FollowServiceImpl implements FollowService {
         UserEntity followedUser = userRepository.findById(followedId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         UserEntity follower = SecurityUtil.getCurrUser();
-
         Optional<FollowEntity> follow = followRepository.findByFollowerAndFollowedUser(follower, followedUser);
 
         if (follow.isEmpty()) {

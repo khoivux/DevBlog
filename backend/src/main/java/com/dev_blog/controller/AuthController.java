@@ -1,13 +1,16 @@
 package com.dev_blog.controller;
 
-import com.dev_blog.dto.request.*;
+import com.dev_blog.dto.request.AuthRequest;
+import com.dev_blog.dto.request.LogoutRequest;
+import com.dev_blog.dto.request.RefreshRequest;
+import com.dev_blog.dto.request.RegisterRequest;
 import com.dev_blog.dto.response.ApiResponse;
 import com.dev_blog.dto.response.AuthResponse;
-import com.dev_blog.dto.response.IntrospectResponse;
 import com.dev_blog.dto.response.UserResponse;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.service.AuthService;
+import com.dev_blog.service.JwtService;
 import com.nimbusds.jose.JOSEException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +28,7 @@ import java.text.ParseException;
 @Tag(name = "Auth Controller")
 public class AuthController {
     private final AuthService authService;
-
+    private final JwtService jwtService;
     @Operation(summary = "Sign-in")
     @PostMapping("/login")
     public ApiResponse<AuthResponse> signIn(@Valid @RequestBody AuthRequest requestDTO) {
@@ -44,29 +47,14 @@ public class AuthController {
                 .build();
     }
 
-    @Operation(summary = "Introspect")
-    @PostMapping("/introspect")
-    public ApiResponse<IntrospectResponse> introspect(@Valid @RequestBody IntrospectRequest requestDTO) {
-        try {
-            return ApiResponse.<IntrospectResponse>builder()
-                    .data(authService.introspect(requestDTO))
-                    .build();
-        } catch (JOSEException | ParseException e) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-    }
-
     @Operation(summary = "Refresh Token")
     @PostMapping("/refresh")
-    public ApiResponse<?> refreshToken(@RequestBody RefreshRequest requestDTO) {
-        try {
-            return ApiResponse.builder()
-                    .data(authService.refreshToken(requestDTO))
-                    .build();
-        } catch (JOSEException | ParseException e) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
+    public ApiResponse<AuthResponse> introspect(@RequestBody RefreshRequest requestDTO) {
+        return ApiResponse.<AuthResponse>builder()
+                .data(authService.refresh(requestDTO.getToken()))
+                .build();
     }
+
 
     @Operation(summary = "Logout")
     @PostMapping("/logout")

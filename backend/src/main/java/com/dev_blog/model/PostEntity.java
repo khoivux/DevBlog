@@ -1,4 +1,4 @@
-package com.dev_blog.entity;
+package com.dev_blog.model;
 
 import com.dev_blog.enums.Status;
 import jakarta.persistence.*;

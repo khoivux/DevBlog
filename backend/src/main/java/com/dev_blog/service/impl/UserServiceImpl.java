@@ -6,8 +6,8 @@ import com.dev_blog.dto.request.SearchRequest;
 import com.dev_blog.dto.request.UserUpdateRequest;
 import com.dev_blog.dto.response.PageResponse;
 import com.dev_blog.dto.response.UserResponse;
-import com.dev_blog.entity.Notification;
-import com.dev_blog.entity.UserEntity;
+import com.dev_blog.model.Notification;
+import com.dev_blog.model.UserEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.enums.NotificationType;
 import com.dev_blog.enums.Role;
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
         }
         UserEntity user = SecurityUtil.getCurrUser();
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.WRONG_PASSWORD);
+            throw new AppException(ErrorCode.LOGIN_FAILED);
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);

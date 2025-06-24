@@ -1,4 +1,4 @@
-package com.dev_blog.entity;
+package com.dev_blog.model;
 
 import jakarta.persistence.*;
 import lombok.*;

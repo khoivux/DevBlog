@@ -1,7 +1,7 @@
 package com.dev_blog.util;
 
 
-import com.dev_blog.entity.UserEntity;
+import com.dev_blog.model.UserEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.enums.Role;
 import com.dev_blog.exception.custom.AppException;

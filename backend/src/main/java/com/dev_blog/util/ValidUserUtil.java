@@ -3,7 +3,7 @@ package com.dev_blog.util;
 
 import com.dev_blog.dto.request.RegisterRequest;
 import com.dev_blog.dto.request.UserUpdateRequest;
-import com.dev_blog.entity.UserEntity;
+import com.dev_blog.model.UserEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
 import com.dev_blog.repository.UserRepository;

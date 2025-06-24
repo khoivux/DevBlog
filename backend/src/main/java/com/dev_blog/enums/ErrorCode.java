@@ -29,7 +29,7 @@ public enum ErrorCode {
     UPLOAD_FAIL(1019, "Không thể tải file", HttpStatus.BAD_REQUEST),
     NOT_HAVE_ROLE(1020, "Chức năng không thuộc quyền hạn người dùng", HttpStatus.FORBIDDEN),
     BLOCKED_USER(1021 ,"Tài khoản này đã bị khóa", HttpStatus.BAD_REQUEST),
-    WRONG_PASSWORD(1022 ,"Mật khẩu không đúng", HttpStatus.BAD_REQUEST),
+    LOGIN_FAILED(1022 ,"Tên tài khoản hoặc mật khẩu không đúng", HttpStatus.BAD_REQUEST),
     EMAIL_NOT_EXISTED(1023 ,"Email chưa được đăng ký", HttpStatus.NOT_FOUND),
     INVALID_DATE_RANGE(1024, "Lỗi ngày không hợp lệ", HttpStatus.BAD_REQUEST);
     ;

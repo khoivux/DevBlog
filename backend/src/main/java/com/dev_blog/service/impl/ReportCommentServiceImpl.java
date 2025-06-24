@@ -2,7 +2,7 @@ package com.dev_blog.service.impl;
 
 import com.dev_blog.dto.ReportCommentDTO;
 import com.dev_blog.dto.response.PageResponse;
-import com.dev_blog.entity.ReportCommentEntity;
+import com.dev_blog.model.ReportCommentEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.enums.Status;
 import com.dev_blog.exception.custom.AppException;
