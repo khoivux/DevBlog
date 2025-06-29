@@ -5,22 +5,27 @@ spring:
     username: ${DBMS_USERNAME}
     password: ${DBMS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
   data:
     redis:
       host: localhost
       port: 6379
+
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
     mode: HTML
     cache: false
     check-template-location: false
+
   application:
     name: DevBlog
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -30,6 +35,36 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
       mail.smtp.starttls.required: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 1005045408520-2s03lq13d8ipb40qgufnc1hne50jfju4.apps.googleusercontent.com
+            client-secret: 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
+            redirect-uri: http://localhost:8081/login/oauth2/code/google
+            scope:
+              - email
+              - profile
+          github:
+            client-id: Ov23liBdOvELrcBbwzll
+            client-secret: d9fb8d68ed3fb148f8808c57c6b3a5fabf2cf932
+            redirect-uri: http://localhost:8081/login/oauth2/code/github
+            scope:
+              - read:user
+              - user:email
+
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: login
+
+app:
+  oauth2:
+    redirect-uri: http://localhost:5173/auth/oauth2/callback
 
 jwt:
   signerKey: ${SIGNER_KEY}

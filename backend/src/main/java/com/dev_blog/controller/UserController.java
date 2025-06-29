@@ -49,6 +49,14 @@ public class UserController {
                 .build();
     }
 
+    @Operation(summary = "Get Current User")
+    @GetMapping("/current")
+    public ApiResponse<?> getCurrUser() {
+        return ApiResponse.builder()
+                .data(userService.getCurrentUser())
+                .build();
+    }
+
     @Operation(summary = "Get User by Email")
     @GetMapping("/email/{email}")
     public ApiResponse<?> getByEmail(@PathVariable("email") String username) {

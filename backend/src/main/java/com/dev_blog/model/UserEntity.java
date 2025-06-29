@@ -6,6 +6,8 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.Set;
 
+import static jakarta.persistence.FetchType.EAGER;
+
 @Entity
 @Getter
 @Setter
@@ -38,7 +40,9 @@ public class UserEntity {
     String avatarUrl;
     @Column(name = "is_blocked")
     Boolean isBlocked = false;
-    @ElementCollection
+    @Column(name = "social_login")
+    Boolean socialLogin = false;
+    @ElementCollection(fetch = EAGER)
     @Column(name = "role")
     Set<String> roles;
 }

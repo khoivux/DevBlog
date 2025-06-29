@@ -10,6 +10,7 @@ import com.dev_blog.dto.response.UserResponse;
 public interface UserService {
     UserResponse updateProfile(UserUpdateRequest request);
     UserResponse findByUsername(String username);
+    UserResponse getCurrentUser();
     UserResponse findByEmail(String email);
     PageResponse<UserResponse> getList(SearchRequest searchRequest, int page, int size);
     String changePassword(ChangePasswordRequest request);

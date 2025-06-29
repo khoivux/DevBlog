@@ -49,7 +49,7 @@ public class AuthController {
 
     @Operation(summary = "Refresh Token")
     @PostMapping("/refresh")
-    public ApiResponse<AuthResponse> introspect(@RequestBody RefreshRequest requestDTO) {
+    public ApiResponse<AuthResponse> refreshToken(@RequestBody RefreshRequest requestDTO) {
         return ApiResponse.<AuthResponse>builder()
                 .data(authService.refresh(requestDTO.getToken()))
                 .build();

@@ -1,5 +1,7 @@
 package com.dev_blog.security;
 
+import com.dev_blog.security.handler.AuthenticationSuccessHandler;
+import com.dev_blog.security.oauth2.CustomOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +24,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final CustomOauth2UserService customOauth2UserService;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
     @Lazy
     private CustomJwtDecoder customJwtDecoder;
 
@@ -50,8 +54,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS_GET).permitAll()
                         .anyRequest().authenticated()
                 )
-                .cors(Customizer.withDefaults());
-        // Cấu hình OAuth2 xử lý yêu cầu có JWT
+                .cors(Customizer.withDefaults())
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOauth2UserService) // Inject UserService
+                        )
+                        .successHandler(authenticationSuccessHandler) // Inject SuccessHandler
+                );
+
         httpSecurity.oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)

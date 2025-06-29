@@ -3,12 +3,14 @@ package com.dev_blog.util;
 
 import com.dev_blog.dto.request.RegisterRequest;
 import com.dev_blog.dto.request.UserUpdateRequest;
-import com.dev_blog.model.UserEntity;
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
+import com.dev_blog.model.UserEntity;
 import com.dev_blog.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.UUID;
 
 @Component
 public class ValidUserUtil {
@@ -34,5 +36,13 @@ public class ValidUserUtil {
         } else if (!request.getPhone().equals(user.getPhone()) && userRepository.existsByPhone(request.getPhone())) {
             throw new AppException(ErrorCode.PHONENUMBER_EXISTED);
         }
+    }
+    public static String generateUsername(String email) {
+        String base = email.split("@")[0]; // a123
+        String username = base;
+        while (userRepository.existsByUsername(username)) {
+            username = base + "_" + UUID.randomUUID().toString().substring(0, 4);;
+        }
+        return username;
     }
 }

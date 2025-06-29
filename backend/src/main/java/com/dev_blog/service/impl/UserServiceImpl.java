@@ -82,6 +82,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponse getCurrentUser() {
+        return userMapper.toResponseDTO(SecurityUtil.getCurrUser());
+    }
+
+    @Override
     public UserResponse findByEmail(String email) {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
