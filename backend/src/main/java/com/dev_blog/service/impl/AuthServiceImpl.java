@@ -107,7 +107,6 @@ public class AuthServiceImpl implements AuthService {
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         redisTokenService.save(RedisToken.builder().id(user.getUsername()).accessToken(accessToken).refreshToken(refreshToken).build());
-
         return AuthResponse.builder()
                 .authenticated(true)
                 .accessToken(accessToken)

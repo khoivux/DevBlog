@@ -2,9 +2,11 @@ package com.dev_blog.security.handler;
 
 import com.dev_blog.enums.ErrorCode;
 import com.dev_blog.exception.custom.AppException;
+import com.dev_blog.model.RedisToken;
 import com.dev_blog.model.UserEntity;
 import com.dev_blog.repository.UserRepository;
 import com.dev_blog.service.JwtService;
+import com.dev_blog.service.RedisTokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,6 +25,7 @@ import java.io.IOException;
 public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RedisTokenService redisTokenService;
 
     @Value("${app.oauth2.redirect-uri}")
     private String redirectUri;
@@ -37,10 +40,15 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         String email = oauth2User.getAttribute("email");
         UserEntity user = userRepository.findByEmail(email).orElseThrow(
                 () -> new AppException(ErrorCode.EMAIL_NOT_EXISTED));
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+        redisTokenService.save(RedisToken.builder().id(user.getUsername()).accessToken(accessToken).refreshToken(refreshToken).build());
+
         String targetUrl = UriComponentsBuilder
                 .fromUriString(redirectUri)
-                .queryParam("accessToken", jwtService.generateAccessToken(user))
-                .queryParam("refreshToken", jwtService.generateRefreshToken(user))
+                .queryParam("accessToken", accessToken)
+                .queryParam("refreshToken", refreshToken)
                 .build().toUriString();
         clearAuthenticationAttributes(request);
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
