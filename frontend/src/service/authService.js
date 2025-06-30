@@ -6,9 +6,9 @@ const API_URL = "http://localhost:8081/api/v1/auth";
 export const login = async (username, password) => {
     try {
       const response = await axios.post(`${API_URL}/login`, { input:username, password });
-      const token = response.data.data.token;
+      const token = response.data.data.accessToken;
       if(token) {
-        localStorage.setItem("JWToken", token);
+        localStorage.setItem("access_token", token);
       }
       return response.data.data; // Trả về { token, authenticated }
     } catch (error) {
@@ -37,7 +37,7 @@ export const register = async (formData) => {
 
 export const logout = async () => {
   try {
-    const token = localStorage.getItem("JWToken");
+    const token = localStorage.getItem("access_token");
     if (!token) throw new Error("Chưa có token!");
 
     const response = await axios.post(

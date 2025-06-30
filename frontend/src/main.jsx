@@ -15,6 +15,7 @@ import RegisterPage from "./routes/RegisterPage.jsx";
 import AdminDashboard from './routes/AdminDashboard.jsx';
 import AdminLayout from './layouts/AdminLayout.jsx';
 import ForgotPasswordPage from './routes/ForgotPasswordPage.jsx';
+import OauthCallback from './routes/OauthCallback.jsx';
 
 const router = createBrowserRouter([
 
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       { path: "/admin", element: <AdminDashboard /> },
     ],
   },
+  {
+    path: "/auth/oauth2/callback",
+    element: <OauthCallback />,
+  }
 ]);
 
 createRoot(document.getElementById('root')).render(

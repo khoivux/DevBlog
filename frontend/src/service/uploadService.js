@@ -8,7 +8,7 @@ export const uploadFile = async (file) => {
     }
 
     // Lấy token từ localStorage hoặc context
-    const token = localStorage.getItem("JWToken"); 
+    const token = localStorage.getItem("access_token"); 
     if (!token) throw new Error("Chưa có token!");
 
     const formData = new FormData();

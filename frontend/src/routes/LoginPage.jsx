@@ -53,6 +53,33 @@ const Login = () => {
             Đăng nhập
           </button>
         </form>
+      <div className="flex flex-col gap-2 mt-4">
+  <a
+    href="http://localhost:8081/oauth2/authorization/google"
+    className="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg bg-white text-gray-700 hover:bg-gray-100"
+  >
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"
+      alt="Google"
+      className="w-5 h-5"
+    />
+    Đăng nhập bằng Google
+  </a>
+
+  <a
+    href="http://localhost:8081/oauth2/authorization/github"
+    className="flex items-center justify-center gap-2 px-4 py-2 border rounded-lg bg-white text-gray-700 hover:bg-gray-100"
+  >
+    <img
+      src="https://cdn-icons-png.flaticon.com/512/25/25231.png"
+      alt="GitHub"
+      className="w-5 h-5"
+    />
+    Đăng nhập bằng GitHub
+  </a>
+</div>
+
+
         <div className="flex justify-between mt-4 text-base font-medium text-blue-500">
           <a href="/register" className="hover:underline">Đăng kí</a>
           <a href="/forgot-password" className="hover:underline">Quên mật khẩu</a>

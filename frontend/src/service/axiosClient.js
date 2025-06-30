@@ -8,7 +8,7 @@ const axiosClient = axios.create({
 });
 
 // Lấy Access Token từ localStorage
-const getAccessToken = () => localStorage.getItem("JWToken");
+const getAccessToken = () => localStorage.getItem("access_token");
 
 // Interceptor: Tự động thêm token vào header
 axiosClient.interceptors.request.use(
@@ -22,28 +22,46 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor: Tự động refresh token khi access token hết hạn
-// axiosClient.interceptors.response.use(
-//   (response) => response,
-//   async (error) => {
-//     if (error.response && error.response.status === 401) {
-//       try {
-//         // Gọi API refresh token
-//         const { data } = await axios.post("http://localhost:8080/api/auth/refresh", {}, { withCredentials: true });
+axiosClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-//         // Lưu Access Token mới
-//         localStorage.setItem("accessToken", data.token);
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // Đánh dấu tránh lặp vô hạn
 
-//         // Thử lại request ban đầu với token mới
-//         error.config.headers.Authorization = `Bearer ${data.token}`;
-//         return axiosClient(error.config);
-//       } catch (refreshError) {
-//         console.error("Refresh token failed", refreshError);
-//         window.location.href = "/login";
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+      try {
+        const refreshToken = localStorage.getItem("refresh_token"); 
+        if (!refreshToken) {
+          throw new Error("No refresh token found");
+        }
+
+        const { data } = await axios.post(
+          "http://localhost:8080/api/auth/refresh",
+          { token: refreshToken }, 
+          { withCredentials: true }
+        );
+        const newAccessToken = data.data.accessToken;
+        // Lưu access token mới
+        localStorage.setItem("access_token", newAccessToken);
+
+        // Gán token mới vào headers và gửi lại request cũ
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${newAccessToken}`,
+        };
+
+        return axiosClient(originalRequest);
+      } catch (refreshError) {
+        console.error("Refresh token failed", refreshError);
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default axiosClient;

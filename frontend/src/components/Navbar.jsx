@@ -28,7 +28,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {  
       await logout()
-      localStorage.removeItem("JWToken");
+      localStorage.removeItem("access_token");
       localStorage.removeItem("user") // Xóa token khỏi localStorage
       navigate("/login") // Chuyển hướng về trang đăng nhập
     } catch (error) {

@@ -22,6 +22,16 @@ export const getUser = async (username) => {
       throw new Error("Lỗi khi lấy thông tin user!");
     }
   };
+
+  export const getCurrentUser = async () => {
+    try {
+      const response = await axiosClient.get(`${API_URL}/current`);
+
+      return response.data.data;
+    } catch (error) {
+      throw new Error("Lỗi khi lấy thông tin user!");
+    }
+  };
   
 
   export const getFollowers = async (
