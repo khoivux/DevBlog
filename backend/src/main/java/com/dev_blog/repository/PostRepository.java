@@ -16,12 +16,12 @@ import java.time.Instant;
 public interface PostRepository extends JpaRepository<PostEntity, Long> {
     Page<PostEntity> findAllByAuthorId(Long authorId, Pageable pageable);
     @Query(value = """
-    SELECT * FROM post p
-    WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))
-    OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')) )
-    AND (:categoryId IS NULL OR p.category_id = :categoryId)
-    AND (:status IS NULL OR p.status = :status)
-    """, nativeQuery = true)
+        SELECT * FROM post p
+        WHERE (:query IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%'))
+        OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')) )
+        AND (:categoryId IS NULL OR p.category_id = :categoryId)
+        AND (:status IS NULL OR p.status = :status)
+        """, nativeQuery = true)
     Page<PostEntity> searchPosts(@Param("query") String query,
                                  @Param("status") String status,
                                  @Param("categoryId") Long categoryId,

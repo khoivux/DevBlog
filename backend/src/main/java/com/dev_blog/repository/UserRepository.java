@@ -32,19 +32,19 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
     List<Long> findModeratorIds();
 
     @Query("""
-    SELECT u AS user, COUNT(p) AS postCount
-    FROM UserEntity u
-    LEFT JOIN PostEntity p ON p.author.id = u.id
-        AND (:startDate IS NULL OR p.createdTime >= :startDate)
-        AND (:endDate IS NULL OR p.createdTime <= :endDate)
-    WHERE (:keyword IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))
-        OR LOWER(u.displayName) LIKE LOWER(CONCAT('%', :keyword, '%')))
-    GROUP BY u
-    ORDER BY 
-        CASE WHEN :sortDir = 'desc' THEN COUNT(p) END DESC,
-        CASE WHEN :sortDir = 'asc' THEN COUNT(p) END ASC,
-        u.id ASC
-""")
+        SELECT u AS user, COUNT(p) AS postCount
+        FROM UserEntity u
+        LEFT JOIN PostEntity p ON p.author.id = u.id
+            AND (:startDate IS NULL OR p.createdTime >= :startDate)
+            AND (:endDate IS NULL OR p.createdTime <= :endDate)
+        WHERE (:keyword IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(u.displayName) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        GROUP BY u
+        ORDER BY 
+            CASE WHEN :sortDir = 'desc' THEN COUNT(p) END DESC,
+            CASE WHEN :sortDir = 'asc' THEN COUNT(p) END ASC,
+            u.id ASC
+    """)
     Page<UserPostCount> findUsersWithPostCount(
             @Param("keyword") String keyword,
             @Param("startDate") Instant startDate,
