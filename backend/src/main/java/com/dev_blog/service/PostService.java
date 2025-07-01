@@ -10,7 +10,6 @@ import com.dev_blog.enums.Status;
 import com.dev_blog.enums.VoteType;
 
 public interface PostService {
-
     PostResponse createPost(PostCreateRequest postRequest);
     PostResponse editPost(PostRequest postRequest);
     PostResponse getSinglePost(Long postId);
@@ -19,10 +18,7 @@ public interface PostService {
     String handlePost(Long postId, Status status, String message);
     String votePost(Long postId, VoteType voteType);
     PageResponse<PostResponse> getList(SearchRequest request, int page, int size);
-
     void increaseView(Long postId);
-
     String checkVote(Long postId);
-
     boolean isAuthor(Long postId);
 }

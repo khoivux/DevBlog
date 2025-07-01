@@ -120,6 +120,7 @@ public class AuthServiceImpl implements AuthService {
         if(token == null || token.isEmpty() || !jwtService.verifyToken(token)) {
             throw new InvalidDataException("Token không hợp lệ");
         }
+
         String userName = SecurityUtil.getCurrUser().getUsername();
         redisTokenService.delete(userName);
         return "Đăng xuất thành công!";
@@ -130,12 +131,15 @@ public class AuthServiceImpl implements AuthService {
         if(refreshToken == null || refreshToken.isEmpty() || !jwtService.verifyToken(refreshToken)) {
             throw new InvalidDataException("Token không hợp lệ");
         }
+
         Long userId = Long.parseLong(jwtService.extractUserId(refreshToken));
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(()-> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         String accessToken = jwtService.generateAccessToken(user);
         RedisToken redisToken = redisTokenService.getById(user.getUsername());
         redisTokenService.save(RedisToken.builder().id(user.getUsername()).accessToken(accessToken).refreshToken(refreshToken).build());
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

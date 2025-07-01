@@ -158,8 +158,10 @@ public class UserServiceImpl implements UserService {
     public String blockOrActive(String username, Boolean blocked) {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
         user.setIsBlocked(blocked);
         userRepository.save(user);
+
         if(Boolean.TRUE.equals(blocked))
             return "Khóa tài khoản @" + user.getUsername() + " thành công!";
         return "Mở khóa tài khoản @" + user.getUsername() + " thành công";

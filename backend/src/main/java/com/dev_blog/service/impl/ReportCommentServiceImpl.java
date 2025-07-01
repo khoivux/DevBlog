@@ -33,16 +33,6 @@ public class ReportCommentServiceImpl implements ReportCommentService {
     private final ReportCommentMapper reportCommentMapper;
 
     @Override
-    @PreAuthorize("hasAnyRole('ADMIN', 'MOD')")
-    public String deleteReport(Long reportId) {
-        ReportCommentEntity report = reportCommentRepository.findById(reportId)
-                .orElseThrow(() -> new AppException(ErrorCode.REPORT_NOT_EXISTED));
-
-        reportCommentRepository.delete(report);
-        return "Đã xóa báo cáo";
-    }
-
-    @Override
     public PageResponse<ReportCommentDTO> getList(String sortBy, int page, int size) {
         Map<String, Sort> sortOptions = Map.of(
                 "latest", Sort.by("createdTime").descending(),

@@ -32,7 +32,7 @@ public class UploadServiceImpl implements UploadService {
 
     private String extractPublicId(String imageUrl) {
         String[] parts = imageUrl.split("/");
-        String fileName = parts[parts.length - 1]; // Lấy phần cuối cùng của URL
-        return fileName.split("\\.")[0]; // Loại bỏ phần mở rộng (.png, .jpg, ...)
+        String fileName = parts[parts.length - 1];
+        return fileName.split("\\.")[0];
     }
 }

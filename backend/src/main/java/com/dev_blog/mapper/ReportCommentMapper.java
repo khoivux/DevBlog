@@ -12,7 +12,5 @@ public interface ReportCommentMapper {
     @Mapping(target = "status", expression = "java(entity.getStatus().name().toLowerCase())")
     @Mapping(target = "authorName", expression = "java(entity.getAuthor().getUsername())")
     ReportCommentDTO toResponse(ReportCommentEntity entity);
-
-
     List<ReportCommentDTO> toResponseList(List<ReportCommentEntity> content);
 }

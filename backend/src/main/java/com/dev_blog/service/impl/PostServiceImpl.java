@@ -133,10 +133,12 @@ public class PostServiceImpl implements PostService {
         post.setTitle(postRequest.getTitle());
         post.setModifiedTime(Instant.now());
         post.setDescription(postRequest.getDescription());
+
         if(postRequest.getThumbnailUrl() != null)
             post.setThumbnailUrl(postRequest.getThumbnailUrl());
         if(SecurityUtil.isNormalUser())
             post.setStatus(Status.PENDING);
+
         PostResponse postResponse = postMapper.toResponse(postRepository.save(post));
         postResponse.setCreatedTime(dateTimeUtil.format(post.getCreatedTime()));
         postResponse.setModifiedTime(dateTimeUtil.format(post.getModifiedTime()));
@@ -272,7 +274,7 @@ public class PostServiceImpl implements PostService {
 
         String username = SecurityUtil.getCurrUser().getUsername();
         boolean isAdmin = SecurityUtil.isMod();
-        // Chỉ là adin hoặc bài viết được duyệt hoặc chủ bài viết mới nhìn thấy
+        // Chỉ là admin hoặc bài viết được duyệt hoặc chủ bài viết mới nhìn thấy
         return pageData.getContent().stream()
                 .filter(post -> isAdmin || post.getStatus() == (Status.APPROVED) ||
                         post.getAuthor().getUsername().equals(username)

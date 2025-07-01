@@ -80,6 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
         if(categoryRepository.existsByName(request.getName()) && !request.getName().equals(category.getName())) {
             throw new AppException(ErrorCode.CATEGORY_EXISTED);
         }
+
         category.setName(request.getName());
         return categoryMapper.toDTO(categoryRepository.save(category));
     }

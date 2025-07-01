@@ -130,6 +130,7 @@ public class CommentServiceImpl implements CommentService {
     public String deleteComment(Long commentId) {
         CommentEntity comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_EXISTED));
+
         commentRepository.deleteAllByParentId(commentId);
         commentRepository.delete(comment);
         return "Xóa bình luận thành công";

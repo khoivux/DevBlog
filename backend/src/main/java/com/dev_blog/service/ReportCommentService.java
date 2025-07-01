@@ -6,8 +6,6 @@ import com.dev_blog.enums.Status;
 
 public interface ReportCommentService {
     PageResponse<ReportCommentDTO> getList(String sortBy, int page, int size);
-
     ReportCommentDTO createReport(ReportCommentDTO request);
     String handleReport(Long reportId, Status status);
-    String deleteReport(Long reportId);
 }
