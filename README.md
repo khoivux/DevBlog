@@ -12,10 +12,10 @@ DevBlog is a blog app using Java Spring Boot for the backend and ReactJS for the
 - Redis caching, Cloudinary upload
 
 ## 3. Technologies
-- **Backend:** Spring Boot, Spring Security, Spring Data JPA
+- **Backend:** Maven, Spring Boot, Spring Security, Spring Data JPA, Websocket
 - **Frontend:** ReactJS, TailwindCSS
 - **Database:** MySQL, Redis
-- **Authentication**: JWT, Oauth2 with Google/Github
-- **Storage**: Cloudinary for storing images
-- **API Docs**: Swagger
+- **Authentication:** JWT, Oauth2 with Google/Github
+- **Storage:** Cloudinary for storing images
+- **API Docs:** Swagger
 
